@@ -1,6 +1,6 @@
-/* Offline shell for the iOS/Android "Add to Home Screen" install. 1f14c25b31 is a content hash stamped by tools/build.js,
+/* Offline shell for the iOS/Android "Add to Home Screen" install. 2a4f84d2c4 is a content hash stamped by tools/build.js,
    so any change to the app ships a new cache and the old one is deleted. User data lives in localStorage and is never touched here. */
-var CACHE = "bcosts-1f14c25b31";
+var CACHE = "bcosts-2a4f84d2c4";
 var SHELL = ["./", "index.html", "manifest.webmanifest", "icons/apple-touch-icon.png", "icons/icon-192.png", "icons/icon-512.png", "icons/icon-maskable-512.png"];
 
 self.addEventListener("install", function (e) {
