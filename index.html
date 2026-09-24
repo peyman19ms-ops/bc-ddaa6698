@@ -1764,9 +1764,17 @@ function captureReport(){
   /* fonts.ready settles once the embedded faces are usable; without the wait the
      first capture after a cold start would silently draw in a fallback face */
   var ready=(document.fonts&&document.fonts.ready)?document.fonts.ready:Promise.resolve();
-  return ready.catch(function(){}).then(function(){ return drawReportCanvas(); });
+  return ready.catch(function(){}).then(loadSigImage).then(drawReportCanvas);
 }
-function drawReportCanvas(){
+/* the signature is a data URL, but canvas can only draw it once it is decoded;
+   a broken one just leaves the space empty rather than failing the whole image */
+function loadSigImage(){
+  return new Promise(function(res){
+    if(!S.building.sig){ res(null); return; }
+    var im=new Image(); im.onload=function(){res(im);}; im.onerror=function(){res(null);}; im.src=S.building.sig;
+  });
+}
+function drawReportCanvas(sigImg){
   return new Promise(function(resolve,reject){
     try{
       var owe=settle(S);
@@ -1778,7 +1786,8 @@ function drawReportCanvas(){
       S.units.forEach(function(u){ line.push({t:"u",u:u,o:owe[u.id]||{period:0,owed:0}}); });
       line.push({t:"tot"});
       var extra=(S.building.dueDate?1:0)+(S.building.payTo?1:0);
-      var H=PAD*2 + 92 /*header*/ + 22 /*col header*/ + rowH*(line.length) + 24*extra + 30 /*footer*/;
+      var SIGH=sigImg?64:0;
+      var H=PAD*2 + 92 /*header*/ + 22 /*col header*/ + rowH*(line.length) + 24*extra + 30 /*footer*/ + SIGH;
       var cv=el("canvas"); cv.width=W*sc; cv.height=H*sc;
       var x=cv.getContext("2d"); x.scale(sc,sc);
       x.textBaseline="middle";
@@ -1821,9 +1830,14 @@ function drawReportCanvas(){
       if(S.building.dueDate){ x.fillText(T("مهلت پرداخت: {0}",S.building.dueDate), A, y); y+=rowH*0.7; }
       if(S.building.payTo){ x.fillText(T("مقصد واریز: {0}",S.building.payTo), A, y); y+=rowH*0.7; }
       // footer
-      y=H-PAD+2;
+      y=H-PAD+2-SIGH;
       x.fillStyle="#6f6f68"; x.font="12px "+CANVAS_FONT; x.textAlign=AL;
       x.fillText(T("مدیریت ساختمان: {0}",S.building.manager||"—"), A, y);
+      if(sigImg){   /* under the manager's name, on the reading-start side, fit into 180×52 */
+        var k=Math.min(180/sigImg.width,52/sigImg.height,1), sw=sigImg.width*k, sh=sigImg.height*k;
+        x.drawImage(sigImg, rtl?A-sw:A, y+10, sw, sh);
+      }
+      y=H-PAD+2;
       x.textAlign=BL; x.fillStyle="#8a8a82"; x.font="10px "+CANVAS_FONT;
       x.fillText(T("طراحی و توسعه — پیمان آرین"), B, y);
       cv.toBlob(function(b){ b?resolve(b):reject(new Error("toBlob")); },"image/png");
