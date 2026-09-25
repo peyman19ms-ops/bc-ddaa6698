@@ -876,12 +876,9 @@ var EN={
   "یک گزارش از فایل افزوده شد":"One report added from the file","فایل معتبر نیست":"Not a valid file",
   "این فایل پشتیبانِ «تقسیم هزینه ساختمان» نیست — نه گزارشی در آن هست و نه لیست گزارش‌ها.":"This is not a Building Cost Splitter backup — it has neither a report nor a list of reports."
 };
-var $=function(s){return document.querySelector(s);};
-function el(t,a,k){a=a||{};k=(k==null)?[]:k;var n=document.createElement(t);
-  for(var x in a){if(x==="text")n.textContent=a[x];else n.setAttribute(x,a[x]);}
-  (Array.isArray(k)?k:[k]).forEach(function(c){if(c!=null)n.append(c);});return n;}
-function uid(){return Math.random().toString(36).slice(2,9);}
-function clone(o){return JSON.parse(JSON.stringify(o));}
+/* ---------- locale: calendar, numbers and money ----------
+   Pure functions + data; no DOM. Everything that turns a month index or an amount
+   into text for the active report's calendar/currency and the UI language lives here. */
 /* ---------- calendar: per report (building.cal) ----------
    "j" = Jalali, "g" = Gregorian. The split only sees month indices, so the calendar is
    just naming + the year list; new reports follow the UI language. */
@@ -944,6 +941,31 @@ function money(n){
 function fa(n){try{return Number(n).toLocaleString(NUMLOC);}catch(e){return String(n);}}
 function faNum(n){return LANG==="en"?String(n):String(n).replace(/[0-9]/g,function(d){return FA[+d];});}
 
+/* re-format what is being typed: group the whole part, keep a half-typed decimal part
+   ("12." / "12.5") as typed — formatting it as a finished amount would eat the dot */
+function typedMoney(v,dec){
+  v=String(v); var neg=/^\s*[-−]/.test(v);
+  var s=v.replace(/[۰-۹]/g,function(d){return FA.indexOf(d);}).replace(/٫/g,".").replace(/[^\d.]/g,"");
+  var dot=s.indexOf("."), ip=dot<0?s:s.slice(0,dot), fp=(dot<0||!dec)?null:s.slice(dot+1).replace(/\./g,"").slice(0,dec);
+  ip=ip.replace(/^0+(?=\d)/,"");
+  if(!ip&&fp==null)return neg?"−":"";
+  var out=ip?Number(ip).toLocaleString(NUMLOC):(LANG==="en"?"0":"۰");
+  if(fp!=null) out+=(LANG==="en"?".":"٫")+faNum(fp);
+  return (neg?"−":"")+out;
+}
+function currentJYear(){
+  try{var s=new Intl.DateTimeFormat("en-u-ca-persian",{year:"numeric"}).format(new Date());
+      var y=parseInt(String(s).replace(/[^\d]/g,""),10);if(y>1000&&y<2000)return y;}catch(e){}
+  try{var t=new Date().toLocaleDateString("fa-IR").replace(/[۰-۹]/g,function(d){return FA.indexOf(d);});
+      var y2=parseInt(t.split("/")[0],10);if(y2>1000&&y2<2000)return y2;}catch(e){}
+  return 1404;
+}
+var $=function(s){return document.querySelector(s);};
+function el(t,a,k){a=a||{};k=(k==null)?[]:k;var n=document.createElement(t);
+  for(var x in a){if(x==="text")n.textContent=a[x];else n.setAttribute(x,a[x]);}
+  (Array.isArray(k)?k:[k]).forEach(function(c){if(c!=null)n.append(c);});return n;}
+function uid(){return Math.random().toString(36).slice(2,9);}
+function clone(o){return JSON.parse(JSON.stringify(o));}
 /* clipboard with fallbacks — navigator.clipboard is missing/blocked in many WebView & file:// contexts */
 function copyViaTextarea(str){
   try{
@@ -1005,18 +1027,6 @@ function saveBlob(blob,filename,onDone){
   }catch(e){ onDone(false); }
 }
 
-/* re-format what is being typed: group the whole part, keep a half-typed decimal part
-   ("12." / "12.5") as typed — formatting it as a finished amount would eat the dot */
-function typedMoney(v,dec){
-  v=String(v); var neg=/^\s*[-−]/.test(v);
-  var s=v.replace(/[۰-۹]/g,function(d){return FA.indexOf(d);}).replace(/٫/g,".").replace(/[^\d.]/g,"");
-  var dot=s.indexOf("."), ip=dot<0?s:s.slice(0,dot), fp=(dot<0||!dec)?null:s.slice(dot+1).replace(/\./g,"").slice(0,dec);
-  ip=ip.replace(/^0+(?=\d)/,"");
-  if(!ip&&fp==null)return neg?"−":"";
-  var out=ip?Number(ip).toLocaleString(NUMLOC):(LANG==="en"?"0":"۰");
-  if(fp!=null) out+=(LANG==="en"?".":"٫")+faNum(fp);
-  return (neg?"−":"")+out;
-}
 /* money input: groups 3-by-3 live AND keeps the caret where you were editing */
 /* decOverride: a percent field keeps its own decimals (12.5٪) whatever the currency */
 function moneyInput(ph,initial,onValue,decOverride){
@@ -1040,15 +1050,6 @@ var METHODS={
   manual:T("سهم دستی هر واحد")
 };
 var BASE={none:T("بدون سهم پایه"),pct:T("درصدی از کل قبض"),fixed:T("مبلغ ثابت (کل)")};
-
-function currentJYear(){
-  try{var s=new Intl.DateTimeFormat("en-u-ca-persian",{year:"numeric"}).format(new Date());
-      var y=parseInt(String(s).replace(/[^\d]/g,""),10);if(y>1000&&y<2000)return y;}catch(e){}
-  try{var t=new Date().toLocaleDateString("fa-IR").replace(/[۰-۹]/g,function(d){return FA.indexOf(d);});
-      var y2=parseInt(t.split("/")[0],10);if(y2>1000&&y2<2000)return y2;}catch(e){}
-  return 1404;
-}
-
 /* ---------- store: many named reports ---------- */
 var LS="bcosts_store", store, S;   /* S === active report */
 
@@ -2178,17 +2179,6 @@ function redrawAll(){
   setTimeout(positionSeg,60);          /* backstop for late layout / webfont metrics */
 }
 
-/* currency picker: the UI language's usual currencies first; rounding steps depend on it */
-function fillCurOpts(){
-  var sel=$("#bCur"); sel.innerHTML="";
-  (LANG==="en"?CUR_ORDER_EN:CUR_ORDER_FA).forEach(function(k){ sel.append(el("option",{value:k,text:LANG==="en"?CURS[k].enL:CURS[k].faL})); });
-}
-function fillRoundOpts(){
-  var sel=$("#bRound"); sel.innerHTML="";
-  curInfo().rounds.forEach(function(v,i){ sel.append(el("option",{value:String(v),text:i?money(v):T("بدون گرد کردن")})); });
-  sel.value=String(S.building.roundTo);
-}
-
 /* ---------- wire ---------- */
 initStore();
 translateDom(document.body);
@@ -2399,23 +2389,6 @@ var RECENT_FIELD={bName:"building",bManager:"manager",bPayTo:"payTo",bDue:"due"}
   });
   elm.addEventListener("change",function(){ remember(RECENT_FIELD[id],elm.value); fillAllDatalists(); });
 });
-$("#bRound").addEventListener("change",function(){S.building.roundTo=parseNum(this.value);saveStore();render();});
-/* currency and calendar belong to the report; both re-render everything that shows money or months */
-$("#bCur").addEventListener("change",function(){
-  var b=S.building; b.cur=this.value;
-  if(CURS[b.cur].rounds.indexOf(b.roundTo)<0)b.roundTo=CURS[b.cur].rounds[0];
-  saveStore(); redrawAll();
-});
-$("#bCal").addEventListener("change",function(){
-  var to=this.value==="g"?"g":"j", b=S.building; if(to===cal())return;
-  /* re-key every month so residence / coverage ticks stay on the same real months */
-  var mapKey=function(mp){ var o={}; Object.keys(mp||{}).forEach(function(k){ var p=k.split("-"), c=convYM(+p[0],+p[1],to); o[c.y+"-"+c.m]=mp[k]; }); return o; };
-  var f=convYM(b.range.fromY,b.range.fromM,to), t=convYM(b.range.toY,b.range.toM,to);
-  b.range={fromM:f.m,fromY:f.y,toM:t.m,toY:t.y}; b.cal=to;
-  S.units.forEach(function(u){u.present=mapKey(u.present);});
-  S.costs.forEach(function(c){c.cover=mapKey(c.cover);});
-  saveStore(); redrawAll();
-});
 $("#pClear").addEventListener("click",function(e){
   e.preventDefault(); var y=currentYear();
   S.building.range={fromM:0,fromY:y,toM:11,toY:y}; commitRange();
@@ -2534,6 +2507,33 @@ redrawAll();
 function markOpts(host,attr,val){
   Array.prototype.forEach.call(host.querySelectorAll("button"),function(b){ b.setAttribute("aria-pressed",b.getAttribute(attr)===val?"true":"false"); });
 }
+/* currency picker: the UI language's usual currencies first; rounding steps depend on it */
+function fillCurOpts(){
+  var sel=$("#bCur"); sel.innerHTML="";
+  (LANG==="en"?CUR_ORDER_EN:CUR_ORDER_FA).forEach(function(k){ sel.append(el("option",{value:k,text:LANG==="en"?CURS[k].enL:CURS[k].faL})); });
+}
+function fillRoundOpts(){
+  var sel=$("#bRound"); sel.innerHTML="";
+  curInfo().rounds.forEach(function(v,i){ sel.append(el("option",{value:String(v),text:i?money(v):T("بدون گرد کردن")})); });
+  sel.value=String(S.building.roundTo);
+}
+$("#bRound").addEventListener("change",function(){S.building.roundTo=parseNum(this.value);saveStore();render();});
+/* currency and calendar belong to the report; both re-render everything that shows money or months */
+$("#bCur").addEventListener("change",function(){
+  var b=S.building; b.cur=this.value;
+  if(CURS[b.cur].rounds.indexOf(b.roundTo)<0)b.roundTo=CURS[b.cur].rounds[0];
+  saveStore(); redrawAll();
+});
+$("#bCal").addEventListener("change",function(){
+  var to=this.value==="g"?"g":"j", b=S.building; if(to===cal())return;
+  /* re-key every month so residence / coverage ticks stay on the same real months */
+  var mapKey=function(mp){ var o={}; Object.keys(mp||{}).forEach(function(k){ var p=k.split("-"), c=convYM(+p[0],+p[1],to); o[c.y+"-"+c.m]=mp[k]; }); return o; };
+  var f=convYM(b.range.fromY,b.range.fromM,to), t=convYM(b.range.toY,b.range.toM,to);
+  b.range={fromM:f.m,fromY:f.y,toM:t.m,toY:t.y}; b.cal=to;
+  S.units.forEach(function(u){u.present=mapKey(u.present);});
+  S.costs.forEach(function(c){c.cover=mapKey(c.cover);});
+  saveStore(); redrawAll();
+});
 var setReturnFocus=null;
 function openSettings(){
   closeMenus(); setReturnFocus=document.activeElement;
