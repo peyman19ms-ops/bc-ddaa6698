@@ -32,7 +32,6 @@
     --elev-hi:0 2px 6px rgba(0,0,0,.5), 0 14px 30px rgba(0,0,0,.5), 0 44px 84px -18px rgba(0,0,0,.82);
     --elev-sm:0 1px 3px rgba(0,0,0,.35);
     --glow:0 0 0 3px rgba(102,198,210,.28), 0 0 22px -4px rgba(102,198,210,.4);
-    --amb:none;
     /* neumorphism (Soft UI) — dark-grey variant */
     --nm-lt:#2c3038; --nm-dk:#141619;
     --nm-out:6px 6px 14px var(--nm-dk),-6px -6px 14px var(--nm-lt);
@@ -40,8 +39,7 @@
     --nm-in:inset 5px 5px 11px var(--nm-dk),inset -5px -5px 11px var(--nm-lt);
     --nm-in-sm:inset 2px 2px 6px var(--nm-dk),inset -2px -2px 6px var(--nm-lt);
   }
-  :root[data-theme="light"],
-  :root.theme-light{
+  :root[data-theme="light"]{
     --bg:#e7eaef; --panel:#e7eaef; --panel2:#eef1f5; --rule:#d5dae2;
     --ink:#1a2126; --muted:#63707a; --accent:#0e7c86; --accent-deep:#0a5f67; --accent2:#93dbe3;
     --field:#e7eaef; --field-br:#d7dee2; --money-bg:#dcefe6; --money-ink:#2f8f5b;
@@ -52,7 +50,6 @@
     --elev-hi:0 2px 6px rgba(20,35,45,.1), 0 14px 30px -6px rgba(20,35,45,.16), 0 40px 76px -18px rgba(20,35,45,.28);
     --elev-sm:0 1px 3px rgba(20,35,45,.08);
     --glow:0 0 0 3px rgba(14,124,134,.2), 0 8px 24px -6px rgba(14,124,134,.26);
-    --amb:none;
       /* neumorphism (Soft UI) — light variant, matches the reference */
       --nm-lt:#ffffff; --nm-dk:#c5cad3;
       --nm-out:6px 6px 14px var(--nm-dk),-6px -6px 14px var(--nm-lt);
@@ -61,7 +58,7 @@
       --nm-in-sm:inset 2px 2px 6px var(--nm-dk),inset -2px -2px 6px var(--nm-lt);
   }
   @media(prefers-color-scheme:light){
-    :root:not([data-theme="dark"]):not(.theme-dark){
+    :root:not([data-theme="dark"]){
       --bg:#eef1f3; --panel:#ffffff; --panel2:#f4f6f8; --rule:#e2e7ea;
       --ink:#1a2126; --muted:#63707a; --accent:#0e7c86; --accent-deep:#0a5f67; --accent2:#93dbe3;
       --field:#ffffff; --field-br:#d7dee2; --money-bg:#e6f5ee; --money-ink:#2f8f5b;
@@ -71,7 +68,6 @@
       --elev-hi:0 2px 6px rgba(20,35,45,.1), 0 14px 30px -6px rgba(20,35,45,.16), 0 40px 76px -18px rgba(20,35,45,.28);
       --elev-sm:0 1px 3px rgba(20,35,45,.08);
       --glow:0 0 0 3px rgba(14,124,134,.2), 0 8px 24px -6px rgba(14,124,134,.26);
-      --amb:none;
       /* neumorphism (Soft UI) — light variant, matches the reference */
       --nm-lt:#ffffff; --nm-dk:#c5cad3;
       --nm-out:6px 6px 14px var(--nm-dk),-6px -6px 14px var(--nm-lt);
@@ -84,30 +80,26 @@
   html,body{margin:0;padding:0}
   body{background:var(--bg);color:var(--ink);font-family:Vazirmatn,"Segoe UI","Noto Sans Arabic",Tahoma,Arial,sans-serif;font-size:14px;line-height:1.7;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;transition:background-color .25s cubic-bezier(.22,1,.36,1),color .25s cubic-bezier(.22,1,.36,1)}
   /* ambient glow on its own fixed compositor layer — no background-attachment:fixed (kills mobile scroll jank) */
-  body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:var(--amb);background-repeat:no-repeat}
   .wrap{max-width:1180px;margin:0 auto;padding:calc(22px + env(safe-area-inset-top,0px)) 16px calc(120px + env(safe-area-inset-bottom,0px))}
   h1{font-size:21px;font-weight:800;letter-spacing:-.02em;text-align:center;color:var(--ink);margin:0 0 4px}
-  h2{font-size:15px;font-weight:800;letter-spacing:-.01em;color:var(--ink);margin:0 0 14px;border-bottom:1px solid var(--rule);padding-bottom:10px}
-  section.block{background:var(--panel);border:0;border-radius:18px;padding:20px;margin-bottom:16px;box-shadow:var(--elev);transition:background-color .25s cubic-bezier(.22,1,.36,1),box-shadow .25s cubic-bezier(.22,1,.36,1)}
+  h2{font-size:15px;font-weight:800;letter-spacing:-.01em;color:var(--ink);margin:0 0 14px;}
+  section.block{border:0;padding:20px;margin-bottom:16px;}
   label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}
-  input,select{width:100%;font:inherit;color:var(--ink);background:var(--field);border:1px solid var(--field-br);border-radius:10px;padding:9px 11px;transition:border-color .15s,box-shadow .15s,background-color .22s,color .22s}
-  input:focus,select:focus{outline:none;border-color:var(--accent);box-shadow:var(--glow)}
-  input[type=checkbox]{width:18px;height:18px;accent-color:var(--accent);cursor:pointer;padding:0;margin:0}
+  input,select{width:100%;font:inherit;color:var(--ink);padding:9px 11px;}
+  input:focus,select:focus{border-color:var(--accent);}
+  input[type=checkbox]{accent-color:var(--accent);}
   .grid{display:grid;gap:12px}
   .g4{grid-template-columns:repeat(4,1fr)} .g3{grid-template-columns:repeat(3,1fr)} .g2{grid-template-columns:repeat(2,1fr)}
   @media(max-width:820px){.g4{grid-template-columns:repeat(2,1fr)}}
   @media(max-width:720px){.g3,.g2{grid-template-columns:1fr}}
-  .btn{font:inherit;cursor:pointer;border:1px solid transparent;background:var(--grad);color:var(--btn-ink);font-weight:700;border-radius:10px;padding:9px 17px;box-shadow:var(--elev-sm);transition:box-shadow .18s,transform .06s}
-  .btn:hover{box-shadow:var(--glow)}
-  .btn:active{transform:translateY(1px)}
-  .btn.ghost{background:var(--panel);color:var(--accent);border-color:var(--field-br)}
-  .btn.mini{padding:5px 11px;font-size:12px;font-weight:600;border-color:var(--field-br);background:var(--panel);color:var(--ink);box-shadow:var(--elev-sm)}
-  .btn.mini.del{color:var(--danger)}
+  .btn{font:inherit;cursor:pointer;font-weight:700;padding:9px 17px;}
+  .btn.ghost{border-color:var(--field-br)}
+  .btn.mini{padding:5px 11px;font-size:12px;font-weight:600;border-color:var(--field-br);}
   .rowbtns{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
-  .tblwrap{overflow-x:auto;border:0;border-radius:12px;box-shadow:var(--elev-sm)}
+  .tblwrap{overflow-x:auto;border:0;}
   table{width:100%;border-collapse:collapse;min-width:640px}
   th,td{padding:7px 9px;text-align:center;border-bottom:1px solid var(--rule);border-inline-start:1px solid var(--rule);font-size:12.5px;white-space:nowrap}
-  th{color:var(--muted);font-weight:700;background:var(--panel2)}
+  th{color:var(--muted);font-weight:700;}
   th.mtog{cursor:pointer;user-select:none} th.mtog:hover{color:var(--accent)}
   td:first-child,th:first-child{border-inline-start:none}
   td.unit{font-weight:700;text-align:start}
@@ -134,32 +126,20 @@
   .mchip.s-wi{--se:#3b82f6}   /* زمستان — آبی  */
 
   /* gentle colour puff on toggle — opacity/transform only */
-  .mchip .splash{position:absolute;inset:-7px;z-index:0;border-radius:var(--r);pointer-events:none;opacity:0;background:
-    radial-gradient(circle at 50% 50%, color-mix(in srgb,var(--se) 30%,transparent) 0%, transparent 62%),
-    radial-gradient(circle at 50% 0%, var(--se) 0 2.6px, transparent 3.6px),
-    radial-gradient(circle at 100% 30%, var(--se) 0 2.2px, transparent 3.2px),
-    radial-gradient(circle at 84% 96%, var(--se) 0 2.4px, transparent 3.4px),
-    radial-gradient(circle at 6% 84%, var(--se) 0 2px, transparent 3px),
-    radial-gradient(circle at 2% 36%, var(--se) 0 2.2px, transparent 3.2px)}
+  .mchip .splash{position:absolute;z-index:0;border-radius:var(--r);pointer-events:none;opacity:0;}
 
   /* the tile: same colour as the page, raised by dual soft shadows; presses IN when selected */
   .mchip .fill{position:absolute;inset:0;z-index:1;border-radius:var(--r);background:var(--bg);
-    box-shadow:5px 5px 11px var(--nm-dk), -5px -5px 11px var(--nm-lt);
-    transition:box-shadow .3s var(--ease),background-color .3s var(--ease),transform .16s var(--ease)}
+    box-shadow:5px 5px 11px var(--nm-dk), -5px -5px 11px var(--nm-lt);}
   .mchip[aria-pressed="true"] .fill{background:color-mix(in srgb,var(--se) 12%,var(--bg));
     box-shadow:inset 4px 4px 9px var(--nm-dk), inset -4px -4px 9px var(--nm-lt)}
   .mchip:active .fill{box-shadow:inset 3px 3px 7px var(--nm-dk), inset -3px -3px 7px var(--nm-lt)}
 
-  .mchip .lbl{position:relative;z-index:2;font-family:"Lalezar",Vazirmatn,"Noto Sans Arabic",sans-serif;font-weight:400;font-size:clamp(15px,4.6vw,21px);line-height:1;white-space:nowrap;color:color-mix(in srgb,var(--se) 64%,var(--ink));transform:translateY(1px);transition:color .24s var(--ease),transform .18s var(--ease)}
+  .mchip .lbl{position:relative;z-index:2;font-family:"Lalezar",Vazirmatn,"Noto Sans Arabic",sans-serif;font-weight:400;font-size:clamp(15px,4.6vw,21px);line-height:1;white-space:nowrap;color:color-mix(in srgb,var(--se) 64%,var(--ink));transform:translateY(1px);}
   /* Latin month names are longer than Persian ones ("September") — same display face, smaller */
   :root[lang="en"] .mchip .lbl{font-size:clamp(13px,3.9vw,17px);letter-spacing:.01em}
   .mchip[aria-pressed="true"] .lbl{color:var(--se);text-shadow:0 1px 1px var(--nm-lt),0 -1px 1px var(--nm-dk)}
 
-  .mchip.pop .fill{animation:mchipPop .44s var(--ease)}
-  .mchip.off .fill{animation:mchipOff .4s var(--ease)}
-  .mchip.pop .lbl,.mchip.off .lbl{animation:mchipLbl .4s var(--ease)}
-  .mchip.pop .splash{animation:mchipSplash .5s var(--ease)}
-  .mchip.off .splash{animation:mchipSplash .44s var(--ease)}
   @keyframes mchipPop{0%{transform:scale(.9)}55%{transform:scale(1.06)}100%{transform:scale(1)}}
   @keyframes mchipOff{0%{transform:scale(1)}40%{transform:scale(.93)}100%{transform:scale(1)}}
   @keyframes mchipLbl{0%{transform:scale(.72) translateY(1px)}55%{transform:scale(1.16) translateY(1px)}100%{transform:scale(1) translateY(1px)}}
@@ -170,7 +150,7 @@
   .tally b{color:var(--ink)} .tally .bad{color:var(--danger)} .tally .ok{color:var(--money-ink)}
   .hint{font-size:11.5px;color:var(--muted);margin-top:6px}
 
-  details.picker{background:var(--field);border:1px solid var(--field-br);border-radius:9px;padding:8px 10px}
+  details.picker{border-radius:9px;padding:8px 10px}
   details.picker summary{cursor:pointer;list-style:none;color:var(--ink)}
   details.picker summary::-webkit-details-marker{display:none}
   details.picker summary b{color:var(--accent)}
@@ -179,8 +159,8 @@
   .rsel select{width:auto;flex:1;min-width:0}
 
   /* row-residence modal */
-  #modal{position:fixed;inset:0;background:var(--scrim);display:none;align-items:center;justify-content:center;z-index:50}
-  #modal .card{background:var(--panel);border:0;border-radius:18px;padding:20px;max-width:440px;width:92%;box-shadow:var(--elev-hi)}
+  #modal{position:fixed;inset:0;background:var(--scrim);align-items:center;justify-content:center;z-index:50}
+  #modal .card{border:0;border-radius:18px;padding:20px;max-width:440px;width:92%;}
   #modal h3{margin:0 0 10px;font-size:14px;color:var(--ink);font-weight:800}
   /* askChoice rows + showTextForCopy box (the in-app prompt/confirm/alert) */
   #modal .chrow{display:flex;align-items:center;gap:10px;margin-top:10px;cursor:pointer;font-size:13px;color:var(--ink)}
@@ -188,7 +168,7 @@
   #modal textarea{width:100%;font:inherit;font-size:12.5px;line-height:1.7;color:var(--ink);background:var(--field);
     border:1px solid var(--field-br);border-radius:12px;padding:10px;resize:vertical}
 
-  .warnbar{background:var(--warn-bg);color:var(--warn-ink);border:1px solid color-mix(in srgb,var(--warn-ink) 35%,transparent);border-radius:12px;padding:10px 14px;margin:14px 0;font-size:12.5px}
+  .warnbar{color:var(--warn-ink);border-radius:12px;padding:10px 14px;margin:14px 0;font-size:12.5px}
   .warnbar b{display:block;margin-bottom:4px} .warnbar li{margin-bottom:2px}
 
   /* ---------- report: white sheet(s), what you see is what prints ---------- */
@@ -223,13 +203,13 @@
   .slip .items .li.sum{border-bottom:2px solid #0b5d5d;font-weight:700;margin-top:4px}
   .slip .items .li.due{font-size:16px;font-weight:700;color:#0b5d5d;border:none;margin-top:6px}
   .slipbtns{margin-top:8px;display:flex;gap:6px;flex-wrap:wrap}
-  #shareLinks a{font:inherit;text-decoration:none;border:1px solid var(--field-br);background:var(--field);color:var(--ink);border-radius:9px;padding:8px 14px;font-size:12.5px}
-  #toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:var(--toast-bg);color:#f2f6fb;border:0;border-radius:12px;padding:10px 17px;font-size:12.5px;z-index:60;opacity:0;transition:opacity .2s;pointer-events:none;max-width:90%;text-align:center;box-shadow:var(--elev-hi)}
+  #shareLinks a{font:inherit;text-decoration:none;border-radius:9px;padding:8px 14px;font-size:12.5px}
+  #toast{position:fixed;left:50%;bottom:26px;border:0;border-radius:12px;padding:10px 17px;font-size:12.5px;z-index:60;opacity:0;pointer-events:none;max-width:90%;text-align:center;}
   #toast.on{opacity:1}
 
   /* --- v1.6: sticky units table, summary bar, touch sizing --- */
   #unitTbl thead th{position:sticky;top:0;z-index:3}
-  #unitTbl td:first-child,#unitTbl th:first-child{position:sticky;inset-inline-start:0;z-index:2;background:var(--panel2)}
+  #unitTbl td:first-child,#unitTbl th:first-child{position:sticky;inset-inline-start:0;z-index:2;}
   #unitTbl thead th:first-child{z-index:4}
   /* the bar itself stays click-through so a plain message never blocks the page,
      but the «بازگرداندن» button has to be reachable — without this it inherits
@@ -253,20 +233,18 @@
   /* --- v1.7: stat tiles, segmented view switch, sticky action bar, entrance, row status --- */
   .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
   @media(max-width:720px){.stats{grid-template-columns:repeat(2,1fr)}}
-  .stat{background:var(--panel);border:0;border-radius:16px;padding:14px 16px;box-shadow:var(--elev);transition:transform .22s cubic-bezier(.22,1,.36,1),background-color .25s}
-  .stat:hover{transform:translateY(-3px);box-shadow:var(--elev-hi)}
+  .stat{border:0;padding:14px 16px;}
   .stat .n{font-size:22px;font-weight:800;color:var(--ink);font-variant-numeric:tabular-nums;letter-spacing:-.02em}
   .stat .k{font-size:11px;color:var(--muted);margin-top:3px}
   .stat.warn .n{color:var(--warn-ink)}
-  #statStrip .stat:first-child{border-color:var(--accent);box-shadow:var(--glow),var(--elev)}
+  #statStrip .stat:first-child{border-color:var(--accent);}
 
-  .seg{position:relative;display:inline-flex;background:var(--field);border:1px solid var(--field-br);border-radius:999px;padding:3px;gap:2px}
-  .seg-opt{position:relative;z-index:1;font:inherit;font-size:12.5px;font-weight:600;cursor:pointer;border:0;background:transparent;color:var(--muted);border-radius:999px;padding:7px 15px;transition:color .18s;width:auto}
-  .seg-opt.on{color:var(--btn-ink)}
-  .seg-ind{position:absolute;z-index:0;top:3px;bottom:3px;left:0;width:0;border-radius:999px;background:var(--grad);box-shadow:var(--glow);transition:transform .24s cubic-bezier(.22,1,.36,1),width .24s cubic-bezier(.22,1,.36,1)}
+  .seg{position:relative;display:inline-flex;border-radius:999px;padding:3px;gap:2px}
+  .seg-opt{position:relative;z-index:1;font:inherit;font-size:12.5px;font-weight:600;cursor:pointer;border:0;background:transparent;color:var(--muted);border-radius:999px;padding:7px 15px;width:auto}
+  .seg-ind{position:absolute;z-index:0;top:3px;bottom:3px;left:0;width:0;border-radius:999px;transition:transform .24s cubic-bezier(.22,1,.36,1),width .24s cubic-bezier(.22,1,.36,1)}
 
   /* opaque, no backdrop-filter — a blurred sticky bar repaints every scroll frame on Android WebView */
-  #actionBar{position:sticky;bottom:calc(10px + env(safe-area-inset-bottom,0px));z-index:20;background:var(--panel);border:0;border-radius:14px;padding:10px 13px;margin:16px 0;box-shadow:var(--elev)}
+  #actionBar{position:sticky;bottom:calc(10px + env(safe-area-inset-bottom,0px));z-index:20;border:0;padding:10px 13px;margin:16px 0;}
 
   .report .dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-inline-end:7px;vertical-align:middle}
   .report .dot-ok{background:#00a96e}
@@ -287,7 +265,6 @@
   details.costcard>summary::-webkit-details-marker{display:none}
   details.costcard>summary::after{content:"";flex:none;width:9px;height:9px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(45deg) translateY(-2px);transition:transform .28s cubic-bezier(.22,1,.36,1);margin-inline-start:2px}
   details.costcard[open]>summary::after{transform:rotate(225deg) translateY(-2px)}
-  details.costcard[open]>summary{box-shadow:0 10px 18px -16px rgba(0,0,0,.5)}
   details.costcard>summary .cc-name{font-weight:700;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   details.costcard>summary .cc-meta{font-size:11.5px;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
   details.costcard>summary .cc-badge{font-size:12px;font-weight:700}
@@ -309,10 +286,10 @@
     .stat,details.costcard,details.costcard>summary::after,details.costcard::details-content{transition:none}
   }
 
-  #readyLine{margin:-4px 0 16px;font-size:12px;font-weight:700;border-radius:12px;padding:9px 13px;cursor:pointer;border:1px solid transparent;box-shadow:var(--elev-sm)}
+  #readyLine{margin:-4px 0 16px;font-size:12px;font-weight:700;border-radius:12px;padding:9px 13px;cursor:pointer;}
   #readyLine.ok{color:var(--money-ink);background:var(--money-bg);border-color:color-mix(in srgb,var(--money-ink) 25%,transparent)}
   #readyLine.warn{color:var(--warn-ink);background:var(--warn-bg);border-color:color-mix(in srgb,var(--warn-ink) 30%,transparent)}
-  #readyLine.idle{color:var(--muted);background:var(--panel2);border-color:var(--rule)}
+  #readyLine.idle{color:var(--muted);border-color:var(--rule)}
 
   /* --- «حالت ارائه» for per-unit slips + friendly empty state --- */
   .slip.plain .items .li.item{display:none}
@@ -342,13 +319,12 @@
   :root{--ease:cubic-bezier(.22,1,.36,1);--t1:.13s;--t2:.22s}
   .btn,.btn.mini,.seg-opt,#modalOk,#modalCancel,#plainToggle,.rowbtns .btn,#reportSel,.raudit summary{transition:transform var(--t1) var(--ease),background var(--t2),color var(--t2),border-color var(--t2)}
   .btn:active,.btn.mini:active,.seg-opt:active{transform:scale(.95)}
-  .btn.ghost:hover,.btn.mini:hover{transform:translateY(-1px);box-shadow:var(--elev)}
   th.mtog:active{transform:scale(.97)}
   /* custom animated checkbox */
-  input[type=checkbox]{appearance:none;-webkit-appearance:none;width:18px;height:18px;flex:none;border:2px solid var(--field-br);border-radius:6px;background:var(--field);cursor:pointer;position:relative;padding:0;margin:0;transition:background var(--t1) var(--ease),border-color var(--t1),transform var(--t1) var(--ease)}
+  input[type=checkbox]{appearance:none;-webkit-appearance:none;width:18px;height:18px;flex:none;cursor:pointer;position:relative;padding:0;margin:0;transition:background var(--t1) var(--ease),border-color var(--t1),transform var(--t1) var(--ease)}
   input[type=checkbox]:hover{border-color:var(--accent)}
   input[type=checkbox]:active{transform:scale(.82)}
-  input[type=checkbox]:checked{background:var(--accent);border-color:var(--accent)}
+  input[type=checkbox]:checked{border-color:var(--accent)}
   input[type=checkbox]:checked::after{content:"";position:absolute;left:4px;top:1px;width:5px;height:9px;border:solid var(--btn-ink);border-width:0 2px 2px 0;transform:rotate(45deg);transform-origin:center;animation:tick var(--t2) var(--ease)}
   @keyframes tick{from{opacity:0;transform:rotate(45deg) scale(.3)}60%{opacity:1;transform:rotate(45deg) scale(1.18)}to{transform:rotate(45deg) scale(1)}}
   /* toast springs up */
@@ -367,9 +343,8 @@
 
   /* --- v1.15: borderless cards + fuller interaction feedback (both themes) --- */
   .btn:hover{transform:translateY(-1px)}
-  .btn:active{transform:scale(.96)}
-  .btn.ghost:hover,.btn.mini:hover{border-color:var(--accent);color:var(--accent)}
-  .btn.mini.del:hover{background:color-mix(in srgb,var(--danger) 14%,var(--panel));border-color:var(--danger);color:var(--danger)}
+  .btn.ghost:hover,.btn.mini:hover{border-color:var(--accent);}
+  .btn.mini.del:hover{border-color:var(--danger);}
   #unitTbl tbody tr{transition:background-color .16s var(--ease)}
   #unitTbl tbody tr:hover td{background-color:color-mix(in srgb,var(--accent) 8%,transparent)}
   #unitTbl tbody tr:hover td.money{background:color-mix(in srgb,var(--accent) 12%,var(--money-bg))}
@@ -383,7 +358,7 @@
   details.picker summary,.raudit summary{transition:color .16s var(--ease)}
   details.picker summary:hover{color:var(--accent)}
   #shareLinks a{transition:transform var(--t1) var(--ease),border-color var(--t2),background-color var(--t2)}
-  #shareLinks a:hover{border-color:var(--accent);box-shadow:var(--elev-sm);transform:translateY(-1px)}
+  #shareLinks a:hover{border-color:var(--accent);}
   #shareLinks a:active{transform:scale(.95)}
   .seg-opt:active{transform:scale(.93)}
   select:not([multiple]){transition:border-color .15s,box-shadow .15s,background-color .22s,color .22s,transform .12s var(--ease)}
@@ -403,7 +378,6 @@
      Source-order override; earlier rules stay as the baseline. Tables /
      modals / report keep their own treatment for now — rolls out next.
      =================================================================== */
-  body::before{display:none}
   section.block{background:var(--bg);box-shadow:var(--nm-out);border-radius:24px;transition:box-shadow .28s var(--ease),background-color .25s var(--ease)}
   h2{border-bottom:0;box-shadow:0 13px 16px -18px var(--nm-dk);padding-bottom:12px}
   .stat{background:var(--bg);box-shadow:var(--nm-out);border-radius:20px;transition:box-shadow .25s var(--ease),transform .25s var(--ease),background-color .25s}
@@ -436,7 +410,7 @@
   #actionBar{background:var(--bg);box-shadow:var(--nm-out);border-radius:18px}
   #modal .card{background:var(--bg);box-shadow:var(--nm-out),0 40px 90px -30px rgba(0,0,0,.4)}
   #toast{background:var(--bg);color:var(--ink);box-shadow:var(--nm-out)}
-  .tblwrap{background:var(--bg);border-radius:16px;box-shadow:var(--nm-in-sm)}
+  .tblwrap{background:var(--bg);border-radius:16px;}
   th,#unitTbl td:first-child,#unitTbl th:first-child,#unitTbl thead th:first-child{background:var(--bg)}
   #readyLine{border:0;box-shadow:var(--nm-out-sm)}
   #readyLine.idle{background:var(--bg);border:0}
@@ -467,7 +441,7 @@
   details.menu>summary{list-style:none;cursor:pointer}
   details.menu>summary::-webkit-details-marker{display:none}
   .reprow details.menu>summary{min-inline-size:44px;min-block-size:44px;display:grid;place-items:center;font-size:18px;padding:0 12px}
-  .menu-pop{position:absolute;inset-inline-end:0;top:calc(100% + 8px);z-index:30;inline-size:max-content;min-inline-size:240px;max-inline-size:min(340px,86vw);background:var(--bg);border-radius:18px;padding:8px;box-shadow:var(--nm-out),0 30px 60px -24px rgba(0,0,0,.45);display:flex;flex-direction:column;gap:2px}
+  .menu-pop{position:absolute;inset-inline-end:0;top:calc(100% + 8px);z-index:30;inline-size:max-content;min-inline-size:240px;max-inline-size:min(340px,86vw);background:var(--bg);border-radius:18px;padding:8px;display:flex;flex-direction:column;gap:2px}
   details.menu.up .menu-pop{top:auto;bottom:calc(100% + 10px)}
   .menu-pop button,.setlist button{font:inherit;text-align:start;cursor:pointer;border:0;background:transparent;color:var(--ink);border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;align-items:flex-start;gap:2px;min-block-size:44px;justify-content:center;inline-size:100%}
   .menu-pop button:hover,.setlist button:hover{background:color-mix(in srgb,var(--accent) 10%,transparent)}
@@ -479,7 +453,7 @@
   #settings{position:fixed;inset:0;z-index:45;background:var(--scrim);display:flex;justify-content:flex-end;transition:opacity var(--t2) var(--ease)}
   #settings[hidden]{display:none}
   @starting-style{#settings{opacity:0}}
-  #settings .sheet{background:var(--bg);inline-size:min(420px,100%);block-size:100%;overflow-y:auto;padding:calc(16px + env(safe-area-inset-top,0px)) 20px calc(24px + env(safe-area-inset-bottom,0px));box-shadow:var(--nm-out)}
+  #settings .sheet{background:var(--bg);inline-size:min(560px,100%);block-size:100%;overflow-y:auto;padding:calc(16px + env(safe-area-inset-top,0px)) 20px calc(24px + env(safe-area-inset-bottom,0px));box-shadow:var(--nm-out)}
   .sheet-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
   .sheet-head h2{margin:0;padding:0;box-shadow:none}
   .setgrp{padding:16px 0;border-top:1px solid var(--rule)}
@@ -524,6 +498,80 @@
   .sigrow .none{font-size:12px;color:var(--muted)}
   .report .sigimg{display:block;block-size:54px;max-inline-size:180px;object-fit:contain;margin-top:4px;mix-blend-mode:multiply}
   #sigPad{inline-size:100%;block-size:180px;background:#fff;border-radius:12px;touch-action:none;cursor:crosshair;box-shadow:var(--nm-in-sm)}
+
+
+  /* --- v1.29: softer, physical motion (neumorphic "roll") --- */
+  /* ⋯ menus roll open from their corner; items follow one after another. The pop also gets a wide feathered shadow instead of a tight dark one */
+  .menu-pop{box-shadow:var(--nm-out),0 28px 70px -28px rgba(0,0,0,.38);transform-origin:0 0}
+  :root[dir="ltr"] .menu-pop{transform-origin:100% 0}
+  details.menu.up .menu-pop{transform-origin:0 100%}
+  :root[dir="ltr"] details.menu.up .menu-pop{transform-origin:100% 100%}
+  details.menu[open]>.menu-pop{animation:menuRoll .7s cubic-bezier(.22,1.12,.36,1) both}
+  details.menu[open]>.menu-pop>button{animation:menuItem .6s cubic-bezier(.22,1.1,.36,1) both}
+  details.menu[open]>.menu-pop>button:nth-child(2){animation-delay:.07s}
+  details.menu[open]>.menu-pop>button:nth-child(3){animation-delay:.14s}
+  details.menu[open]>.menu-pop>button:nth-child(4){animation-delay:.21s}
+  details.menu[open]>.menu-pop>button:nth-child(5){animation-delay:.28s}
+  details.menu[open]>.menu-pop>button:nth-child(n+6){animation-delay:.34s}
+  /* unrolls like a scroll: tilts down from the hinge, overshoots a touch, then settles */
+  @keyframes menuRoll{0%{opacity:0;transform:perspective(700px) rotateX(-16deg) translateY(-14px) scale(.9,.55);filter:blur(5px)}45%{opacity:1;filter:blur(0)}72%{transform:perspective(700px) rotateX(2deg) translateY(2px) scale(1.012,1.02)}100%{opacity:1;transform:none;filter:none}}
+  @keyframes menuItem{0%{opacity:0;transform:translateY(-12px) scale(.96)}100%{opacity:1;transform:none}}
+  details.menu.up[open]>.menu-pop{animation-name:menuRollUp}
+  @keyframes menuRollUp{0%{opacity:0;transform:perspective(700px) rotateX(16deg) translateY(14px) scale(.9,.55);filter:blur(5px)}45%{opacity:1;filter:blur(0)}72%{transform:perspective(700px) rotateX(-2deg) translateY(-2px) scale(1.012,1.02)}100%{opacity:1;transform:none;filter:none}}
+
+  /* month chips: the colour puff is a blurred glow (no hard dots / no visible edge); on and off move differently */
+  .mchip .splash{inset:-18px;filter:blur(7px);background:
+    radial-gradient(closest-side, color-mix(in srgb,var(--se) 42%,transparent) 0%, color-mix(in srgb,var(--se) 22%,transparent) 38%, color-mix(in srgb,var(--se) 7%,transparent) 68%, transparent 100%),
+    radial-gradient(circle at 50% 12%, color-mix(in srgb,var(--se) 55%,transparent) 0, transparent 14px),
+    radial-gradient(circle at 92% 38%, color-mix(in srgb,var(--se) 50%,transparent) 0, transparent 12px),
+    radial-gradient(circle at 78% 92%, color-mix(in srgb,var(--se) 50%,transparent) 0, transparent 13px),
+    radial-gradient(circle at 10% 82%, color-mix(in srgb,var(--se) 45%,transparent) 0, transparent 11px)}
+  .mchip .fill{transition:box-shadow .45s var(--ease),background-color .45s var(--ease),transform .3s var(--ease)}
+  .mchip .lbl{transition:color .35s var(--ease),transform .3s var(--ease),text-shadow .35s var(--ease)}
+  /* on: sinks into the surface, then springs up with a soft overshoot and the label rises */
+  .mchip.pop .fill{animation:mchipIn .62s cubic-bezier(.34,1.4,.5,1)}
+  .mchip.pop .lbl{animation:mchipLblIn .62s cubic-bezier(.34,1.4,.5,1)}
+  .mchip.pop .splash{animation:mchipGlowOut .75s cubic-bezier(.22,1,.36,1)}
+  /* off: a slow exhale — lifts back out, label drops, glow is drawn inward */
+  .mchip.off .fill{animation:mchipOut .5s cubic-bezier(.22,1,.36,1)}
+  .mchip.off .lbl{animation:mchipLblOut .5s cubic-bezier(.22,1,.36,1)}
+  .mchip.off .splash{animation:mchipGlowIn .55s cubic-bezier(.22,1,.36,1)}
+  @keyframes mchipIn{0%{transform:scale(1)}22%{transform:scale(.9)}62%{transform:scale(1.045)}100%{transform:scale(1)}}
+  @keyframes mchipLblIn{0%{transform:translateY(3px) scale(.85)}60%{transform:translateY(-1px) scale(1.1)}100%{transform:translateY(1px) scale(1)}}
+  @keyframes mchipOut{0%{transform:scale(1)}35%{transform:scale(1.03)}100%{transform:scale(1)}}
+  @keyframes mchipLblOut{0%{transform:translateY(1px)}40%{transform:translateY(-2px) scale(1.04)}100%{transform:translateY(1px)}}
+  @keyframes mchipGlowOut{0%{opacity:0;transform:scale(.55)}35%{opacity:.85}100%{opacity:0;transform:scale(1.35)}}
+  @keyframes mchipGlowIn{0%{opacity:0;transform:scale(1.5)}40%{opacity:.5}100%{opacity:0;transform:scale(.7)}}
+  /* closing ghost (see shutMenu): rolls back up into its corner and dissolves */
+  .menu-ghost{z-index:31;pointer-events:none;animation:menuAway .46s cubic-bezier(.45,0,.25,1) both}
+  @keyframes menuAway{0%{opacity:1;transform:none;filter:none}100%{opacity:0;transform:perspective(700px) rotateX(-14deg) translateY(-12px) scale(.92,.5);filter:blur(4px)}}
+  .menu-ghost.up{animation-name:menuAwayUp}
+  @keyframes menuAwayUp{0%{opacity:1;transform:none;filter:none}100%{opacity:0;transform:perspective(700px) rotateX(14deg) translateY(12px) scale(.92,.5);filter:blur(4px)}}
+  @media(prefers-reduced-motion:reduce){details.menu[open]>.menu-pop,details.menu[open]>.menu-pop>button,.menu-ghost{animation:none}}
+
+
+  /* --- v1.29: every open/close animates (Chromium 131+ for ::details-content and display transitions; instant elsewhere) --- */
+  :root{--dx:-46px}
+  :root[dir="ltr"]{--dx:46px}
+  /* settings: scrim fades, the sheet slides in from its edge with a soft spring, and both run backwards on close */
+  #settings{opacity:1;transition:opacity .42s var(--ease),display .55s allow-discrete,overlay .55s allow-discrete}
+  #settings[hidden]{display:none;opacity:0}
+  @starting-style{#settings:not([hidden]){opacity:0}}
+  #settings .sheet{transform:none;opacity:1;filter:none;transition:transform .6s cubic-bezier(.22,1.15,.36,1),opacity .4s var(--ease),filter .4s var(--ease)}
+  #settings[hidden] .sheet{transform:translateX(var(--dx)) scale(.96);opacity:0;filter:blur(4px)}
+  @starting-style{#settings:not([hidden]) .sheet{transform:translateX(var(--dx)) scale(.96);opacity:0;filter:blur(4px)}}
+  /* dialogs: slower, springier pop */
+  #modal{transition:opacity .38s var(--ease),display .5s allow-discrete,overlay .5s allow-discrete}
+  #modal .card{transform:translateY(14px) scale(.92);opacity:0;transition:transform .55s cubic-bezier(.22,1.2,.36,1),opacity .35s var(--ease)}
+  #modal.on .card{transform:none;opacity:1}
+  @starting-style{#modal.on .card{transform:translateY(14px) scale(.92);opacity:0}}
+  /* in-page disclosures (period picker, manager/payment, cost cards): height + fade */
+  details.picker::details-content,details.more::details-content{block-size:0;overflow:clip;opacity:0;transition:block-size .5s cubic-bezier(.22,1,.36,1),opacity .35s var(--ease),content-visibility .5s allow-discrete}
+  details.picker[open]::details-content,details.more[open]::details-content{block-size:auto;opacity:1}
+  details.costcard::details-content{opacity:0;transition:block-size .5s cubic-bezier(.22,1,.36,1),opacity .35s var(--ease),content-visibility .5s allow-discrete}
+  details.costcard[open]::details-content{opacity:1}
+  #toast{transition:opacity .4s var(--ease),transform .55s cubic-bezier(.22,1.2,.36,1)}
+  @media(prefers-reduced-motion:reduce){#settings,#settings .sheet,#modal,#modal .card,details.picker::details-content,details.more::details-content,details.costcard::details-content,#toast{transition:none}}
 
   @media print{
     @page{size:A4;margin:14mm}
@@ -571,45 +619,8 @@
       </div>
     </section>
 
-    <section class="block" id="sec1">
-      <h2>۱ · مشخصات ساختمان</h2>
-      <div class="grid g2">
-        <div><label for="bName">نام ساختمان</label><input id="bName" list="buildingNames" placeholder="مثلاً مجتمع یاس"></div>
-        <div>
-          <label>بازهٔ گزارش</label>
-          <details class="picker" id="periodBox">
-            <summary><b id="periodLabel">—</b></summary>
-            <div id="pBody"></div>
-            <div class="rowbtns"><button class="btn mini" id="pClear">↺ بازگشت به یک سالِ کامل</button></div>
-            <p class="hint">بازه می‌تواند از یک سال به سال بعد برود؛ جدول واحدها و ماه‌های قبض‌ها با آن تغییر می‌کنند.</p>
-          </details>
-        </div>
-      </div>
-      <details class="more" id="bMore">
-        <summary>مدیر، مقصد واریز و مهلت پرداخت</summary>
-        <div class="grid g3">
-          <div><label for="bManager">نام مدیریت ساختمان</label><input id="bManager" list="managerNames" placeholder="نامی که پای گزارش می‌آید"></div>
-          <div><label for="bPayTo">مقصد واریز (کارت / شبا / شناسه)</label><input id="bPayTo" list="payToNames" placeholder="۶۰۳۷-۹۹۱۸-…"></div>
-          <div><label for="bDue">مهلت پرداخت</label><input id="bDue" list="dueNames" placeholder="مثلاً تا ۱۵ مهر"></div>
-        </div>
-        <div class="sigrow" id="sigRow"></div>
-        <input type="file" id="sigFile" accept="image/*" hidden>
-      </details>
-    </section>
-
-    <section class="block" id="sec2">
-      <h2>۲ · واحدها و ماه‌های سکونت</h2>
-      <div class="tblwrap"><table id="unitTbl"></table></div>
-      <div class="rowbtns">
-        <button class="btn ghost" id="addUnit">+ افزودن واحد</button>
-        <button class="btn ghost" id="monToggle">نمایش جدول ماه‌ها</button>
-        <button class="btn ghost" id="allToggle">تیک همهٔ ماه‌ها</button>
-      </div>
-      <p class="hint" id="unitHint"></p>
-    </section>
-
     <section class="block" id="sec3">
-      <h2>۳ · قبض‌ها و هزینه‌ها</h2>
+      <h2>قبض‌ها و هزینه‌ها</h2>
       <div id="costList"></div>
       <div class="rowbtns"><button class="btn ghost" id="addCost">+ افزودن قبض / هزینه</button></div>
       <datalist id="costNames">
@@ -653,6 +664,43 @@
       <button type="button" class="iconbtn" id="setClose" title="بستن" aria-label="بستن">✕</button>
     </div>
 
+    <section class="setgrp" id="sec1">
+      <h3>مشخصات ساختمان</h3>
+      <div class="grid g2">
+        <div><label for="bName">نام ساختمان</label><input id="bName" list="buildingNames" placeholder="مثلاً مجتمع یاس"></div>
+        <div>
+          <label>بازهٔ گزارش</label>
+          <details class="picker" id="periodBox">
+            <summary><b id="periodLabel">—</b></summary>
+            <div id="pBody"></div>
+            <div class="rowbtns"><button class="btn mini" id="pClear">↺ بازگشت به یک سالِ کامل</button></div>
+            <p class="hint">بازه می‌تواند از یک سال به سال بعد برود؛ جدول واحدها و ماه‌های قبض‌ها با آن تغییر می‌کنند.</p>
+          </details>
+        </div>
+      </div>
+      <details class="more" id="bMore">
+        <summary>مدیر، مقصد واریز و مهلت پرداخت</summary>
+        <div class="grid g3">
+          <div><label for="bManager">نام مدیریت ساختمان</label><input id="bManager" list="managerNames" placeholder="نامی که پای گزارش می‌آید"></div>
+          <div><label for="bPayTo">مقصد واریز (کارت / شبا / شناسه)</label><input id="bPayTo" list="payToNames" placeholder="۶۰۳۷-۹۹۱۸-…"></div>
+          <div><label for="bDue">مهلت پرداخت</label><input id="bDue" list="dueNames" placeholder="مثلاً تا ۱۵ مهر"></div>
+        </div>
+        <div class="sigrow" id="sigRow"></div>
+        <input type="file" id="sigFile" accept="image/*" hidden>
+      </details>
+    </section>
+
+    <section class="setgrp" id="sec2">
+      <h3>واحدها و ماه‌های سکونت</h3>
+      <div class="tblwrap"><table id="unitTbl"></table></div>
+      <div class="rowbtns">
+        <button class="btn ghost" id="addUnit">+ افزودن واحد</button>
+        <button class="btn ghost" id="monToggle">نمایش جدول ماه‌ها</button>
+        <button class="btn ghost" id="allToggle">تیک همهٔ ماه‌ها</button>
+      </div>
+      <p class="hint" id="unitHint"></p>
+    </section>
+
     <section class="setgrp">
       <h3>زبان</h3>
       <div class="opts" id="langOpts">
@@ -690,6 +738,7 @@
       </div>
       <input type="file" id="rFile" accept=".json,application/json" hidden>
       <p class="hint">اطلاعات فقط روی همین دستگاه ذخیره می‌شود. برای بردن به گوشی یا کامپیوتر دیگر، فایل پشتیبان بگیرید و آن‌جا بازگردانی کنید.</p>
+      <p class="hint" id="persistLine" hidden></p>
     </section>
 
     <section class="setgrp about">
@@ -755,7 +804,7 @@ var EN={
   "واحدها و قبض‌ها می‌مانند، مبالغ صفر می‌شوند و بدهیِ باقی‌مانده منتقل می‌شود":"Keeps units and bills, clears amounts, carries unpaid balances forward",
   "گزارشِ خالیِ جدید":"New blank report","تغییر نام":"Rename","حذف این گزارش":"Delete this report",
   /* building */
-  "۱ · مشخصات ساختمان":"1 · Building","نام ساختمان":"Building name","مثلاً مجتمع یاس":"e.g. Yas Residences",
+  "مشخصات ساختمان":"Building","نام ساختمان":"Building name","مثلاً مجتمع یاس":"e.g. Yas Residences",
   "بازهٔ گزارش":"Report period","↺ بازگشت به یک سالِ کامل":"↺ Reset to a full year",
   "بازه می‌تواند از یک سال به سال بعد برود؛ جدول واحدها و ماه‌های قبض‌ها با آن تغییر می‌کنند.":"A period can run into the next year; the units table and bill months follow it.",
   "مدیر، مقصد واریز و مهلت پرداخت":"Manager, payment account and due date",
@@ -764,7 +813,7 @@ var EN={
   "مهلت پرداخت":"Due date","مثلاً تا ۱۵ مهر":"e.g. by Mehr 15",
   "از":"From","تا":"To","سال {0}":"Year {0}","{0} تا {1}":"{0} to {1}",
   /* units */
-  "۲ · واحدها و ماه‌های سکونت":"2 · Units and months of residence",
+  "واحدها و ماه‌های سکونت":"Units and months of residence",
   "+ افزودن واحد":"+ Add unit","نمایش جدول ماه‌ها":"Show month grid","جمع کردن جدول ماه‌ها":"Hide month grid",
   "تیک همهٔ ماه‌ها":"Tick all months","خالی کردن همهٔ ماه‌ها":"Clear all months","همهٔ ماه‌ها خالی شد":"All months cleared",
   "روی عنوان هر ماه بزنید تا برای همهٔ واحدها روشن/خاموش شود.":"Tap a month heading to toggle it for every unit.",
@@ -776,23 +825,23 @@ var EN={
   "بازهٔ سکونت":"Residence","بازهٔ سکونت — {0}":"Residence — {0}",
   "ماهِ ورود تا ماهِ خروج را انتخاب کن؛ بقیهٔ ماه‌ها برای این واحد خاموش می‌شوند.":"Pick the move-in and move-out months; other months are switched off for this unit.",
   /* bills */
-  "۳ · قبض‌ها و هزینه‌ها":"3 · Bills and expenses","+ افزودن قبض / هزینه":"+ Add bill / expense",
+  "قبض‌ها و هزینه‌ها":"Bills and expenses","+ افزودن قبض / هزینه":"+ Add bill / expense",
   "قبض آب":"Water bill","قبض برق":"Electricity bill","قبض گاز":"Gas bill","شارژ عمومی":"Service charge",
   "نظافت راه‌پله":"Stairwell cleaning","سرویس آسانسور":"Elevator service","تعمیرات موتورخانه":"Boiler room repairs",
   "پمپ آب":"Water pump","منبع آب":"Water tank",
   "هزینه":"Expense","بدون عنوان":"Untitled","عنوان قبض / هزینه":"Bill / expense title","🗑 حذف هزینه":"🗑 Delete expense",
   "«{0}» حذف شد":"“{0}” deleted","{0} ت":"{0} T","قبلاً {0}":"Was {0}","بدون مبلغ":"No amount",
   "قبض دوره‌ای":"Recurring bill","خرید یک‌باره":"One-off purchase","نوع":"Type",
-  "مبلغ کل (تومان)":"Total amount (Toman)","دورهٔ قبل: {0}":"Last period: {0}","همان مبلغِ دورهٔ قبل":"Same as last period",
+  "دورهٔ قبل: {0}":"Last period: {0}","همان مبلغِ دورهٔ قبل":"Same as last period",
   "روش تقسیم":"Split method",
   "سهم پایه + بر اساس ماه سکونت":"Base share + by months of residence",
   "سهم پایه + بر اساس نفرات (نفر × ماه)":"Base share + by people (person × month)",
   "مساوی بین واحدها":"Equal across units","سهم دستی هر واحد":"Manual share per unit",
   "سهم پایهٔ مشاعات (مساوی بین واحدها)":"Common-area base share (equal across units)",
   "بدون سهم پایه":"No base share","درصدی از کل قبض":"Percent of the bill","مبلغ ثابت (کل)":"Fixed amount (total)",
-  "درصد":"Percent","تومان":"Toman","درصد از کل قبض":"Percent of the bill","مبلغ ثابت کل (تومان)":"Fixed total (Toman)",
+  "درصد":"Percent","تومان":"Toman","درصد از کل قبض":"Percent of the bill",
   "این قبض کدام ماه‌ها را پوشش می‌دهد":"Which months does this bill cover",
-  "سهم هر واحد (تومان)":"Each unit’s share (Toman)",
+  
   "توضیح":"Note","توضیح (اختیاری) — روی گزارش می‌آید":"Note (optional) — printed on the report",
   "جمع سهم‌ها: ":"Shares total: ","  —  مبلغ کل: ":"  —  bill total: ","  ✗ برابر نیست":"  ✗ does not match",
   "{0} تومان":"{0} Toman",
@@ -814,16 +863,16 @@ var EN={
   "جمع هر قبض":"Bill totals","تسویه":"Settlement","روش محاسبه":"How it was calculated",
   "ریز محاسبهٔ سهم هر واحد":"Per-unit calculation",
   "جمع کل قابل وصول  ·  {0} واحد":"Total receivable  ·  {0} units","بیشترین بدهی: {0}":"Largest balance: {0}",
-  "سهم پایه {0}٪":"base share {0}%","سهم پایه {0} تومان":"base share {0} Toman","سهم پایه {0}":"base share {0}",
+  "سهم پایه {0}٪":"base share {0}%","سهم پایه {0}":"base share {0}",
   "ماه‌های پوشش: {0}":"months covered: {0}",
-  "مبالغ به نزدیک‌ترین {0} تومان گرد شده‌اند":"Amounts are rounded to the nearest {0} Toman",
+  
   "؛ تعدیل گرد‌کردن: {0}":"; rounding adjustments: {0}",
   "{0} از {1}":"{0} of {1}","مساوی":"equal","جمع سهم این دوره: {0}":"Total this period: {0}",
   "مدیریت ساختمان":"Building manager","مدیریت ساختمان: {0}":"Building manager: {0}",
   "طراحی و توسعه — پیمان آرین":"Designed & developed by Peyman Arian",
   "{0} — قبض واحد {1}":"{0} — Unit {1} bill","قبض واحد {0} — {1}":"Unit {0} bill — {1}",
   "کپی":"Copy","کپی شد ✓":"Copied ✓","کپی متن این قبض":"Copy this bill as text","پیامک":"SMS","چاپ فقط این واحد":"Print this unit only",
-  "جمع کل قابل وصول (تومان)":"Total receivable (Toman)","واحد بدهکار":"Units owing","قبض/هزینهٔ ثبت‌شده":"Bills entered",
+  "واحد بدهکار":"Units owing","قبض/هزینهٔ ثبت‌شده":"Bills entered",
   "هنوز چیزی برای گزارش نیست — مبلغِ حداقل یک قبض و یک واحد را وارد کنید.":"Nothing to report yet — enter at least one unit and one bill amount.",
   "برای گزارش، حداقل یک واحد و یک قبض با مبلغ لازم است.":"A report needs at least one unit and one bill with an amount.",
   "⚠ {0} نکته پیش از چاپ — در گزارش پایین ببینید.":"⚠ {0} thing(s) to check before printing — see the report below.",
@@ -832,6 +881,7 @@ var EN={
   "ایمیل":"Email","واتساپ":"WhatsApp","تلگرام":"Telegram","کپی متن":"Copy text","متن کپی شد":"Text copied","کپی نشد":"Copy failed",
   "متن را دستی کپی کنید":"Copy the text manually","در حال ساخت…":"Preparing…",
   "ذخیرهٔ تصویر روی این دستگاه نشد":"Could not save the image on this device",
+  "ذخیرهٔ اطلاعات روی این دستگاه نشد":"Could not save data on this device",
   "مقصد ذخیرهٔ تصویر را انتخاب کنید":"Choose where to save the image",
   "تصویر ذخیره شد — از همان‌جا در تلگرام/واتساپ بفرستید":"Image saved — send it from there in Telegram/WhatsApp",
   "ساخت تصویر روی این دستگاه نشد — متن را بفرستید یا «چاپ / PDF» را بزنید":"Could not create the image on this device — share the text or use “Print / PDF”",
@@ -843,10 +893,14 @@ var EN={
   "رونوشت از {0}":"Copy of {0}",
   "دورهٔ جدید ساخته شد — مبالغِ دورهٔ قبل به‌عنوان راهنما نشان داده می‌شوند":"Next period created — last period’s amounts are shown as a guide",
   "باید حداقل یک گزارش بماند":"At least one report must remain","حذف گزارش":"Delete report",
-  "گزارش «{0}» حذف شود؟ این کار برگشت‌پذیر نیست.":"Delete report “{0}”? This cannot be undone.","گزارش حذف شد":"Report deleted",
+  "گزارش «{0}» حذف شود؟ این کار با «بازگرداندن» قابل برگشت است.":"Delete report “{0}”? You can undo this with “Undo”.",
+  "گزارش حذف شد":"Report deleted",
   "بازگرداندن":"Undo",
+  "ذخیره‌سازی پایدار فعال است: مرورگر داده را خودسرانه پاک نمی‌کند.":"Persistent storage is on: the browser won’t clear your data on its own.",
+  "ذخیره‌سازی پایدار فعال نیست: اگر برنامه مدتی باز نشود، مرورگر ممکن است داده را پاک کند؛ فایل پشتیبان بگیرید.":"Persistent storage is off: if the app isn’t opened for a while the browser may clear your data — keep a backup file.",
   /* settings */
   "زبان":"Language","فارسی":"فارسی","ظاهر":"Appearance","خودکار":"Auto","روشن":"Light","تیره":"Dark",
+  "ارز گزارش تغییر کرد":"Report currency changed","تقویم گزارش تغییر کرد":"Report calendar changed",
   "این گزارش":"This report","واحد پول":"Currency","تقویم":"Calendar","شمسی":"Solar Hijri (Jalali)","میلادی":"Gregorian",
   "جمع هر قبض همیشه دقیقاً برابر مبلغ کل می‌ماند؛ تعدیل در گزارش نوشته می‌شود. تقویم را بهتر است پیش از واردکردنِ ماه‌ها انتخاب کنید.":"Each bill still adds up exactly to its total; adjustments are listed in the report. Pick the calendar before ticking months.",
   "مبلغ کل ({0})":"Total amount ({0})","مبلغ ثابت کل ({0})":"Fixed total ({0})","سهم هر واحد ({0})":"Each unit’s share ({0})",
@@ -855,8 +909,8 @@ var EN={
   "بارگذاری تصویر":"Upload image","حذف امضا":"Remove signature","امضا حذف شد":"Signature removed","امضا ذخیره شد":"Signature saved",
   "پاک کردن":"Clear","با انگشت یا ماوس داخل کادر امضا کنید.":"Sign inside the box with a finger or mouse.","ذخیره":"Save",
   "این تصویر خوانده نشد.":"This image could not be read.",
-  "گرد کردن مبالغ":"Rounding","بدون گرد کردن":"No rounding","۱۰٬۰۰۰ تومان":"10,000 Toman","۱۰۰٬۰۰۰ تومان":"100,000 Toman",
-  "برای گزارشِ فعال. جمع هر قبض همیشه دقیقاً برابر مبلغ کل می‌ماند؛ تعدیل در گزارش نوشته می‌شود.":"For the active report. Each bill still adds up exactly to its total; adjustments are listed in the report.",
+  "گرد کردن مبالغ":"Rounding","بدون گرد کردن":"No rounding",
+  
   "پشتیبان و انتقال":"Backup and transfer","ذخیرهٔ فایل پشتیبان":"Save a backup file","همهٔ گزارش‌ها در یک فایل JSON":"All reports in one JSON file",
   "بازگردانی از فایل":"Restore from a file","افزودن یا جایگزینی گزارش‌ها":"Add or replace reports",
   "نسخه‌های خودکار":"Automatic snapshots","برگشت به روزهای قبل":"Go back to an earlier day",
@@ -1109,6 +1163,14 @@ function listBackups(){
   }
   return out;
 }
+/* Safari (ITP) may evict storage of a web app that isn't opened for ~a week; ask once, after the first real save,
+   for "persistent" storage. Native shells and old browsers simply lack the API. */
+var _persistAsked=false;
+function askPersist(){
+  if(_persistAsked||typeof navigator==="undefined"||!navigator.storage||!navigator.storage.persist)return;
+  _persistAsked=true;
+  try{ navigator.storage.persist().then(function(){},function(){}); }catch(e){}
+}
 function saveStore(){
   DV++;
   try{
@@ -1116,7 +1178,14 @@ function saveStore(){
     var next=JSON.stringify(store);
     if(prev!==next)snapshotDaily(prev);
     localStorage.setItem(LS,next);
-  }catch(e){}
+    askPersist();
+    return true;
+  }catch(e){
+    /* Startup and pure tests have no feedback UI; never let it turn a failed save into a second save. */
+    if(typeof toast==="function"&&typeof document!=="undefined"&&document.body)
+      toast(T("ذخیرهٔ اطلاعات روی این دستگاه نشد"));
+    return false;
+  }
 }
 
 /* ---------- field memory: remembers what you typed, offers it via <datalist> ---------- */
@@ -1209,7 +1278,6 @@ function initStore(){
   S=store.reports[store.activeId];
   saveStore();
 }
-function save(){saveStore();}          /* keep old name used across the file */
 function useReport(id){ if(store.reports[id]){ store.activeId=id; S=store.reports[id]; saveStore(); redrawAll(); } }
 
 /* ---------- period helpers ---------- */
@@ -1374,12 +1442,21 @@ function renderPeriod(){var box=$("#pBody");if(box)renderPickerRows(box,S.buildi
 
 /* ---------- modal ---------- */
 var modalApply=null, modalReturnFocus=null, modalOnClose=null, modalOk=false;
+/* Focus trap + screen-reader isolation: whatever sits under the top-most layer is `inert`
+   (unfocusable, unclickable, hidden from assistive tech). Dialog > settings > page. */
+function syncInert(){
+  var modalOn=$("#modal").classList.contains("on"), setOn=!$("#settings").hidden;
+  try{
+    document.querySelector(".wrap").inert=modalOn||setOn;
+    $("#settings").inert=modalOn;
+  }catch(e){}
+}
 function openModal(okLabel,showCancel){
   modalOk=false;
   $("#modalOk").textContent=okLabel||T("تأیید");
   $("#modalCancel").style.display=(showCancel===false)?"none":"";
   modalReturnFocus=document.activeElement;
-  var m=$("#modal"); m.style.display=""; m.classList.add("on");
+  var m=$("#modal"); m.style.display=""; m.classList.add("on"); syncInert();
   /* focus the first real control inside the body, else the OK button — never a
      cancel button that this dialog hid */
   var f=m.querySelector("#modalBody input,#modalBody select,#modalBody textarea,#modalBody button")||$("#modalOk");
@@ -1390,7 +1467,7 @@ function closeModal(){
      the single place a dialog learns whether it was confirmed or cancelled */
   var done=modalOnClose, ok=modalOk;
   modalApply=null; modalOnClose=null; modalOk=false;
-  $("#modal").classList.remove("on");
+  $("#modal").classList.remove("on"); syncInert();
   if(modalReturnFocus&&modalReturnFocus.focus)try{modalReturnFocus.focus();}catch(e){}
   modalReturnFocus=null;
   if(done)done(ok);
@@ -2184,12 +2261,29 @@ initStore();
 translateDom(document.body);
 fillCurOpts();
 /* overflow menus are native <details>: close after a pick, on Esc, and on any outside tap */
+/* <details> can't animate its own closing (the pop is display:none the instant open=false), so a
+   visual-only ghost of the pop rolls away in its place; state changes stay immediate */
+function shutMenu(d){
+  var pop=d.querySelector(".menu-pop");
+  if(d.open&&pop&&!(window.matchMedia&&matchMedia("(prefers-reduced-motion:reduce)").matches)){
+    try{
+      var r=pop.getBoundingClientRect(), g=pop.cloneNode(true);
+      g.removeAttribute("id"); g.className+=" menu-ghost"+(d.classList.contains("up")?" up":"");
+      g.setAttribute("aria-hidden","true");
+      g.style.cssText="position:fixed;margin:0;inset:auto;left:"+r.left+"px;top:"+r.top+"px;width:"+r.width+"px;height:"+r.height+"px";
+      document.body.appendChild(g);
+      var gone=function(){ if(g.parentNode)g.parentNode.removeChild(g); };
+      g.addEventListener("animationend",gone); setTimeout(gone,650);
+    }catch(e){}
+  }
+  d.open=false;
+}
 function closeMenus(except){
-  Array.prototype.forEach.call(document.querySelectorAll("details.menu[open]"),function(d){ if(d!==except)d.open=false; });
+  Array.prototype.forEach.call(document.querySelectorAll("details.menu[open]"),function(d){ if(d!==except)shutMenu(d); });
 }
 Array.prototype.forEach.call(document.querySelectorAll("details.menu"),function(d){
   d.addEventListener("toggle",function(){ if(d.open)closeMenus(d); });
-  d.querySelector(".menu-pop").addEventListener("click",function(e){ if(e.target.closest("button"))d.open=false; });
+  d.querySelector(".menu-pop").addEventListener("click",function(e){ if(e.target.closest("button"))shutMenu(d); });
 });
 document.addEventListener("click",function(e){ if(!e.target.closest("details.menu"))closeMenus(); });
 document.addEventListener("keydown",function(e){ if(e.key==="Escape")closeMenus(); });
@@ -2233,11 +2327,12 @@ $("#rRename").addEventListener("click",function(){
 $("#rDel").addEventListener("click",function(){
   var btn=this;
   if(Object.keys(store.reports).length<2){shake($("#rMenu summary"));toast(T("باید حداقل یک گزارش بماند"));return;}
-  askConfirm(T("حذف گزارش"),T("گزارش «{0}» حذف شود؟ این کار برگشت‌پذیر نیست.",S.name||""),T("حذف"),function(ok){
+  askConfirm(T("حذف گزارش"),T("گزارش «{0}» حذف شود؟ این کار با «بازگرداندن» قابل برگشت است.",S.name||""),T("حذف"),function(ok){
     if(!ok)return;
+    pushUndoAll(T("گزارش حذف شد"));
     delete store.reports[store.activeId];
     store.activeId=Object.keys(store.reports)[0]; S=store.reports[store.activeId];
-    saveStore(); redrawAll(); toast(T("گزارش حذف شد"));
+    saveStore(); redrawAll();
   });
 });
 $("#rExport").addEventListener("click",function(){
@@ -2322,12 +2417,21 @@ function renderSig(){
     host.append(del);
   }
 }
-function setSig(url){ S.building.sig=url; saveStore(); renderSig(); render(); toast(T("امضا ذخیره شد")); }
-/* scale an image or canvas down to fit 600×200 and return a PNG data URL */
+function setSig(url){
+  S.building.sig=url;
+  if(saveStore()){ renderSig(); render(); toast(T("امضا ذخیره شد")); }
+  else { renderSig(); render(); }
+}
+/* scale an image or canvas down to fit 600×200 and return a compact PNG data URL */
 function fitSig(src){
   var w=src.naturalWidth||src.width, h=src.naturalHeight||src.height, r=Math.min(1,600/w,200/h);
   var cv=el("canvas"); cv.width=Math.max(1,Math.round(w*r)); cv.height=Math.max(1,Math.round(h*r));
-  cv.getContext("2d").drawImage(src,0,0,cv.width,cv.height);
+  var x=cv.getContext("2d"); x.drawImage(src,0,0,cv.width,cv.height);
+  /* Uploaded signatures often include an opaque white page; discard it before trimming. */
+  var d=x.getImageData(0,0,cv.width,cv.height), p=d.data;
+  for(var i=0;i<p.length;i+=4)if(p[i]>245&&p[i+1]>245&&p[i+2]>245)p[i+3]=0;
+  x.putImageData(d,0,0);
+  var tight=trimInk(cv); if(tight)cv=tight;
   return cv.toDataURL("image/png");
 }
 /* crop a drawing to its ink so it sits tight under the manager's name */
@@ -2520,12 +2624,15 @@ function fillRoundOpts(){
 $("#bRound").addEventListener("change",function(){S.building.roundTo=parseNum(this.value);saveStore();render();});
 /* currency and calendar belong to the report; both re-render everything that shows money or months */
 $("#bCur").addEventListener("change",function(){
-  var b=S.building; b.cur=this.value;
+  var b=S.building; if(this.value===b.cur)return;
+  pushUndo(T("ارز گزارش تغییر کرد"));
+  b.cur=this.value;
   if(CURS[b.cur].rounds.indexOf(b.roundTo)<0)b.roundTo=CURS[b.cur].rounds[0];
   saveStore(); redrawAll();
 });
 $("#bCal").addEventListener("change",function(){
   var to=this.value==="g"?"g":"j", b=S.building; if(to===cal())return;
+  pushUndo(T("تقویم گزارش تغییر کرد"));
   /* re-key every month so residence / coverage ticks stay on the same real months */
   var mapKey=function(mp){ var o={}; Object.keys(mp||{}).forEach(function(k){ var p=k.split("-"), c=convYM(+p[0],+p[1],to); o[c.y+"-"+c.m]=mp[k]; }); return o; };
   var f=convYM(b.range.fromY,b.range.fromM,to), t=convYM(b.range.toY,b.range.toM,to);
@@ -2537,11 +2644,23 @@ $("#bCal").addEventListener("change",function(){
 var setReturnFocus=null;
 function openSettings(){
   closeMenus(); setReturnFocus=document.activeElement;
-  $("#settings").hidden=false;
+  $("#settings").hidden=false; syncInert();
+  showPersist();
   try{$("#setClose").focus();}catch(e){}
 }
+/* whether the browser promised not to evict our data (only exists in real browsers / the PWA) */
+function showPersist(){
+  var line=$("#persistLine");
+  try{
+    if(!navigator.storage||!navigator.storage.persisted){ line.hidden=true; return; }
+    navigator.storage.persisted().then(function(ok){
+      line.textContent=ok?T("ذخیره‌سازی پایدار فعال است: مرورگر داده را خودسرانه پاک نمی‌کند."):T("ذخیره‌سازی پایدار فعال نیست: اگر برنامه مدتی باز نشود، مرورگر ممکن است داده را پاک کند؛ فایل پشتیبان بگیرید.");
+      line.hidden=false;
+    },function(){ line.hidden=true; });
+  }catch(e){ line.hidden=true; }
+}
 function closeSettings(){
-  $("#settings").hidden=true;
+  $("#settings").hidden=true; syncInert();
   if(setReturnFocus&&setReturnFocus.focus)try{setReturnFocus.focus();}catch(e){}
 }
 $("#settingsBtn").addEventListener("click",openSettings);
@@ -2549,8 +2668,16 @@ $("#setClose").addEventListener("click",closeSettings);
 $("#settings").addEventListener("click",function(e){ if(e.target===this)closeSettings(); });
 /* Esc closes the top-most layer only: a dialog opened from Settings closes first */
 document.addEventListener("keydown",function(e){
-  if(e.key==="Escape"&&!$("#settings").hidden&&!$("#modal").classList.contains("on"))closeSettings();
+  if(e.key==="Escape"&&!e.defaultPrevented&&!$("#settings").hidden&&!$("#modal").classList.contains("on"))closeSettings();   /* defaultPrevented: the dialog already took this Esc */
 });
+/* Android Back (native → evaluateJavascript): close the top-most layer, report whether one was closed;
+   false lets the Activity finish. Order mirrors what is drawn on top: dialog, settings, ⋯ menus. */
+function appBack(){
+  if($("#modal").classList.contains("on")){ closeModal(); return true; }
+  if(!$("#settings").hidden){ closeSettings(); return true; }
+  if(document.querySelector("details.menu[open]")){ closeMenus(); return true; }
+  return false;
+}
 markOpts($("#langOpts"),"data-lang",LANG);
 $("#langOpts").addEventListener("click",function(e){
   var b=e.target.closest("button"); if(b&&b.getAttribute("data-lang")!==LANG)setLang(b.getAttribute("data-lang"));
