@@ -41,7 +41,7 @@
   }
   :root[data-theme="light"]{
     --bg:#e7eaef; --panel:#e7eaef; --panel2:#eef1f5; --rule:#d5dae2;
-    --ink:#1a2126; --muted:#63707a; --accent:#0e7c86; --accent-deep:#0a5f67; --accent2:#93dbe3;
+    --ink:#1a2126; --muted:#566269; --accent:#0b6f78; --accent-deep:#0a5f67; --accent2:#93dbe3;
     --field:#e7eaef; --field-br:#d7dee2; --money-bg:#dcefe6; --money-ink:#2f8f5b;
     --danger:#c0392b; --warn-bg:#f6ecdc; --warn-ink:#8a5a12;
     --bar-bg:rgba(231,234,239,.9); --scrim:rgba(20,35,45,.42); --toast-bg:#1a2126; --btn-ink:#ffffff;
@@ -60,7 +60,7 @@
   @media(prefers-color-scheme:light){
     :root:not([data-theme="dark"]){
       --bg:#eef1f3; --panel:#ffffff; --panel2:#f4f6f8; --rule:#e2e7ea;
-      --ink:#1a2126; --muted:#63707a; --accent:#0e7c86; --accent-deep:#0a5f67; --accent2:#93dbe3;
+      --ink:#1a2126; --muted:#566269; --accent:#0b6f78; --accent-deep:#0a5f67; --accent2:#93dbe3;
       --field:#ffffff; --field-br:#d7dee2; --money-bg:#e6f5ee; --money-ink:#2f8f5b;
       --danger:#c0392b; --warn-bg:#fef4e3; --warn-ink:#8a5a12;
       --bar-bg:rgba(255,255,255,.74); --scrim:rgba(20,35,45,.42); --toast-bg:#1a2126; --btn-ink:#ffffff;
@@ -506,18 +506,18 @@
   :root[dir="ltr"] .menu-pop{transform-origin:100% 0}
   details.menu.up .menu-pop{transform-origin:0 100%}
   :root[dir="ltr"] details.menu.up .menu-pop{transform-origin:100% 100%}
-  details.menu[open]>.menu-pop{animation:menuRoll .7s cubic-bezier(.22,1.12,.36,1) both}
-  details.menu[open]>.menu-pop>button{animation:menuItem .6s cubic-bezier(.22,1.1,.36,1) both}
-  details.menu[open]>.menu-pop>button:nth-child(2){animation-delay:.07s}
-  details.menu[open]>.menu-pop>button:nth-child(3){animation-delay:.14s}
-  details.menu[open]>.menu-pop>button:nth-child(4){animation-delay:.21s}
-  details.menu[open]>.menu-pop>button:nth-child(5){animation-delay:.28s}
-  details.menu[open]>.menu-pop>button:nth-child(n+6){animation-delay:.34s}
+  details.menu[open]>.menu-pop{animation:menuRoll 1.05s cubic-bezier(.16,1,.3,1) both}
+  details.menu[open]>.menu-pop>button{animation:menuItem .85s cubic-bezier(.16,1,.3,1) both}
+  details.menu[open]>.menu-pop>button:nth-child(2){animation-delay:.12s}
+  details.menu[open]>.menu-pop>button:nth-child(3){animation-delay:.22s}
+  details.menu[open]>.menu-pop>button:nth-child(4){animation-delay:.32s}
+  details.menu[open]>.menu-pop>button:nth-child(5){animation-delay:.42s}
+  details.menu[open]>.menu-pop>button:nth-child(n+6){animation-delay:.5s}
   /* unrolls like a scroll: tilts down from the hinge, overshoots a touch, then settles */
-  @keyframes menuRoll{0%{opacity:0;transform:perspective(700px) rotateX(-16deg) translateY(-14px) scale(.9,.55);filter:blur(5px)}45%{opacity:1;filter:blur(0)}72%{transform:perspective(700px) rotateX(2deg) translateY(2px) scale(1.012,1.02)}100%{opacity:1;transform:none;filter:none}}
-  @keyframes menuItem{0%{opacity:0;transform:translateY(-12px) scale(.96)}100%{opacity:1;transform:none}}
+  @keyframes menuRoll{0%{opacity:0;transform:perspective(700px) rotateX(-18deg) translateY(-16px) scale(.9,.5);filter:blur(6px)}30%{opacity:1}60%{filter:blur(0)}100%{opacity:1;transform:none;filter:none}}
+  @keyframes menuItem{0%{opacity:0;transform:translateY(-14px) scale(.95)}100%{opacity:1;transform:none}}
   details.menu.up[open]>.menu-pop{animation-name:menuRollUp}
-  @keyframes menuRollUp{0%{opacity:0;transform:perspective(700px) rotateX(16deg) translateY(14px) scale(.9,.55);filter:blur(5px)}45%{opacity:1;filter:blur(0)}72%{transform:perspective(700px) rotateX(-2deg) translateY(-2px) scale(1.012,1.02)}100%{opacity:1;transform:none;filter:none}}
+  @keyframes menuRollUp{0%{opacity:0;transform:perspective(700px) rotateX(18deg) translateY(16px) scale(.9,.5);filter:blur(6px)}30%{opacity:1}60%{filter:blur(0)}100%{opacity:1;transform:none;filter:none}}
 
   /* month chips: the colour puff is a blurred glow (no hard dots / no visible edge); on and off move differently */
   .mchip .splash{inset:-18px;filter:blur(7px);background:
@@ -543,7 +543,7 @@
   @keyframes mchipGlowOut{0%{opacity:0;transform:scale(.55)}35%{opacity:.85}100%{opacity:0;transform:scale(1.35)}}
   @keyframes mchipGlowIn{0%{opacity:0;transform:scale(1.5)}40%{opacity:.5}100%{opacity:0;transform:scale(.7)}}
   /* closing ghost (see shutMenu): rolls back up into its corner and dissolves */
-  .menu-ghost{z-index:31;pointer-events:none;animation:menuAway .46s cubic-bezier(.45,0,.25,1) both}
+  .menu-ghost{z-index:31;pointer-events:none;animation:menuAway .7s cubic-bezier(.45,0,.25,1) both}
   @keyframes menuAway{0%{opacity:1;transform:none;filter:none}100%{opacity:0;transform:perspective(700px) rotateX(-14deg) translateY(-12px) scale(.92,.5);filter:blur(4px)}}
   .menu-ghost.up{animation-name:menuAwayUp}
   @keyframes menuAwayUp{0%{opacity:1;transform:none;filter:none}100%{opacity:0;transform:perspective(700px) rotateX(14deg) translateY(12px) scale(.92,.5);filter:blur(4px)}}
@@ -554,23 +554,23 @@
   :root{--dx:-46px}
   :root[dir="ltr"]{--dx:46px}
   /* settings: scrim fades, the sheet slides in from its edge with a soft spring, and both run backwards on close */
-  #settings{opacity:1;transition:opacity .42s var(--ease),display .55s allow-discrete,overlay .55s allow-discrete}
+  #settings{opacity:1;transition:opacity .7s var(--ease),display .9s allow-discrete,overlay .9s allow-discrete}
   #settings[hidden]{display:none;opacity:0}
   @starting-style{#settings:not([hidden]){opacity:0}}
-  #settings .sheet{transform:none;opacity:1;filter:none;transition:transform .6s cubic-bezier(.22,1.15,.36,1),opacity .4s var(--ease),filter .4s var(--ease)}
+  #settings .sheet{transform:none;opacity:1;filter:none;transition:transform .95s cubic-bezier(.16,1,.3,1),opacity .6s var(--ease),filter .6s var(--ease)}
   #settings[hidden] .sheet{transform:translateX(var(--dx)) scale(.96);opacity:0;filter:blur(4px)}
   @starting-style{#settings:not([hidden]) .sheet{transform:translateX(var(--dx)) scale(.96);opacity:0;filter:blur(4px)}}
   /* dialogs: slower, springier pop */
-  #modal{transition:opacity .38s var(--ease),display .5s allow-discrete,overlay .5s allow-discrete}
-  #modal .card{transform:translateY(14px) scale(.92);opacity:0;transition:transform .55s cubic-bezier(.22,1.2,.36,1),opacity .35s var(--ease)}
+  #modal{transition:opacity .6s var(--ease),display .8s allow-discrete,overlay .8s allow-discrete}
+  #modal .card{transform:translateY(14px) scale(.92);opacity:0;transition:transform .8s cubic-bezier(.16,1,.3,1),opacity .55s var(--ease)}
   #modal.on .card{transform:none;opacity:1}
   @starting-style{#modal.on .card{transform:translateY(14px) scale(.92);opacity:0}}
   /* in-page disclosures (period picker, manager/payment, cost cards): height + fade */
-  details.picker::details-content,details.more::details-content{block-size:0;overflow:clip;opacity:0;transition:block-size .5s cubic-bezier(.22,1,.36,1),opacity .35s var(--ease),content-visibility .5s allow-discrete}
+  details.picker::details-content,details.more::details-content{block-size:0;overflow:clip;opacity:0;transition:block-size .85s cubic-bezier(.32,.72,0,1),opacity .6s var(--ease),content-visibility .85s allow-discrete}
   details.picker[open]::details-content,details.more[open]::details-content{block-size:auto;opacity:1}
-  details.costcard::details-content{opacity:0;transition:block-size .5s cubic-bezier(.22,1,.36,1),opacity .35s var(--ease),content-visibility .5s allow-discrete}
+  details.costcard::details-content{opacity:0;transition:block-size .85s cubic-bezier(.32,.72,0,1),opacity .6s var(--ease),content-visibility .85s allow-discrete}
   details.costcard[open]::details-content{opacity:1}
-  #toast{transition:opacity .4s var(--ease),transform .55s cubic-bezier(.22,1.2,.36,1)}
+  #toast{transition:opacity .6s var(--ease),transform .8s cubic-bezier(.16,1,.3,1)}
   @media(prefers-reduced-motion:reduce){#settings,#settings .sheet,#modal,#modal .card,details.picker::details-content,details.more::details-content,details.costcard::details-content,#toast{transition:none}}
 
   @media print{
@@ -896,6 +896,7 @@ var EN={
   "گزارش «{0}» حذف شود؟ این کار با «بازگرداندن» قابل برگشت است.":"Delete report “{0}”? You can undo this with “Undo”.",
   "گزارش حذف شد":"Report deleted",
   "بازگرداندن":"Undo",
+  "حافظهٔ ذخیره‌سازی رو به پر شدن است؛ فایل پشتیبان بگیرید یا گزارش‌های قدیمی را حذف کنید":"Storage is almost full — save a backup file or delete old reports",
   "ذخیره‌سازی پایدار فعال است: مرورگر داده را خودسرانه پاک نمی‌کند.":"Persistent storage is on: the browser won’t clear your data on its own.",
   "ذخیره‌سازی پایدار فعال نیست: اگر برنامه مدتی باز نشود، مرورگر ممکن است داده را پاک کند؛ فایل پشتیبان بگیرید.":"Persistent storage is off: if the app isn’t opened for a while the browser may clear your data — keep a backup file.",
   /* settings */
@@ -1171,14 +1172,34 @@ function askPersist(){
   _persistAsked=true;
   try{ navigator.storage.persist().then(function(){},function(){}); }catch(e){}
 }
+/* Typing saves are coalesced: every keystroke used to re-read and re-write the whole store (≈18ms for 600KB on
+   a desktop, several times that on a phone). Anything that must persist at once still calls saveStore(). */
+var _dirty=false,_soonT=0;
+function saveSoon(){ DV++; _dirty=true; clearTimeout(_soonT); _soonT=setTimeout(flushStore,300); }
+function flushStore(){ clearTimeout(_soonT); if(_dirty)saveStore(); }
+if(typeof window!=="undefined"&&window.addEventListener){
+  window.addEventListener("pagehide",flushStore);
+  document.addEventListener("visibilitychange",function(){ if(document.visibilityState==="hidden")flushStore(); });
+}
+/* localStorage is ~5M characters per origin; the store + daily snapshots + a signature can approach that, and a
+   full quota fails silently for the user. Warn once per session when ~70% is used. */
+var _quotaWarned=false;
+function checkQuota(){
+  if(_quotaWarned)return;
+  try{
+    var n=0; for(var i=0;i<localStorage.length;i++){ var k=localStorage.key(i); if(k&&k.indexOf("bcosts")===0)n+=k.length+(localStorage.getItem(k)||"").length; }
+    if(n>3500000){ _quotaWarned=true; if(typeof toast==="function"&&document.body)toast(T("حافظهٔ ذخیره‌سازی رو به پر شدن است؛ فایل پشتیبان بگیرید یا گزارش‌های قدیمی را حذف کنید"),null,null,7000); }
+  }catch(e){}
+}
 function saveStore(){
+  _dirty=false;
   DV++;
   try{
     var prev=localStorage.getItem(LS);
     var next=JSON.stringify(store);
     if(prev!==next)snapshotDaily(prev);
     localStorage.setItem(LS,next);
-    askPersist();
+    askPersist(); if(!_quotaWarned&&DV%20===1)checkQuota();
     return true;
   }catch(e){
     /* Startup and pure tests have no feedback UI; never let it turn a failed save into a second save. */
@@ -1577,7 +1598,7 @@ function renderUnits(){
   S.units.forEach(function(u,ui){
     if(!u.present)u.present={}; if(u.people==null)u.people=2;
     var lbl=el("input",{value:u.label||"",list:"unitNames"});
-    lbl.addEventListener("input",function(){u.label=lbl.value;saveStore();scheduleRender();});
+    lbl.addEventListener("input",function(){u.label=lbl.value;saveSoon();scheduleRender();});
     lbl.addEventListener("change",function(){remember("unit",lbl.value);fillAllDatalists();});
     var sel=el("select");
     for(var pi=1;pi<=6;pi++){var po=el("option",{value:pi,text:fa(pi)});if(ppl(u)===pi)po.selected=true;sel.append(po);}
@@ -1591,8 +1612,8 @@ function renderUnits(){
       cb.addEventListener("change",function(){u.present[p.key]=cb.checked;setCnt();saveStore();render();});
       tr.append(el("td",{},cb));
     });
-    var prev=moneyInput(faNum(0),u.prevBalance,function(n){u.prevBalance=n;saveStore();scheduleRender();});
-    var paid=moneyInput(faNum(0),u.paid,function(n){u.paid=n;saveStore();scheduleRender();});
+    var prev=moneyInput(faNum(0),u.prevBalance,function(n){u.prevBalance=n;saveSoon();scheduleRender();});
+    var paid=moneyInput(faNum(0),u.paid,function(n){u.paid=n;saveSoon();scheduleRender();});
     tr.append(cnt, el("td",{class:"mon"},prev), el("td",{class:"mon"},paid));
     var actions=el("td");
     var bRange=el("button",{class:"btn mini",text:T("بازه"),style:"margin:2px"});
@@ -1650,7 +1671,7 @@ function renderCosts(){
     summ.addEventListener("click",function(){setTimeout(function(){costOpen[c.id]=card.open;},0);});
     var body=el("div",{class:"cc-body"});
     var title=el("input",{value:c.title||"",list:"costNames",placeholder:T("عنوان قبض / هزینه")});
-    title.addEventListener("input",function(){c.title=title.value;saveStore();scheduleRender();});
+    title.addEventListener("input",function(){c.title=title.value;saveSoon();scheduleRender();});
     title.addEventListener("change",function(){remember("cost",title.value);fillAllDatalists();});
     var del=el("button",{class:"btn mini del",text:T("🗑 حذف هزینه")});
     del.addEventListener("click",function(){
@@ -1668,7 +1689,7 @@ function renderCosts(){
     });
     kind.addEventListener("change",function(){c.kind=kind.value;if(c.kind==="oneoff"&&c.method==="months")c.method="equal";saveStore();renderCosts();render();});
     var showPrev=prevA>0 && !amt0;
-    var amount=moneyInput(showPrev?T("دورهٔ قبل: {0}",money(prevA)):T("مبلغ کل ({0})",curName()),c.amount,function(n){c.amount=n;saveStore();scheduleRender();});
+    var amount=moneyInput(showPrev?T("دورهٔ قبل: {0}",money(prevA)):T("مبلغ کل ({0})",curName()),c.amount,function(n){c.amount=n;saveSoon();scheduleRender();});
     var amtCell=el("div",{},[el("label",{text:T("مبلغ کل ({0})",curName())}),amount]);
     if(showPrev){
       var same=el("button",{class:"btn mini",type:"button",text:T("همان مبلغِ دورهٔ قبل"),style:"margin-top:6px"});
@@ -1693,7 +1714,7 @@ function renderCosts(){
       bmode.addEventListener("change",function(){c.base.mode=bmode.value;saveStore();renderCosts();render();});
       var bwrap=el("div",{class:"grid g2",style:"margin-top:12px"},[el("div",{},[el("label",{text:T("سهم پایهٔ مشاعات (مساوی بین واحدها)")}),bmode])]);
       if(c.base.mode!=="none"){
-        var bval=moneyInput(c.base.mode==="pct"?T("درصد"):curName(),c.base.value,function(n){c.base.value=n;saveStore();scheduleRender();},c.base.mode==="pct"?2:null);
+        var bval=moneyInput(c.base.mode==="pct"?T("درصد"):curName(),c.base.value,function(n){c.base.value=n;saveSoon();scheduleRender();},c.base.mode==="pct"?2:null);
         bwrap.append(el("div",{},[el("label",{text:c.base.mode==="pct"?T("درصد از کل قبض"):T("مبلغ ثابت کل ({0})",curName())}),bval]));
       }
       body.append(bwrap);
@@ -1733,13 +1754,13 @@ function renderCosts(){
     if(c.method==="manual"){
       var mm=el("div",{class:"months",style:"grid-template-columns:repeat(auto-fill,minmax(150px,1fr))"});
       S.units.forEach(function(u){
-        var i=moneyInput("",c.manual[u.id],function(n){c.manual[u.id]=n;saveStore();scheduleRender();});
+        var i=moneyInput("",c.manual[u.id],function(n){c.manual[u.id]=n;saveSoon();scheduleRender();});
         mm.append(el("label",{},[el("span",{text:u.label||T("واحد")}),i]));
       });
       body.append(el("div",{style:"margin-top:12px"},[el("label",{text:T("سهم هر واحد ({0})",curName())}),mm]));
     }
     var note=el("input",{value:c.note||"",placeholder:T("توضیح (اختیاری) — روی گزارش می‌آید")});
-    note.addEventListener("input",function(){c.note=note.value;saveStore();scheduleRender();});
+    note.addEventListener("input",function(){c.note=note.value;saveSoon();scheduleRender();});
     body.append(el("div",{style:"margin-top:12px"},[el("label",{text:T("توضیح")}),note]));
     body.append(el("div",{class:"tally",id:"tally-"+c.id}));
     card.append(body);
@@ -2273,7 +2294,7 @@ function shutMenu(d){
       g.style.cssText="position:fixed;margin:0;inset:auto;left:"+r.left+"px;top:"+r.top+"px;width:"+r.width+"px;height:"+r.height+"px";
       document.body.appendChild(g);
       var gone=function(){ if(g.parentNode)g.parentNode.removeChild(g); };
-      g.addEventListener("animationend",gone); setTimeout(gone,650);
+      g.addEventListener("animationend",gone); setTimeout(gone,900);
     }catch(e){}
   }
   d.open=false;
@@ -2489,7 +2510,7 @@ var RECENT_FIELD={bName:"building",bManager:"manager",bPayTo:"payTo",bDue:"due"}
   elm.addEventListener("input",function(){
     S.building.name=$("#bName").value; S.building.manager=$("#bManager").value;
     S.building.payTo=$("#bPayTo").value; S.building.dueDate=$("#bDue").value;
-    saveStore(); scheduleRender();
+    saveSoon(); scheduleRender();
   });
   elm.addEventListener("change",function(){ remember(RECENT_FIELD[id],elm.value); fillAllDatalists(); });
 });
