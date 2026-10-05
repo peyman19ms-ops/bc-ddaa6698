@@ -280,10 +280,8 @@
   details.costcard.cc-bad{border-inline-start:3px solid var(--danger)}
   .cc-body{padding:15px}
   /* smooth open/collapse (Chromium 131+ ; instant fallback elsewhere) */
-  details.costcard::details-content{block-size:0;overflow:clip;transition:block-size .3s cubic-bezier(.22,1,.36,1),content-visibility .3s allow-discrete}
-  details.costcard[open]::details-content{block-size:auto}
   @media(prefers-reduced-motion:reduce){
-    .stat,details.costcard,details.costcard>summary::after,details.costcard::details-content{transition:none}
+    .stat,details.costcard,details.costcard>summary::after{transition:none}
   }
 
   #readyLine{margin:-4px 0 16px;font-size:12px;font-weight:700;border-radius:12px;padding:9px 13px;cursor:pointer;}
@@ -566,12 +564,14 @@
   #modal.on .card{transform:none;opacity:1}
   @starting-style{#modal.on .card{transform:translateY(14px) scale(.92);opacity:0}}
   /* in-page disclosures (period picker, manager/payment, cost cards): height + fade */
-  details.picker::details-content,details.more::details-content{block-size:0;overflow:clip;opacity:0;transition:block-size .85s cubic-bezier(.32,.72,0,1),opacity .6s var(--ease),content-visibility .85s allow-discrete}
-  details.picker[open]::details-content,details.more[open]::details-content{block-size:auto;opacity:1}
-  details.costcard::details-content{opacity:0;transition:block-size .85s cubic-bezier(.32,.72,0,1),opacity .6s var(--ease),content-visibility .85s allow-discrete}
-  details.costcard[open]::details-content{opacity:1}
   #toast{transition:opacity .6s var(--ease),transform .8s cubic-bezier(.16,1,.3,1)}
-  @media(prefers-reduced-motion:reduce){#settings,#settings .sheet,#modal,#modal .card,details.picker::details-content,details.more::details-content,details.costcard::details-content,#toast{transition:none}}
+  @media(prefers-reduced-motion:reduce){#settings,#settings .sheet,#modal,#modal .card,#toast{transition:none}}
+
+
+  /* no focus-zoom: browsers/WebViews zoom the page when a field's text is < 16px; also no double-tap zoom and no text inflation */
+  html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+  body{touch-action:manipulation}
+  @media(pointer:coarse){input,select,textarea{font-size:16px}}
 
   @media print{
     @page{size:A4;margin:14mm}
@@ -1668,7 +1668,7 @@ function renderCosts(){
     var card=el("details",{class:"costcard "+stCls},[summ]);
     card.open=(costOpen[c.id]!=null)?costOpen[c.id]:!filled;
     /* record only real user toggles (summary click) — never the programmatic open above */
-    summ.addEventListener("click",function(){setTimeout(function(){costOpen[c.id]=card.open;},0);});
+    summ.addEventListener("click",function(){setTimeout(function(){costOpen[c.id]=(card._want!=null?card._want:card.open);},0);});
     var body=el("div",{class:"cc-body"});
     var title=el("input",{value:c.title||"",list:"costNames",placeholder:T("عنوان قبض / هزینه")});
     title.addEventListener("input",function(){c.title=title.value;saveSoon();scheduleRender();});
@@ -1831,6 +1831,38 @@ function pushUndoAll(label){
     }catch(e){}
   },8000);
 }
+
+/* ---------- smooth disclosure (cost cards, period picker, manager/payment) ----------
+   <details> snaps open/closed and the old CSS-only fix (::details-content) needs a very recent WebView, so on the
+   phone it just jumped. This animates the box height itself (everything below is pushed/pulled along every frame)
+   and fades the content, with no browser-version dependency. The real `open` state flips at the start when opening
+   and at the end when closing; `_want` is the state the user asked for. */
+function smoothDetails(e){
+  var sm=e.target.closest&&e.target.closest("details.costcard>summary,details.picker>summary,details.more>summary");
+  if(!sm)return;
+  var d=sm.parentNode;
+  if(!d.animate||(window.matchMedia&&matchMedia("(prefers-reduced-motion:reduce)").matches))return;
+  e.preventDefault();
+  if(d._anim){ try{d._anim.cancel();}catch(x){} d._anim=null; }
+  var opening=d._want!=null?!d._want:!d.open;
+  var from=d.getBoundingClientRect().height, to;
+  d._want=opening;
+  if(opening){ d.open=true; to=d.getBoundingClientRect().height; }
+  else { d.open=false; to=d.getBoundingClientRect().height; d.open=true; }
+  var ov=d.style.overflow; d.style.overflow="hidden";
+  var kids=Array.prototype.filter.call(d.children,function(k){return k!==sm;});
+  var ms=opening?850:700, ease="cubic-bezier(.32,.72,0,1)";
+  var a=d.animate([{height:from+"px"},{height:to+"px"}],{duration:ms,easing:ease});
+  d._anim=a;
+  kids.forEach(function(k){ try{k.animate(opening?[{opacity:0,transform:"translateY(-8px)"},{opacity:1,transform:"none"}]:[{opacity:1},{opacity:0}],{duration:opening?ms*.8:ms*.5,easing:"ease-out",fill:"both"}); }catch(x){} });
+  var done=function(){
+    if(d._anim!==a)return; d._anim=null; d.style.overflow=ov; d._want=null;
+    if(!opening)d.open=false;
+    kids.forEach(function(k){ try{k.getAnimations().forEach(function(an){an.cancel();});}catch(x){} });
+  };
+  a.onfinish=done; a.oncancel=function(){ if(d._anim===a){ d._anim=null; d.style.overflow=ov; } };
+}
+document.addEventListener("click",smoothDetails);
 function canShareFiles(file){
   try{ return !!(navigator.canShare && navigator.canShare({files:[file]})); }catch(e){ return false; }
 }
