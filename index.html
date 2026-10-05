@@ -1384,12 +1384,21 @@ function allocStep(total,raw,step){
   var rem=want-have;                                        /* in units of step */
   var frac=raw.map(function(x,i){var f=x/step-Math.floor(x/step);return [f,i];});
   frac.sort(function(a,b){return rem>0 ? b[0]-a[0] : a[0]-b[0];});
-  var adj={}, k=0, r=Math.abs(rem);
-  while(r>0&&frac.length){var i=frac[k%frac.length][1];q[i]+=(rem>0?1:-1);adj[i]=(adj[i]||0)+(rem>0?step:-step);r--;k++;}
+  var adj={}, k=0, r=Math.abs(rem), skipped=0;
+  while(r>0&&frac.length){
+    var i=frac[k%frac.length][1];
+    /* taking a step away from a unit already at 0 would make its share negative (big rounding step, small bill) */
+    if(rem<0&&q[i]<=0){ if(++skipped>frac.length)break; k++; continue; }
+    skipped=0; q[i]+=(rem>0?1:-1);adj[i]=(adj[i]||0)+(rem>0?step:-step);r--;k++;
+  }
   var vals=q.map(function(v){return v*step;});
   /* exactness guard when step===1 (rounding can still be off by tiny) */
   var s2=0;vals.forEach(function(v){s2+=v;});
-  if(s2!==Math.round(total)){var d=Math.round(total)-s2;var bi=raw.indexOf(Math.max.apply(null,raw));if(bi<0)bi=0;vals[bi]+=d;adj[bi]=(adj[bi]||0)+d;}
+  if(s2!==Math.round(total)){var d=Math.round(total)-s2;
+    /* the leftover (total isn't a multiple of the step) goes to the biggest share that can take it without going negative */
+    var bi=-1;raw.forEach(function(x,i){ if(vals[i]+d>=0&&(bi<0||x>raw[bi]))bi=i; });
+    if(bi<0)bi=raw.indexOf(Math.max.apply(null,raw)); if(bi<0)bi=0;
+    vals[bi]+=d;adj[bi]=(adj[bi]||0)+d;}
   return {vals:vals,adj:adj};
 }
 
@@ -2787,6 +2796,15 @@ markOpts($("#langOpts"),"data-lang",LANG);
 $("#langOpts").addEventListener("click",function(e){
   var b=e.target.closest("button"); if(b&&b.getAttribute("data-lang")!==LANG)setLang(b.getAttribute("data-lang"));
 });
+/* installed PWA: the status/title bar follows the page background (meta only exists in the PWA build) */
+function syncThemeColor(){
+  try{
+    var m=document.querySelector('meta[name="theme-color"]'); if(!m)return;
+    var c=getComputedStyle(document.documentElement).getPropertyValue("--bg").trim(); if(c)m.setAttribute("content",c);
+  }catch(e){}
+}
+syncThemeColor();
+try{ matchMedia("(prefers-color-scheme:light)").addEventListener("change",function(){setTimeout(syncThemeColor,0);}); }catch(e){}
 (function skinWire(){
   var KEY="bcosts_skin", host=$("#skinOpts");
   var cur=null; try{cur=localStorage.getItem(KEY);}catch(e){}
@@ -2796,7 +2814,7 @@ $("#langOpts").addEventListener("click",function(e){
     var v=b.getAttribute("data-skin-opt");
     try{ if(v==="classic")localStorage.removeItem(KEY); else localStorage.setItem(KEY,v); }catch(err){}
     if(v==="classic")document.documentElement.removeAttribute("data-skin"); else document.documentElement.setAttribute("data-skin",v);
-    markOpts(host,"data-skin-opt",v);
+    markOpts(host,"data-skin-opt",v); syncThemeColor();
   });
 })();
 (function themeWire(){
@@ -2810,7 +2828,7 @@ $("#langOpts").addEventListener("click",function(e){
     /* per-element `transition:background/color` gives a soft cross-fade as the tokens flip */
     if(v==="auto")document.documentElement.removeAttribute("data-theme");
     else document.documentElement.setAttribute("data-theme",v);
-    markOpts(host,"data-theme-opt",v); positionSeg();
+    markOpts(host,"data-theme-opt",v); positionSeg(); syncThemeColor();
   });
 })();
 
