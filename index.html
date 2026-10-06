@@ -969,6 +969,7 @@ var EN={
   "گزارش «{0}» حذف شود؟ این کار با «بازگرداندن» قابل برگشت است.":"Delete report “{0}”? You can undo this with “Undo”.",
   "گزارش حذف شد":"Report deleted",
   "بازگرداندن":"Undo",
+  "اطلاعات ذخیره‌شده خراب بود؛ نسخهٔ خودکار قبلی بازیابی شد":"Stored data was damaged — restored the previous automatic snapshot",
   "رنگ‌بندی":"Color style","کلاسیک":"Classic","اپل مدرن":"Apple Modern",
   "حافظهٔ ذخیره‌سازی رو به پر شدن است؛ فایل پشتیبان بگیرید یا گزارش‌های قدیمی را حذف کنید":"Storage is almost full — save a backup file or delete old reports",
   "ذخیره‌سازی پایدار فعال است: مرورگر داده را خودسرانه پاک نمی‌کند.":"Persistent storage is on: the browser won’t clear your data on its own.",
@@ -1032,7 +1033,9 @@ function convYM(y,m,to){
 }
 
 var FA="۰۱۲۳۴۵۶۷۸۹";
-function parseNum(v){if(v==null)return 0;var s=String(v).replace(/[۰-۹]/g,function(d){return FA.indexOf(d);}).replace(/٫/g,".").replace(/−/g,"-").replace(/[^\d.\-]/g,"");var n=parseFloat(s);return isFinite(n)?n:0;}
+/* Persian (۰-۹) and Arabic-Indic (٠-٩, from Arabic keyboards) digits -> Latin, so typed amounts never silently become 0 */
+function latinDigits(v){return String(v).replace(/[۰-۹]/g,function(d){return FA.indexOf(d);}).replace(/[٠-٩]/g,function(d){return d.charCodeAt(0)-1632;});}
+function parseNum(v){if(v==null)return 0;var s=latinDigits(v).replace(/٫/g,".").replace(/−/g,"-").replace(/[^\d.\-]/g,"");var n=parseFloat(s);return isFinite(n)?n:0;}
 /* toman/fa/faNum print Persian digits in Persian and Latin digits in English */
 var NUMLOC=LANG==="en"?"en-US":"fa-IR";
 
@@ -1074,7 +1077,7 @@ function faNum(n){return LANG==="en"?String(n):String(n).replace(/[0-9]/g,functi
    ("12." / "12.5") as typed — formatting it as a finished amount would eat the dot */
 function typedMoney(v,dec){
   v=String(v); var neg=/^\s*[-−]/.test(v);
-  var s=v.replace(/[۰-۹]/g,function(d){return FA.indexOf(d);}).replace(/٫/g,".").replace(/[^\d.]/g,"");
+  var s=latinDigits(v).replace(/٫/g,".").replace(/[^\d.]/g,"");
   var dot=s.indexOf("."), ip=dot<0?s:s.slice(0,dot), fp=(dot<0||!dec)?null:s.slice(dot+1).replace(/\./g,"").slice(0,dec);
   ip=ip.replace(/^0+(?=\d)/,"");
   if(!ip&&fp==null)return neg?"−":"";
@@ -1314,7 +1317,28 @@ function fillAllDatalists(){
   fillDatalist("dueNames",recentList("due"));
 }
 
+/* ids become object keys (shares, manual, open-state): keep them unique strings and never a reserved name */
+function reservedId(x){ return x==="__proto__"||x==="constructor"||x==="prototype"; }
+function cleanIds(list,costs){
+  var seen=Object.create(null);
+  list.forEach(function(x){
+    var old=x.id, bad=old==null||old===""||reservedId(old)||seen[old]===1;
+    if(bad){
+      var nid=uid();
+      /* a unit renamed away from a reserved/missing id keeps its manual amounts (first holder only) */
+      if(costs&&old!=null&&seen[old]!==1)costs.forEach(function(c){ if(c.manual&&Object.prototype.hasOwnProperty.call(c.manual,old)){ c.manual[nid]=c.manual[old]; delete c.manual[old]; } });
+      x.id=nid;
+    }
+    seen[x.id]=1;
+  });
+}
+function isObj(x){return !!x&&typeof x==="object"&&!Array.isArray(x);}
 function migrateReport(r){
+  /* stored data can be valid JSON yet malformed (hand edits, old bugs): drop junk entries instead of crashing at start-up */
+  r.units=(Array.isArray(r.units)?r.units:[]).filter(isObj);
+  r.costs=(Array.isArray(r.costs)?r.costs:[]).filter(isObj);
+  r.costs.forEach(function(c){ if(!isObj(c.manual))c.manual={}; });
+  cleanIds(r.units,r.costs); cleanIds(r.costs,null);
   if(!r.building)r.building={};
   var b=r.building;
   if(b.cal!=="g")b.cal="j";                   /* every report before v1.28 is Jalali… */
@@ -1362,16 +1386,33 @@ function validStore(d){
   var ks=Object.keys(d.reports);
   return ks.length>0 && ks.every(function(k){ return validReport(d.reports[k]); });
 }
-function initStore(){
-  store=loadStore();
-  if(!store||!store.reports||!Object.keys(store.reports).length){
+function setupStore(){
+  if(!store||!isObj(store.reports)||!Object.keys(store.reports).length){
     var id=uid(); store={version:3,activeId:id,reports:{}}; store.reports[id]=blankReport();
   }
+  Object.keys(store.reports).forEach(function(id){ if(!isObj(store.reports[id]))delete store.reports[id]; });
+  if(!Object.keys(store.reports).length){ var id2=uid(); store.reports[id2]=blankReport(); store.activeId=id2; }
   Object.keys(store.reports).forEach(function(id){migrateReport(store.reports[id]);});
   if(!store.reports[store.activeId]) store.activeId=Object.keys(store.reports)[0];
   if(!store.recent||typeof store.recent!=="object"||Array.isArray(store.recent))store.recent={};
   S=store.reports[store.activeId];
+}
+/* start-up must never fail: if the stored data can't be set up, walk back through the daily snapshots, then start blank */
+var storeRecovered=false;
+function initStore(){
+  store=loadStore();
+  try{ setupStore(); }
+  catch(e){
+    storeRecovered=true;
+    var bk=listBackups(), ok=false;
+    for(var i=0;i<bk.length&&!ok;i++){
+      try{ store=JSON.parse(JSON.stringify(bk[i].data)); setupStore(); ok=true; }catch(e2){}
+    }
+    if(!ok){ store=null; setupStore(); }
+  }
   saveStore();
+  if(storeRecovered&&typeof document!=="undefined"&&document.body&&typeof toast==="function")
+    setTimeout(function(){ toast(T("اطلاعات ذخیره‌شده خراب بود؛ نسخهٔ خودکار قبلی بازیابی شد"),null,null,7000); },600);
 }
 function useReport(id){ if(store.reports[id]){ store.activeId=id; S=store.reports[id]; saveStore(); redrawAll(); } }
 
@@ -1898,7 +1939,12 @@ function fadeOutThen(node,fn){
 }
 /* keystrokes rebuild only the report, debounced; ✓/✗ tallies stay instant */
 var _rt;
-function scheduleRender(){ refreshTallies(); clearTimeout(_rt); _rt=setTimeout(render,180); }
+/* the pause before re-rendering scales with how long the last render took, so a big building doesn't re-render on every keystroke */
+var _lastRenderMs=0;
+function scheduleRender(){
+  refreshTallies(); clearTimeout(_rt);
+  _rt=setTimeout(function(){ var t0=Date.now(); render(); _lastRenderMs=Date.now()-t0; },Math.max(180,Math.min(900,2*_lastRenderMs)));
+}
 /* one-step undo for destructive edits — snapshot the active report, offer it back for 6s */
 function pushUndo(label){
   var snap=JSON.stringify(S), id=store.activeId;
