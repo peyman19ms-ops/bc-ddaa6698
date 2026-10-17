@@ -638,6 +638,16 @@
   .slipbtns .btn:nth-child(n+5),#shareLinks a:nth-child(n+5){animation-delay:.28s}
   @media(prefers-reduced-motion:reduce){.slipbtns .btn,#shareLinks a,#shareLinks .btn,#plainToggle{animation:none}.btn,.iconbtn,.seg-opt,#shareLinks a,.seg-ind{transition:none}}
 
+
+  /* tester licence gate + update row */
+  #licGate{position:fixed;inset:0;z-index:200;background:var(--bg);display:grid;place-items:center;padding:20px;overflow:auto}
+  #licGate .card{background:var(--bg);box-shadow:var(--nm-out);border-radius:24px;padding:22px;max-inline-size:440px;inline-size:100%;display:grid;gap:12px}
+  #licGate h2{margin:0;font-size:17px}
+  #licGate .licid{font-family:ui-monospace,Consolas,monospace;font-size:26px;letter-spacing:.12em;text-align:center;padding:12px;border-radius:16px;box-shadow:var(--nm-in-sm);direction:ltr;user-select:all}
+  #licGate textarea{inline-size:100%;font-size:13px;font-family:ui-monospace,Consolas,monospace;border:0;border-radius:14px;padding:10px;background:var(--bg);color:var(--ink);box-shadow:var(--nm-in-sm);resize:vertical}
+  .setlist button[hidden]{display:none}   /* author display:flex would otherwise win over the hidden attribute */
+  .updauto{display:flex;align-items:center;gap:8px;margin-top:10px;cursor:pointer}
+
   @media print{
     @page{size:A4;margin:14mm}
     body{background:#fff}
@@ -800,6 +810,16 @@
         <div><label for="bRound">گرد کردن مبالغ</label><select id="bRound"></select></div>
       </div>
       <p class="hint">جمع هر قبض همیشه دقیقاً برابر مبلغ کل می‌ماند؛ تعدیل در گزارش نوشته می‌شود. تقویم را بهتر است پیش از واردکردنِ ماه‌ها انتخاب کنید.</p>
+    </section>
+
+    <section class="setgrp" id="updSec">
+      <h3>به‌روزرسانی نرم‌افزار</h3>
+      <p class="hint" id="updVer"></p>
+      <div class="setlist">
+        <button type="button" id="updCheck"><b>بررسی بروزرسانی</b><small id="updStatus"></small></button>
+        <button type="button" id="updGet" hidden><b id="updGetLbl">دریافت و نصب نسخهٔ جدید</b></button>
+      </div>
+      <label class="hint updauto"><input type="checkbox" id="updAuto"> بررسی خودکار بروزرسانی</label>
     </section>
 
     <section class="setgrp">
@@ -969,6 +989,14 @@ var EN={
   "گزارش «{0}» حذف شود؟ این کار با «بازگرداندن» قابل برگشت است.":"Delete report “{0}”? You can undo this with “Undo”.",
   "گزارش حذف شد":"Report deleted",
   "بازگرداندن":"Undo",
+  /* tester licence + updates */
+  "نسخهٔ آزمایشی — فعال‌سازی":"Test build — activation",
+  "این نسخه فقط روی دستگاه‌های مجاز کار می‌کند. شناسهٔ این دستگاه را برای سازندهٔ برنامه بفرستید و کدِ مجوزی را که برمی‌گرداند همین‌جا وارد کنید.":"This build only runs on authorised devices. Send this device’s ID to the app’s author and enter the licence code you get back here.",
+  "کپی شناسه":"Copy ID","شناسه کپی شد":"ID copied","کد مجوز":"Licence code","فعال‌سازی":"Activate","فعال شد":"Activated","کد برای این دستگاه معتبر نیست.":"This code is not valid for this device.",
+  "به‌روزرسانی نرم‌افزار":"Software update","نسخهٔ فعلی: {0} ({1})":"Current version: {0} ({1})","بررسی بروزرسانی":"Check for updates","بررسی خودکار بروزرسانی":"Check for updates automatically",
+  "نسخهٔ شما به‌روز است":"You’re up to date","بررسی انجام نشد (اینترنت؟)":"Couldn’t check (internet?)","در حال بررسی…":"Checking…","نسخهٔ جدید {0} آماده است":"Version {0} is available",
+  "به‌روزرسانی و بازشدن دوباره":"Update and reopen","دریافت و نصب نسخهٔ جدید":"Download and install the new version","نصب این نسخه از راه کامپیوتر انجام می‌شود":"this build is installed from the computer",
+  "نسخهٔ جدید آماده است":"A new version is ready","دریافت":"Get",
   "اطلاعات ذخیره‌شده خراب بود؛ نسخهٔ خودکار قبلی بازیابی شد":"Stored data was damaged — restored the previous automatic snapshot",
   "رنگ‌بندی":"Color style","کلاسیک":"Classic","اپل مدرن":"Apple Modern",
   "حافظهٔ ذخیره‌سازی رو به پر شدن است؛ فایل پشتیبان بگیرید یا گزارش‌های قدیمی را حذف کنید":"Storage is almost full — save a backup file or delete old reports",
@@ -3001,6 +3029,130 @@ if(location.hash==="#selftest"){(function(){
   store=JSON.parse(bk); store.activeId=abk; S=store.reports[store.activeId];
   console.log(ok?"%cselftest PASSED":"%cselftest FAILED","font-weight:bold;color:"+(ok?"green":"red"));
 })();}
+/* ---------- tester builds only: offline licence for a limited number of devices ----------
+   `BC_TESTER` is injected by `tools/build.js --tester …`; normal builds don't define it and none of this runs.
+   The owner holds a private ECDSA P-256 key. Every device shows its own device id; the owner signs "bcosts:<id>"
+   and sends back the code. No server, no network: an id without a code stays locked, so the number of devices
+   is exactly the number of codes the owner issued. */
+var DEVID_KEY="bcosts_devid", LIC_KEY="bcosts_license";
+function devId(){
+  var v=null; try{v=localStorage.getItem(DEVID_KEY);}catch(e){}
+  if(v&&/^[A-Z2-9]{10}$/.test(v))return v;
+  var A="ABCDEFGHJKLMNPQRSTUVWXYZ23456789", b=new Uint8Array(10), s="";
+  try{ crypto.getRandomValues(b); }catch(e){ for(var i=0;i<10;i++)b[i]=Math.floor(Math.random()*256); }
+  for(var j=0;j<10;j++)s+=A[b[j]%A.length];
+  try{localStorage.setItem(DEVID_KEY,s);}catch(e){}
+  return s;
+}
+function devIdText(id){ return id.slice(0,5)+"-"+id.slice(5); }
+function b64uBytes(s){
+  s=String(s).replace(/\s+/g,"").replace(/-/g,"+").replace(/_/g,"/"); while(s.length%4)s+="=";
+  var b=atob(s), u=new Uint8Array(b.length); for(var i=0;i<b.length;i++)u[i]=b.charCodeAt(i); return u;
+}
+/* resolves true only if `code` is the owner's signature of this device id */
+function licVerify(code,id){
+  return new Promise(function(res){
+    try{
+      var sub=crypto.subtle;
+      sub.importKey("jwk",BC_TESTER.pub,{name:"ECDSA",namedCurve:"P-256"},false,["verify"]).then(function(k){
+        return sub.verify({name:"ECDSA",hash:"SHA-256"},k,b64uBytes(code),new TextEncoder().encode("bcosts:"+id));
+      }).then(function(ok){res(!!ok);},function(){res(false);});
+    }catch(e){res(false);}
+  });
+}
+function licGate(){
+  var id=devId(), wrap=document.querySelector(".wrap");
+  if(wrap)wrap.inert=true;
+  var g=el("div",{id:"licGate",role:"dialog","aria-modal":"true","aria-labelledby":"licTitle"});
+  var card=el("div",{class:"card"});
+  card.append(el("h2",{id:"licTitle",text:T("نسخهٔ آزمایشی — فعال‌سازی")}));
+  card.append(el("p",{class:"hint",text:T("این نسخه فقط روی دستگاه‌های مجاز کار می‌کند. شناسهٔ این دستگاه را برای سازندهٔ برنامه بفرستید و کدِ مجوزی را که برمی‌گرداند همین‌جا وارد کنید.")}));
+  card.append(el("div",{id:"licDevId",class:"licid",text:devIdText(id)}));
+  var cp=el("button",{type:"button",class:"btn ghost",text:T("کپی شناسه")});
+  cp.addEventListener("click",function(){copyText(devIdText(id),function(){toast(T("شناسه کپی شد"));});});
+  card.append(cp);
+  var ta=el("textarea",{id:"licCode",rows:"3","aria-label":T("کد مجوز"),placeholder:T("کد مجوز"),dir:"ltr",spellcheck:"false",autocapitalize:"off",autocomplete:"off"});
+  card.append(ta);
+  var err=el("p",{id:"licErr",class:"hint",role:"alert"}); card.append(err);
+  var go=el("button",{type:"button",id:"licGo",class:"btn",text:T("فعال‌سازی")});
+  go.addEventListener("click",function(){
+    var code=ta.value.replace(/\s+/g,"");
+    licVerify(code,id).then(function(ok){
+      if(ok){ try{localStorage.setItem(LIC_KEY,code);}catch(e){} g.remove(); if(wrap)wrap.inert=false; toast(T("فعال شد")); }
+      else err.textContent=T("کد برای این دستگاه معتبر نیست.");
+    });
+  });
+  card.append(go); g.append(card); document.body.append(g);
+  try{ta.focus();}catch(e){}
+}
+if(typeof BC_TESTER!=="undefined"){
+  (function(){
+    var id=devId(), saved=null; try{saved=localStorage.getItem(LIC_KEY);}catch(e){}
+    var wrap=document.querySelector(".wrap"); if(wrap)wrap.inert=true;            /* locked until proven */
+    var show=function(){ licGate(); };
+    if(!saved){ show(); return; }
+    licVerify(saved,id).then(function(ok){ if(ok){ if(wrap)wrap.inert=false; } else show(); });
+  })();
+}
+/* ---------- software update: manual button + automatic check ----------
+   latest.json is published next to the PWA (GitHub Pages, CORS *) by CI; tester builds read their own channel
+   (BC_TESTER.update). Comparison is by source hash: a different hash = a different build is available.
+   - installed PWA: the service worker swaps the files itself; "update" just asks it now and reloads
+   - Windows / Android: a silent in-place install is not possible without extra system rights, so the new file is
+     opened for download (browser / system installer) with one tap. */
+var BC_VER={"v":"1.29","h":"2a8ef68e"};
+var UPD_URL=(typeof BC_TESTER!=="undefined"&&BC_TESTER.update)||"https://peyman19ms-ops.github.io/bc-ddaa6698/latest.json";
+var UPD_AUTO_KEY="bcosts_autoupd", updInfo=null, updAnnounced="";
+function updPlatform(){
+  if(window.AndroidApp&&AndroidApp.openUrl)return "apk";
+  if(window.chrome&&window.chrome.webview)return "exe";
+  return "pwa";
+}
+function updAutoOn(){ try{return localStorage.getItem(UPD_AUTO_KEY)!=="0";}catch(e){return true;} }
+function updTarget(j){ var p=updPlatform(); return p==="apk"?j.apk:(p==="exe"?j.exe:null); }
+function updShow(state,j){
+  var st=$("#updStatus"), get=$("#updGet"); if(!st||!get)return;
+  get.hidden=true;
+  if(state==="ok"){ st.textContent=T("نسخهٔ شما به‌روز است"); return; }
+  if(state==="fail"){ st.textContent=T("بررسی انجام نشد (اینترنت؟)"); return; }
+  if(state==="busy"){ st.textContent=T("در حال بررسی…"); return; }
+  var p=updPlatform();
+  st.textContent=T("نسخهٔ جدید {0} آماده است",faNum(j.v||""));
+  if(p==="pwa"||updTarget(j)){ get.hidden=false; $("#updGetLbl").textContent=p==="pwa"?T("به‌روزرسانی و بازشدن دوباره"):T("دریافت و نصب نسخهٔ جدید"); }
+  else st.textContent+=" — "+T("نصب این نسخه از راه کامپیوتر انجام می‌شود");
+}
+function updApply(){
+  var p=updPlatform();
+  if(p==="pwa"){
+    var go=function(){ location.reload(); };
+    try{ navigator.serviceWorker.getRegistration().then(function(r){ return r?r.update():null; }).then(function(){ setTimeout(go,900); },go); }catch(e){ go(); }
+    return;
+  }
+  var url=updInfo&&updTarget(updInfo); if(!url)return;
+  if(p==="apk")AndroidApp.openUrl(url); else window.open(url,"_blank");
+}
+function updCheck(manual){
+  if(manual)updShow("busy");
+  return fetch(UPD_URL+(UPD_URL.indexOf("?")<0?"?":"&")+"t="+Date.now(),{cache:"no-store"}).then(function(r){ if(!r.ok)throw new Error("http"); return r.json(); }).then(function(j){
+    updInfo=j; var newer=!!(j&&j.h&&j.h!==BC_VER.h);
+    updShow(newer?"new":"ok",j);
+    if(newer&&!manual&&updAnnounced!==j.h&&updPlatform()!=="pwa"){ updAnnounced=j.h; toast(T("نسخهٔ جدید آماده است"),T("دریافت"),updApply,12000); }
+    if(newer&&!manual&&updPlatform()==="pwa"){ try{ navigator.serviceWorker.getRegistration().then(function(r){ if(r)r.update(); }); }catch(e){} }
+    return newer;
+  }).catch(function(){ if(manual)updShow("fail"); return false; });
+}
+(function updWire(){
+  var v=$("#updVer"); if(v)v.textContent=T("نسخهٔ فعلی: {0} ({1})",faNum(BC_VER.v),BC_VER.h);
+  var chk=$("#updCheck"), get=$("#updGet"), auto=$("#updAuto");
+  if(!chk)return;
+  chk.addEventListener("click",function(){ updCheck(true); });
+  get.addEventListener("click",updApply);
+  auto.checked=updAutoOn();
+  auto.addEventListener("change",function(){ try{ localStorage.setItem(UPD_AUTO_KEY,auto.checked?"1":"0"); }catch(e){} });
+  /* automatic: a few seconds after start, then every 6 h while the app stays open */
+  setTimeout(function(){ if(updAutoOn())updCheck(false); },4000);
+  setInterval(function(){ if(updAutoOn())updCheck(false); },6*3600*1000);
+})();
 </script>
 <script>if("serviceWorker" in navigator&&(location.protocol==="https:"||location.hostname==="localhost")){window.addEventListener("load",function(){var had=!!navigator.serviceWorker.controller,r=false;navigator.serviceWorker.addEventListener("controllerchange",function(){if(had&&!r){r=true;location.reload();}});navigator.serviceWorker.register("sw.js").catch(function(){});});}</script>
 </body>
