@@ -1800,7 +1800,10 @@ function renderUnits(){
 
 /* ---------- cost cards ---------- */
 function renderCosts(){
-  var box=$("#costList");box.innerHTML="";
+  var box=$("#costList");
+  /* remember which cards are open BEFORE rebuilding, or a filled card the user is editing snaps shut when e.g. its split method changes */
+  Array.prototype.forEach.call(box.querySelectorAll("details.costcard[data-cid]"),function(d){ costOpen[d.getAttribute("data-cid")]=(d._want!=null?d._want:d.open); });
+  box.innerHTML="";
   var P=periods();
   S.costs.forEach(function(c){
     if(!c.manual)c.manual={};
@@ -1819,7 +1822,7 @@ function renderCosts(){
       el("span",{class:"cc-meta",text:metaTxt}),
       el("span",{class:"cc-badge "+(bad?"bad":(filled?"ok":"")),text:bad?"✗":(filled?"✓":"")})
     ]);
-    var card=el("details",{class:"costcard "+stCls},[summ]);
+    var card=el("details",{class:"costcard "+stCls,"data-cid":c.id},[summ]);
     card.open=(costOpen[c.id]!=null)?costOpen[c.id]:!filled;
     /* record only real user toggles (summary click) — never the programmatic open above */
     summ.addEventListener("click",function(){setTimeout(function(){costOpen[c.id]=(card._want!=null?card._want:card.open);},0);});
@@ -3100,7 +3103,7 @@ if(typeof BC_TESTER!=="undefined"){
    - installed PWA: the service worker swaps the files itself; "update" just asks it now and reloads
    - Windows / Android: a silent in-place install is not possible without extra system rights, so the new file is
      opened for download (browser / system installer) with one tap. */
-var BC_VER={"v":"1.29","h":"2a8ef68e"};
+var BC_VER={"v":"1.29","h":"a68b2c3a"};
 var UPD_URL=(typeof BC_TESTER!=="undefined"&&BC_TESTER.update)||"https://peyman19ms-ops.github.io/bc-ddaa6698/latest.json";
 var UPD_AUTO_KEY="bcosts_autoupd", updInfo=null, updAnnounced="";
 function updPlatform(){
@@ -3125,7 +3128,7 @@ function updApply(){
   var p=updPlatform();
   if(p==="pwa"){
     var go=function(){ location.reload(); };
-    try{ navigator.serviceWorker.getRegistration().then(function(r){ return r?r.update():null; }).then(function(){ setTimeout(go,900); },go); }catch(e){ go(); }
+    try{ navigator.serviceWorker.getRegistration().then(function(r){ return r?r.update():null; }).then(function(){ setTimeout(go,900); },go).catch(go); }catch(e){ go(); }
     return;
   }
   var url=updInfo&&updTarget(updInfo); if(!url)return;
@@ -3137,7 +3140,7 @@ function updCheck(manual){
     updInfo=j; var newer=!!(j&&j.h&&j.h!==BC_VER.h);
     updShow(newer?"new":"ok",j);
     if(newer&&!manual&&updAnnounced!==j.h&&updPlatform()!=="pwa"){ updAnnounced=j.h; toast(T("نسخهٔ جدید آماده است"),T("دریافت"),updApply,12000); }
-    if(newer&&!manual&&updPlatform()==="pwa"){ try{ navigator.serviceWorker.getRegistration().then(function(r){ if(r)r.update(); }); }catch(e){} }
+    if(newer&&!manual&&updPlatform()==="pwa"){ try{ navigator.serviceWorker.getRegistration().then(function(r){ if(r)r.update(); }).catch(function(){}); }catch(e){} }
     return newer;
   }).catch(function(){ if(manual)updShow("fail"); return false; });
 }
