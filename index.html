@@ -146,6 +146,13 @@
   @keyframes mchipSplash{0%{opacity:0;transform:scale(.5)}30%{opacity:.55}100%{opacity:0;transform:scale(1.75)}}
   @media(prefers-reduced-motion:reduce){.mchip .splash{display:none}.mchip.pop .fill,.mchip.off .fill,.mchip.pop .lbl,.mchip.off .lbl{animation:none}}
 
+  .meter{margin-top:12px}
+  .mread{display:grid;grid-template-columns:minmax(64px,1fr) 1.2fr 1.2fr .8fr;gap:6px;align-items:center;margin-top:6px}
+  .mread.mh{font-size:11px;color:var(--muted);margin-top:4px}
+  .mread input{min-inline-size:0}
+  .mread .mu{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .mread .muse{font-variant-numeric:tabular-nums;font-weight:700;text-align:center}
+  .meter .mmain{margin-top:10px} .meter .mtot{display:block;margin-top:8px;font-size:12px;color:var(--muted)}
   .tally{font-size:12px;color:var(--muted);margin-top:10px}
   .tally b{color:var(--ink)} .tally .bad{color:var(--danger)} .tally .ok{color:var(--money-ink)}
   .hint{font-size:11.5px;color:var(--muted);margin-top:6px}
@@ -831,6 +838,7 @@
       </div>
       <input type="file" id="rFile" accept=".json,application/json" hidden>
       <p class="hint">اطلاعات فقط روی همین دستگاه ذخیره می‌شود. برای بردن به گوشی یا کامپیوتر دیگر، فایل پشتیبان بگیرید و آن‌جا بازگردانی کنید.</p>
+      <p class="hint" id="abLine"></p>
       <p class="hint" id="persistLine" hidden></p>
     </section>
 
@@ -864,7 +872,7 @@ function T(s){
   for(var i=1;i<arguments.length;i++) r=r.split("{"+(i-1)+"}").join(String(arguments[i]));
   return r;
 }
-function setLang(l){ try{localStorage.setItem("bcosts_lang",l);}catch(e){} location.reload(); }
+function setLang(l){ try{localStorage.setItem("bcosts_lang",l);}catch(e){} appReload(); }
 /* static markup in 20-body.html is Persian; translate it once at startup */
 function translateDom(root){
   if(LANG!=="en")return;
@@ -889,6 +897,22 @@ function jDate(d){
 }
 
 var EN={
+  "در حال دریافت نسخهٔ جدید…":"Downloading the new version…",
+  "این دستگاه خودش فایل پشتیبان نمی‌نویسد (iOS و مرورگر). برای ایمنی گاهی «ذخیرهٔ فایل پشتیبان» را بزنید؛ در iPhone از منوی اشتراک «Save to Files».":"This device can't write backup files by itself (iOS and browsers). Now and then tap “Save backup file”; on iPhone choose “Save to Files” in the share sheet.",
+  "نسخهٔ اندروید این گوشی (کمتر از ۱۰) پشتیبان خودکار فایلی ندارد؛ پشتیبان گوگل و «ذخیرهٔ فایل پشتیبان» را استفاده کنید.":"This phone's Android version (below 10) has no automatic backup file; rely on Google backup and “Save backup file”.",
+  "پشتیبان خودکار نوشته نشد — «ذخیرهٔ فایل پشتیبان» را دستی بزنید.":"The automatic backup could not be written — tap “Save backup file” by hand.",
+  "پشتیبان خودکار روشن است ({0}).":"Automatic backup is on ({0}).","آخرین: {0}":"Last: {0}",
+  "اطلاعات قبلی از پشتیبان همین دستگاه برگردانده شد":"Your previous data was restored from this device's backup",
+  "نصب تازه است — اگر قبلاً پشتیبان داشتی بازیابی کن":"Fresh install — restore your previous backup if you have one","انتخاب فایل":"Choose file",
+  "سهم پایه + بر اساس مصرف کنتور":"Base share + by meter usage","قرائت کنتور هر واحد":"Each unit's meter reading",
+  "قبلی":"Previous","فعلی":"Current","مصرف":"Usage","قرائت قبلی":"Previous reading","قرائت فعلی":"Current reading",
+  "اختیاری":"Optional","مصرف کل کنتور اصلی (اختیاری)":"Main meter total usage (optional)",
+  "مصرف کل کنتور اصلی (اختیاری) — مازادِ بین واحدها مساوی پخش می‌شود":"Main meter total usage (optional) — whatever the units don't account for is shared equally",
+  "جمع مصرف واحدها: {0}":"Units' total usage: {0}","مصرف {0}":"usage {0}",
+  "«{0}»: قرائتِ فعلیِ این واحدها ثبت نشده (مصرف صفر حساب می‌شود): {1}":"“{0}”: current reading missing for these units (counted as zero usage): {1}",
+  "«{0}»: قرائتِ فعلیِ این واحدها کمتر از قبلی است — کنتور صفر/تعویض شده؟ {1}":"“{0}”: current reading is lower than the previous one for these units — meter reset or replaced? {1}",
+  "«{0}»: هیچ مصرفی ثبت نشده؛ مبلغ مساوی پخش می‌شود.":"“{0}”: no usage recorded; the amount is split equally.",
+  "«{0}»: مصرفِ کنتور اصلی کمتر از جمع مصرفِ واحدهاست.":"“{0}”: the main meter's usage is lower than the units' total.",
   /* app shell */
   "تقسیم هزینه‌های ساختمان":"Building Cost Splitter",
   "تنظیمات":"Settings","بستن":"Close","تأیید":"OK","باشه":"OK","انصراف":"Cancel",
@@ -1155,6 +1179,13 @@ function copyText(str,onDone){
   onDone(false);
 }
 
+/* location.reload() would load the bundled page again inside the Android shell and drop an over-the-air update */
+function appReload(){
+  try{ if(window.AndroidApp&&AndroidApp.reload){ AndroidApp.reload(); return; } }catch(e){}
+  location.reload();
+}
+function nativeLevel(){ try{ return (window.AndroidApp&&AndroidApp.level)?AndroidApp.level():(window.AndroidApp?1:0); }catch(e){ return 1; } }
+
 /* ---------- saving a generated file (JSON backup, PNG summary) ----------
    <a download> is ignored by the Android WebView, and blob: URLs never reach a
    DownloadListener, so the browser path silently produced nothing in the APK —
@@ -1178,6 +1209,14 @@ function saveBlob(blob,filename,onDone){
     try{ fr.readAsDataURL(blob); }catch(e){ onDone(false); }
     return;
   }
+  /* an installed iOS web app cannot start a download; the share sheet ("Save to Files") is the way to get a file out */
+  try{
+    var f=(typeof File==="function")?new File([blob],filename,{type:blob.type||"application/octet-stream"}):null;
+    if(f&&navigator.standalone===true&&navigator.canShare&&navigator.canShare({files:[f]})){
+      navigator.share({files:[f],title:filename}).then(function(){ onDone(true,"share"); },function(e){ onDone(!!(e&&e.name==="AbortError"),"share"); });
+      return;
+    }
+  }catch(e){}
   try{
     var url=URL.createObjectURL(blob);
     var a=el("a",{href:url,download:filename});
@@ -1206,6 +1245,7 @@ function moneyInput(ph,initial,onValue,decOverride){
 var METHODS={
   months:T("سهم پایه + بر اساس ماه سکونت"),
   people:T("سهم پایه + بر اساس نفرات (نفر × ماه)"),
+  meter:T("سهم پایه + بر اساس مصرف کنتور"),
   equal:T("مساوی بین واحدها"),
   manual:T("سهم دستی هر واحد")
 };
@@ -1224,6 +1264,7 @@ function blankReport(name){
     costs:[{id:uid(),title:T("قبض آب"),kind:"periodic",amount:0,cover:{},base:{mode:"pct",value:10},method:"months",manual:{},note:""}]
   };
 }
+var freshInstall=false;   /* true when nothing at all was stored yet: a brand-new install (the auto-backup may be able to restore) */
 function loadStore(){
   var raw; try{raw=localStorage.getItem(LS);}catch(e){}
   if(raw){ try{ return JSON.parse(raw); }catch(e){} }
@@ -1304,6 +1345,7 @@ function saveStore(){
     var next=JSON.stringify(store);
     if(prev!==next)snapshotDaily(prev);
     localStorage.setItem(LS,next);
+    if(typeof abSoon==="function")abSoon();
     askPersist(); if(!_quotaWarned&&DV%20===1)checkQuota();
     return true;
   }catch(e){
@@ -1365,7 +1407,7 @@ function migrateReport(r){
   /* stored data can be valid JSON yet malformed (hand edits, old bugs): drop junk entries instead of crashing at start-up */
   r.units=(Array.isArray(r.units)?r.units:[]).filter(isObj);
   r.costs=(Array.isArray(r.costs)?r.costs:[]).filter(isObj);
-  r.costs.forEach(function(c){ if(!isObj(c.manual))c.manual={}; });
+  r.costs.forEach(function(c){ if(!isObj(c.manual))c.manual={}; if(c.reads!=null&&!isObj(c.reads))delete c.reads; });
   cleanIds(r.units,r.costs); cleanIds(r.costs,null);
   if(!r.building)r.building={};
   var b=r.building;
@@ -1429,6 +1471,7 @@ function setupStore(){
 var storeRecovered=false;
 function initStore(){
   store=loadStore();
+  freshInstall=!store;
   try{ setupStore(); }
   catch(e){
     storeRecovered=true;
@@ -1444,6 +1487,48 @@ function initStore(){
 }
 function useReport(id){ if(store.reports[id]){ store.activeId=id; S=store.reports[id]; saveStore(); redrawAll(); } }
 
+
+/* ---------- backup file = the store + the device settings ----------
+   One JSON file holds everything needed to continue elsewhere: it is the store itself (so an older app still reads it)
+   plus a few marker fields and the display preferences. The licence and device id are deliberately NOT included: a
+   backup must not carry a tester licence to another device. */
+var PREF_KEYS={bcosts_theme:["light","dark"],bcosts_skin:["classic","apple"],bcosts_lang:["fa","en"],bcosts_autoupd:["0","1"]};
+function prefsSnapshot(){
+  var o={}; Object.keys(PREF_KEYS).forEach(function(k){ try{ var v=localStorage.getItem(k); if(v!=null&&PREF_KEYS[k].indexOf(v)>-1)o[k]=v; }catch(e){} });
+  return o;
+}
+function backupObject(){
+  var o=JSON.parse(JSON.stringify(store));
+  o.app="BuildingCosts"; o.format=2; o.savedAt=new Date().toISOString(); o.prefs=prefsSnapshot();
+  return o;
+}
+/* strips the marker fields and returns the plain store (what bcosts_store holds) */
+function plainStore(d){
+  var o=JSON.parse(JSON.stringify(d));
+  delete o.app; delete o.format; delete o.savedAt; delete o.prefs;
+  return o;
+}
+/* writes only whitelisted keys with whitelisted values; returns true if anything visible (theme/skin/language) changed */
+function applyPrefs(p){
+  var changed=false;
+  if(!isObj(p))return false;
+  Object.keys(PREF_KEYS).forEach(function(k){
+    var v=p[k]; if(typeof v!=="string"||PREF_KEYS[k].indexOf(v)<0)return;
+    try{ if(localStorage.getItem(k)!==v){ localStorage.setItem(k,v); if(k!=="bcosts_autoupd")changed=true; } }catch(e){}
+  });
+  return changed;
+}
+/* "has the user entered anything worth protecting?" — a backup of the pristine starter report must never overwrite a real one */
+function storeHasData(){
+  if(!store||!isObj(store.reports))return false;
+  var ids=Object.keys(store.reports);
+  if(ids.length>1)return true;
+  var r=store.reports[ids[0]]; if(!isObj(r))return false;
+  var b=r.building||{};
+  if(b.name||b.manager||b.payTo)return true;
+  return (r.costs||[]).some(function(c){ return parseNum(c.amount)>0||(c.reads&&Object.keys(c.reads).length&&JSON.stringify(c.reads).match(/[1-9]/)); })
+      || (r.units||[]).some(function(u){ return parseNum(u.prevBalance)||parseNum(u.paid); });
+}
 /* ---------- period helpers ---------- */
 function periods(){
   var r=S.building.range,out=[];
@@ -1467,6 +1552,25 @@ function rangeText(rg){
     return rg.fromM===rg.toM ? monthName(rg.fromM)+" "+faNum(rg.fromY)
                              : T("{0} تا {1}",monthName(rg.fromM),monthName(rg.toM))+" "+faNum(rg.fromY);
   return T("{0} تا {1}",monthName(rg.fromM)+" "+faNum(rg.fromY),monthName(rg.toM)+" "+faNum(rg.toY));
+}
+
+/* ---------- meter readings ----------
+   Consumption = current - previous reading, kept as an INTEGER in thousandths (12.345 m3 -> 12345) so weights
+   never drift the way summed floats do. A missing current reading or a meter that went backwards counts as 0
+   and is reported by warnings() instead of silently producing a negative share. */
+function meterRead(c,u){var r=c.reads&&c.reads[u.id];return isObj(r)?r:{};}
+function meterUse(c,u){
+  var r=meterRead(c,u);
+  if(r.c==null||r.c==="")return 0;
+  var d=parseNum(r.c)-parseNum(r.p);
+  return d>0?Math.round(d*1000):0;
+}
+/* optional building meter: what the units don't account for (corridor, pump, leaks) is shared equally */
+function meterWeights(c,U){
+  var w=U.map(function(u){return meterUse(c,u);}), s=0; w.forEach(function(x){s+=x;});
+  var main=Math.round(parseNum(c.mainUse)*1000);
+  if(main>s&&U.length){var common=(main-s)/U.length; w=w.map(function(x){return x+common;});}
+  return w;
 }
 
 /* ---------- core split ---------- */
@@ -1526,14 +1630,15 @@ function _shares(cost){
     if(basePool<0)basePool=0; if(basePool>total)basePool=total;
     var remainder=total-basePool;
     var P=periods(), isPer=(cost.kind==="periodic"), byPeople=(cost.method==="people");
-    var w=U.map(function(u){
+    var isMeter=(cost.method==="meter");
+    var w=isMeter?meterWeights(cost,U):U.map(function(u){
       var c=0; for(var i=0;i<P.length;i++){var k=P[i].key; if(unitOn(u,k)&&(!isPer||coverOn(cost,k)))c++;}
       return (byPeople?ppl(u):1)*c;
     });
     var W=0;w.forEach(function(x){W+=x;});
     raw=U.map(function(u,i){
       var r=basePool/N + (W>0 ? remainder*w[i]/W : remainder/N);
-      detail[u.id]={base:basePool/N/M,w:w[i],W:W,rem:remainder/M,raw:r/M};
+      detail[u.id]={base:basePool/N/M,w:isMeter?w[i]/1000:w[i],W:isMeter?W/1000:W,rem:remainder/M,raw:r/M,meter:isMeter};
       return r;
     });
   }
@@ -1578,6 +1683,20 @@ function warnings(){
       if(minor(sum)!==minor(amt)&&amt>0)
         w.push(T("«{0}»: جمع سهم‌های دستی ({1}) با مبلغ کل ({2}) برابر نیست.",c.title||T("هزینه"),toman(sum),toman(amt)));
       return;
+    }
+    if(c.method==="meter"){
+      var nm=c.title||T("هزینه"), miss=[], back=[], tot=0;
+      S.units.forEach(function(u){
+        var r=meterRead(c,u), lbl=u.label||T("واحد");
+        if(r.c==null||r.c==="")miss.push(lbl);
+        else if(parseNum(r.c)<parseNum(r.p))back.push(lbl);
+        tot+=meterUse(c,u);
+      });
+      if(miss.length)w.push(T("«{0}»: قرائتِ فعلیِ این واحدها ثبت نشده (مصرف صفر حساب می‌شود): {1}",nm,miss.join(T("، "))));
+      if(back.length)w.push(T("«{0}»: قرائتِ فعلیِ این واحدها کمتر از قبلی است — کنتور صفر/تعویض شده؟ {1}",nm,back.join(T("، "))));
+      if(!miss.length&&tot===0)w.push(T("«{0}»: هیچ مصرفی ثبت نشده؛ مبلغ مساوی پخش می‌شود.",nm));
+      var mn=Math.round(parseNum(c.mainUse)*1000);
+      if(mn>0&&mn<tot)w.push(T("«{0}»: مصرفِ کنتور اصلی کمتر از جمع مصرفِ واحدهاست.",nm));
     }
     if(c.method==="people"&&amt>0&&S.units.length&&S.units.every(function(u){return ppl(u)===2;}))
       w.push(T("«{0}» بر اساس نفرات تقسیم می‌شود ولی همهٔ واحدها ۲ نفر ثبت شده‌اند — نفرات را تنظیم کردید؟",c.title||T("هزینه")));
@@ -1787,7 +1906,7 @@ function renderUnits(){
       fadeOutThen(row,function(){
         pushUndo(T("واحد «{0}» حذف شد",u.label||""));
         S.units=S.units.filter(function(x){return x!==u;});
-        S.costs.forEach(function(c){if(c.manual)delete c.manual[u.id];});
+        S.costs.forEach(function(c){if(c.manual)delete c.manual[u.id];if(c.reads)delete c.reads[u.id];});
         saveStore();renderUnits();renderCosts();render();
       });
     });
@@ -1796,6 +1915,37 @@ function renderUnits(){
     tb.append(tr);
   });
   t.append(tb);
+}
+
+/* ---------- meter readings (method «بر اساس مصرف کنتور») ----------
+   One row per unit: previous | current | usage. «قبلی» is filled by itself when the next period is created from this
+   one, so after the first month the manager only types the new reading. */
+function meterBlock(c){
+  if(!isObj(c.reads))c.reads={};
+  var wrap=el("div",{class:"meter"});
+  wrap.append(el("label",{text:T("قرائت کنتور هر واحد")}));
+  var head=el("div",{class:"mread mh"},[el("span",{text:T("واحد")}),el("span",{text:T("قبلی")}),el("span",{text:T("فعلی")}),el("span",{text:T("مصرف")})]);
+  wrap.append(head);
+  var tot=el("span",{class:"mtot"});
+  var upd=[];
+  var sumUse=function(){var t=0;S.units.forEach(function(u){t+=meterUse(c,u);});return t/1000;};
+  var refresh=function(){upd.forEach(function(f){f();});tot.textContent=T("جمع مصرف واحدها: {0}",fa(sumUse()));};
+  S.units.forEach(function(u){
+    if(!isObj(c.reads[u.id]))c.reads[u.id]={p:"",c:""};
+    var r=c.reads[u.id], lbl=u.label||T("واحد");
+    var use=el("span",{class:"muse"});
+    upd.push(function(){use.textContent=r.c===""||r.c==null?"—":fa(meterUse(c,u)/1000);});
+    var pi=moneyInput(T("قبلی"),r.p,function(n){r.p=n;refresh();saveSoon();scheduleRender();},3);
+    var ci=moneyInput(T("فعلی"),r.c,function(n){r.c=(String(ci.value).trim()===""?"":n);refresh();saveSoon();scheduleRender();},3);
+    pi.setAttribute("aria-label",lbl+" · "+T("قرائت قبلی")); ci.setAttribute("aria-label",lbl+" · "+T("قرائت فعلی"));
+    wrap.append(el("div",{class:"mread"},[el("span",{class:"mu",text:lbl}),pi,ci,use]));
+  });
+  var main=moneyInput(T("اختیاری"),c.mainUse,function(n){c.mainUse=n;refresh();saveSoon();scheduleRender();},3);
+  main.setAttribute("aria-label",T("مصرف کل کنتور اصلی (اختیاری)"));
+  wrap.append(el("div",{class:"mmain"},[el("label",{text:T("مصرف کل کنتور اصلی (اختیاری) — مازادِ بین واحدها مساوی پخش می‌شود")}),main]));
+  wrap.append(tot);
+  refresh();
+  return wrap;
 }
 
 /* ---------- cost cards ---------- */
@@ -1865,7 +2015,7 @@ function renderCosts(){
       el("div",{},[el("label",{text:T("روش تقسیم")}),method])
     ]));
 
-    if(c.method==="months"||c.method==="people"){
+    if(c.method==="months"||c.method==="people"||c.method==="meter"){
       var bmode=el("select");
       Object.keys(BASE).forEach(function(v){var o=el("option",{value:v,text:BASE[v]});if(c.base.mode===v)o.selected=true;bmode.append(o);});
       bmode.addEventListener("change",function(){c.base.mode=bmode.value;saveStore();renderCosts();render();});
@@ -1876,7 +2026,7 @@ function renderCosts(){
       }
       body.append(bwrap);
     }
-    if(c.kind==="periodic"&&c.method!=="manual"){
+    if(c.kind==="periodic"&&c.method!=="manual"&&c.method!=="meter"){
       var mg=el("div",{class:"mchips"});
       var SE=["sp","su","au","wi"];
       var mkChip=function(p){
@@ -1908,6 +2058,7 @@ function renderCosts(){
       });
       body.append(el("div",{style:"margin-top:12px"},[el("label",{text:T("این قبض کدام ماه‌ها را پوشش می‌دهد")}),mg]));
     }
+    if(c.method==="meter") body.append(meterBlock(c));
     if(c.method==="manual"){
       var mm=el("div",{class:"months",style:"grid-template-columns:repeat(auto-fill,minmax(150px,1fr))"});
       S.units.forEach(function(u){
@@ -2192,10 +2343,15 @@ function doShareImage(btn){
 var reportView="matrix";
 var costOpen={};   /* per-card expand state (UI only, keyed by cost id) */
 var slipPlain=false;   /* «حالت ارائه» — minimal per-unit card for forwarding to residents */
+/* «  · مصرف ۱۲٫۵» after a metered line, so a resident can check the bill against their own meter */
+function useNote(c,u){
+  if(c.method!=="meter"||(meterRead(c,u).c==null||meterRead(c,u).c===""))return "";
+  return " · "+T("مصرف {0}",fa(meterUse(c,u)/1000));
+}
 function slipText(u,cols,mats,owe){
   var L=[]; L.push(T("{0} — قبض واحد {1}",S.building.name||T("ساختمان"),u.label||""));
   L.push(T("بازه: {0}",rangeText()));
-  cols.forEach(function(c,ci){ var v=mats[ci].by[u.id]||0; if(v) L.push((c.title||T("هزینه"))+": "+money((v))); });
+  cols.forEach(function(c,ci){ var v=mats[ci].by[u.id]||0; if(v) L.push((c.title||T("هزینه"))+useNote(c,u)+": "+money((v))); });
   L.push(T("سهم این دوره")+": "+money((owe.period)));
   if(minor(u.prevBalance)) L.push(T("ماندهٔ دورهٔ قبل")+": "+money((u.prevBalance)));
   if(minor(u.paid)) L.push(T("پرداختی")+": "+money((u.paid)));
@@ -2295,7 +2451,7 @@ function render(){
         el("div",{class:"gen",text:T("تاریخ: {0}",jDate())+(S.building.dueDate?(" | "+T("مهلت: {0}",S.building.dueDate)):"")})
       ]));
       var items=el("div",{class:"items"});
-      cols.forEach(function(c,ci){var v=mats[ci].by[u.id]||0; if(v) items.append(el("div",{class:"li item"},[el("span",{text:c.title||T("هزینه")}),el("span",{text:money((v))})]));});
+      cols.forEach(function(c,ci){var v=mats[ci].by[u.id]||0; if(v) items.append(el("div",{class:"li item"},[el("span",{text:(c.title||T("هزینه"))+useNote(c,u)}),el("span",{text:money((v))})]));});
       items.append(el("div",{class:"li sum"},[el("span",{text:T("سهم این دوره")}),el("span",{text:money((o.period))})]));
       if(minor(u.prevBalance)) items.append(el("div",{class:"li"},[el("span",{text:T("ماندهٔ دورهٔ قبل")}),el("span",{text:money((u.prevBalance))})]));
       if(minor(u.paid)) items.append(el("div",{class:"li"},[el("span",{text:T("پرداختی")}),el("span",{text:money((u.paid))})]));
@@ -2406,9 +2562,9 @@ function render(){
   var ul=el("ul",{class:"rnotes"});
   cols.forEach(function(c,ci){
     var s=(c.title||T("هزینه"))+" — "+(c.kind==="periodic"?T("قبض دوره‌ای"):T("خرید یک‌باره"))+T("، ")+METHODS[c.method];
-    if((c.method==="months"||c.method==="people")&&c.base.mode!=="none")
+    if((c.method==="months"||c.method==="people"||c.method==="meter")&&c.base.mode!=="none")
       s+= T("، ")+(c.base.mode==="pct" ? T("سهم پایه {0}٪",fa(c.base.value)) : T("سهم پایه {0}",money(c.base.value)));
-    if(c.kind==="periodic"&&c.method!=="manual"){
+    if(c.kind==="periodic"&&c.method!=="manual"&&c.method!=="meter"){
       var picked=P.filter(function(p){return coverOn(c,p.key);});
       if(picked.length&&picked.length<P.length) s+=T("، ")+T("ماه‌های پوشش: {0}",picked.map(function(p){return p.label;}).join(T("، ")));
     }
@@ -2433,7 +2589,7 @@ function render(){
       var d=mats[ci].detail[u.id], v=mats[ci].by[u.id]||0, txt;
       if(!d){ txt=(c.title||T("هزینه"))+" — "+money((v))+" ("+METHODS[c.method]+")"; }
       else{
-        var wpart = d.W>0 ? ("("+T("{0} از {1}",faNum(d.w),faNum(d.W))+") × "+toman(d.rem)) : (T("مساوی")+" × "+toman(d.rem));
+        var wpart = d.W>0 ? ("("+T("{0} از {1}",d.meter?fa(d.w):faNum(d.w),d.meter?fa(d.W):faNum(d.W))+") × "+toman(d.rem)) : (T("مساوی")+" × "+toman(d.rem));
         txt=(c.title||T("هزینه"))+" — "+T("سهم پایه {0}",toman(d.base))+" + "+wpart+" = "+toman(d.raw)+(LANG==="en"?" → ":" ← ")+money((v));
       }
       lines.append(el("li",{text:txt}));
@@ -2529,7 +2685,12 @@ $("#rClone").addEventListener("click",function(){
       u.prevBalance=(owe[u.id]||{owed:0}).owed;
       u.paid=0; u.present={};              /* new period: assume resident, manager adjusts */
     });
-    src.costs.forEach(function(c){ c.prevAmount=parseNum(c.amount)||0; c.amount=0; c.manual={}; c.cover={}; });
+    src.costs.forEach(function(c){
+      c.prevAmount=parseNum(c.amount)||0; c.amount=0; c.manual={}; c.cover={};
+      /* this period's closing reading becomes next period's opening one; the new reading is left empty */
+      if(isObj(c.reads)){ var nr={}; Object.keys(c.reads).forEach(function(k){ var r=c.reads[k]||{}; nr[k]={p:(r.c!=null&&r.c!=="")?r.c:(r.p||""),c:""}; }); c.reads=nr; }
+      c.mainUse="";
+    });
     store.reports[id]=src; store.activeId=id; migrateReport(src);
     saveStore(); S=src; redrawAll(); toast(T("دورهٔ جدید ساخته شد — مبالغِ دورهٔ قبل به‌عنوان راهنما نشان داده می‌شوند"));
   });
@@ -2552,13 +2713,20 @@ $("#rDel").addEventListener("click",function(){
   });
 });
 $("#rExport").addEventListener("click",function(){
-  var blob=new Blob([JSON.stringify(store,null,1)],{type:"application/json"});
+  flushStore();
+  var blob=new Blob([JSON.stringify(backupObject(),null,1)],{type:"application/json"});
   saveBlob(blob,"building-costs-"+new Date().toISOString().slice(0,10)+".json",function(ok,how){
     if(!ok){ toast(T("ذخیرهٔ پشتیبان روی این دستگاه نشد")); return; }
     toast(how==="native"?T("مقصد ذخیرهٔ پشتیبان را انتخاب کنید"):T("فایل پشتیبان ذخیره شد"));
   });
 });
-$("#rImport").addEventListener("click",function(){$("#rFile").click();});
+/* A plain Android WebView has no file chooser for <input type=file>, so there the system picker is opened by the shell and
+   the text comes back through onNativeFile(); everywhere else the normal input works (Windows WebView2, browsers, iOS). */
+$("#rImport").addEventListener("click",function(){
+  try{ if(window.AndroidApp&&AndroidApp.pickFile){ AndroidApp.pickFile(); return; } }catch(e){}
+  $("#rFile").click();
+});
+window.onNativeFile=function(name,text){ importText(String(text||""),String(name||"")); };
 $("#rRestore").addEventListener("click",function(){
   var baks=listBackups();
   if(!baks.length){ sayAlert(T("نسخهٔ خودکاری نیست"),T("از روزهای گذشته نسخه‌ای ذخیره نشده. نسخه‌ها خودکار و روزی یک‌بار گرفته می‌شوند.")); return; }
@@ -2576,40 +2744,56 @@ $("#rRestore").addEventListener("click",function(){
       S=store.reports[store.activeId]; saveStore(); redrawAll();
     });
 });
+/* one entry point for every way a backup arrives: file input, native picker, "Open with…", drag & drop */
+function importText(text,fname){
+  var data;
+  try{ data=JSON.parse(text); }
+  catch(e){ sayAlert(T("خواندن فایل ناموفق بود"),T("این فایل JSON معتبر نیست.")); return; }
+  function merge(reps){
+    Object.keys(reps).forEach(function(id){ store.reports[uid()]=migrateReport(reps[id]); });
+  }
+  if(validStore(data)){
+    var prefs=data.prefs; data=plainStore(data);
+    askChoice(T("بازگردانی از فایل"),T("فایل شامل {0} گزارش است. چه کار کنم؟",faNum(Object.keys(data.reports).length)),
+      [["merge",T("افزودن به گزارش‌های فعلی (امن)")],
+       ["replace",T("جایگزینی همهٔ گزارش‌های فعلی")]],
+      function(mode){
+        if(mode==null)return;
+        pushUndoAll(mode==="replace"?T("همهٔ گزارش‌ها جایگزین شد"):T("گزارش‌ها از فایل افزوده شد"));
+        if(mode==="merge"){ merge(data.reports); }
+        else{
+          store=data; Object.keys(store.reports).forEach(function(id){migrateReport(store.reports[id]);});
+          if(!store.reports[store.activeId])store.activeId=Object.keys(store.reports)[0];
+        }
+        S=store.reports[store.activeId]; saveStore();
+        /* "replace" brings the device settings along too (theme, skin, language); a language change needs a fresh start */
+        if(mode==="replace"&&applyPrefs(prefs)){ setTimeout(appReload,250); return; }
+        redrawAll();
+      });
+  }else if(validReport(data)){
+    var nid=uid(); store.reports[nid]=migrateReport(data);
+    pushUndoAll(T("یک گزارش از فایل افزوده شد"));
+    store.activeId=nid; S=store.reports[nid]; saveStore(); redrawAll();
+  }else{
+    sayAlert(T("فایل معتبر نیست"),T("این فایل پشتیبانِ «تقسیم هزینه ساختمان» نیست — نه گزارشی در آن هست و نه لیست گزارش‌ها."));
+  }
+}
 $("#rFile").addEventListener("change",function(){
   var f=this.files&&this.files[0]; if(!f)return;
   var rd=new FileReader();
-  rd.onload=function(){
-    var data;
-    try{ data=JSON.parse(rd.result); }
-    catch(e){ sayAlert(T("خواندن فایل ناموفق بود"),T("این فایل JSON معتبر نیست.")); return; }
-    function merge(reps){
-      Object.keys(reps).forEach(function(id){ store.reports[uid()]=migrateReport(reps[id]); });
-    }
-    if(validStore(data)){
-      askChoice(T("بازگردانی از فایل"),T("فایل شامل {0} گزارش است. چه کار کنم؟",faNum(Object.keys(data.reports).length)),
-        [["merge",T("افزودن به گزارش‌های فعلی (امن)")],
-         ["replace",T("جایگزینی همهٔ گزارش‌های فعلی")]],
-        function(mode){
-          if(mode==null)return;
-          pushUndoAll(mode==="replace"?T("همهٔ گزارش‌ها جایگزین شد"):T("گزارش‌ها از فایل افزوده شد"));
-          if(mode==="merge"){ merge(data.reports); }
-          else{
-            store=data; Object.keys(store.reports).forEach(function(id){migrateReport(store.reports[id]);});
-            if(!store.reports[store.activeId])store.activeId=Object.keys(store.reports)[0];
-          }
-          S=store.reports[store.activeId]; saveStore(); redrawAll();
-        });
-    }else if(validReport(data)){
-      var nid=uid(); store.reports[nid]=migrateReport(data);
-      pushUndoAll(T("یک گزارش از فایل افزوده شد"));
-      store.activeId=nid; S=store.reports[nid]; saveStore(); redrawAll();
-    }else{
-      sayAlert(T("فایل معتبر نیست"),T("این فایل پشتیبانِ «تقسیم هزینه ساختمان» نیست — نه گزارشی در آن هست و نه لیست گزارش‌ها."));
-    }
-  };
+  rd.onload=function(){ importText(String(rd.result||""),f.name); };
   rd.onerror=function(){ sayAlert(T("خواندن فایل ناموفق بود"),T("فایل خوانده نشد.")); };
   rd.readAsText(f); this.value="";
+});
+/* drop a backup file anywhere on the window (desktop) */
+["dragover","drop"].forEach(function(ev){
+  window.addEventListener(ev,function(e){
+    var f=e.dataTransfer&&e.dataTransfer.files&&e.dataTransfer.files[0];
+    if(!f&&!(e.dataTransfer&&Array.prototype.indexOf.call(e.dataTransfer.types||[],"Files")>-1))return;
+    e.preventDefault();
+    if(ev!=="drop"||!f)return;
+    var rd=new FileReader(); rd.onload=function(){ importText(String(rd.result||""),f.name); }; rd.readAsText(f);
+  });
 });
 
 /* ---------- manager signature ----------
@@ -3100,10 +3284,11 @@ if(typeof BC_TESTER!=="undefined"){
 /* ---------- software update: manual button + automatic check ----------
    latest.json is published next to the PWA (GitHub Pages, CORS *) by CI; tester builds read their own channel
    (BC_TESTER.update). Comparison is by source hash: a different hash = a different build is available.
-   - installed PWA: the service worker swaps the files itself; "update" just asks it now and reloads
+   - installed PWA: the service worker swaps the files itself and the page reloads once the new one takes over
+     (see the registration snippet in tools/build.js: deferred while a field has focus, flushed first); "update" just asks it now
    - Windows / Android: a silent in-place install is not possible without extra system rights, so the new file is
      opened for download (browser / system installer) with one tap. */
-var BC_VER={"v":"1.29","h":"a68b2c3a"};
+var BC_VER={"v":"1.29","h":"648d7bc4"};
 var UPD_URL=(typeof BC_TESTER!=="undefined"&&BC_TESTER.update)||"https://peyman19ms-ops.github.io/bc-ddaa6698/latest.json";
 var UPD_AUTO_KEY="bcosts_autoupd", updInfo=null, updAnnounced="";
 function updPlatform(){
@@ -3113,15 +3298,41 @@ function updPlatform(){
 }
 function updAutoOn(){ try{return localStorage.getItem(UPD_AUTO_KEY)!=="0";}catch(e){return true;} }
 function updTarget(j){ var p=updPlatform(); return p==="apk"?j.apk:(p==="exe"?j.exe:null); }
+/* Android shell: the new index.html itself is fetched by the shell (verified by SHA-256) and loaded in place — no APK, no
+   installer, no permission. Only when the new page needs a newer bridge (j.abi) does the APK have to be replaced. */
+var otaManual=false, otaFailH="", otaWait=0;
+function otaCan(j){
+  return updPlatform()==="apk"&&!!(window.AndroidApp&&AndroidApp.otaFetch)&&!!(j&&j.app&&/^[0-9a-f]{64}$/.test(j.sha||""))&&(j.abi||1)<=nativeLevel();
+}
+function otaStart(j){
+  var base=UPD_URL.replace(/[^\/]*$/,"");
+  try{ AndroidApp.otaFetch(base+j.app,j.sha); }catch(e){ window.__otaDone(false); }
+}
+window.__otaDone=function(ok){
+  var manual=otaManual; otaManual=false;
+  if(!ok){ if(updInfo)otaFailH=updInfo.h||""; if(manual)updShow("fail"); return; }
+  if(manual||updAutoOn())otaApplyWhenIdle();
+};
+/* reload into the new page as soon as nothing is being typed; the data is flushed first */
+function otaApplyWhenIdle(){
+  var a=document.activeElement;
+  if(a&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)){
+    if(otaWait)return; otaWait=1;
+    var go=function(){ otaWait=0; otaApplyWhenIdle(); };
+    a.addEventListener("blur",function(){ setTimeout(go,300); },{once:true});
+    return;
+  }
+  try{ flushStore(); AndroidApp.reload(); }catch(e){}
+}
 function updShow(state,j){
   var st=$("#updStatus"), get=$("#updGet"); if(!st||!get)return;
   get.hidden=true;
   if(state==="ok"){ st.textContent=T("نسخهٔ شما به‌روز است"); return; }
   if(state==="fail"){ st.textContent=T("بررسی انجام نشد (اینترنت؟)"); return; }
-  if(state==="busy"){ st.textContent=T("در حال بررسی…"); return; }
+  if(state==="busy"){ st.textContent=otaManual?T("در حال دریافت نسخهٔ جدید…"):T("در حال بررسی…"); return; }
   var p=updPlatform();
   st.textContent=T("نسخهٔ جدید {0} آماده است",faNum(j.v||""));
-  if(p==="pwa"||updTarget(j)){ get.hidden=false; $("#updGetLbl").textContent=p==="pwa"?T("به‌روزرسانی و بازشدن دوباره"):T("دریافت و نصب نسخهٔ جدید"); }
+  if(p==="pwa"||otaCan(j)||updTarget(j)){ get.hidden=false; $("#updGetLbl").textContent=(p==="pwa"||otaCan(j))?T("به‌روزرسانی و بازشدن دوباره"):T("دریافت و نصب نسخهٔ جدید"); }
   else st.textContent+=" — "+T("نصب این نسخه از راه کامپیوتر انجام می‌شود");
 }
 function updApply(){
@@ -3131,6 +3342,7 @@ function updApply(){
     try{ navigator.serviceWorker.getRegistration().then(function(r){ return r?r.update():null; }).then(function(){ setTimeout(go,900); },go).catch(go); }catch(e){ go(); }
     return;
   }
+  if(updInfo&&otaCan(updInfo)){ otaManual=true; updShow("busy"); otaStart(updInfo); return; }
   var url=updInfo&&updTarget(updInfo); if(!url)return;
   if(p==="apk")AndroidApp.openUrl(url); else window.open(url,"_blank");
 }
@@ -3139,7 +3351,8 @@ function updCheck(manual){
   return fetch(UPD_URL+(UPD_URL.indexOf("?")<0?"?":"&")+"t="+Date.now(),{cache:"no-store"}).then(function(r){ if(!r.ok)throw new Error("http"); return r.json(); }).then(function(j){
     updInfo=j; var newer=!!(j&&j.h&&j.h!==BC_VER.h);
     updShow(newer?"new":"ok",j);
-    if(newer&&!manual&&updAnnounced!==j.h&&updPlatform()!=="pwa"){ updAnnounced=j.h; toast(T("نسخهٔ جدید آماده است"),T("دریافت"),updApply,12000); }
+    if(newer&&otaCan(j)){ if(!manual&&otaFailH!==j.h&&updAutoOn())otaStart(j); }
+    else if(newer&&!manual&&updAnnounced!==j.h&&updPlatform()!=="pwa"){ updAnnounced=j.h; toast(T("نسخهٔ جدید آماده است"),T("دریافت"),updApply,12000); }
     if(newer&&!manual&&updPlatform()==="pwa"){ try{ navigator.serviceWorker.getRegistration().then(function(r){ if(r)r.update(); }).catch(function(){}); }catch(e){} }
     return newer;
   }).catch(function(){ if(manual)updShow("fail"); return false; });
@@ -3152,11 +3365,96 @@ function updCheck(manual){
   get.addEventListener("click",updApply);
   auto.checked=updAutoOn();
   auto.addEventListener("change",function(){ try{ localStorage.setItem(UPD_AUTO_KEY,auto.checked?"1":"0"); }catch(e){} });
-  /* automatic: a few seconds after start, then every 6 h while the app stays open */
-  setTimeout(function(){ if(updAutoOn())updCheck(false); },4000);
-  setInterval(function(){ if(updAutoOn())updCheck(false); },6*3600*1000);
+  /* automatic: right after start, every time the app comes back to the foreground (this is what "open" means for an
+     installed phone app, which is mostly resumed from memory, never navigated), and hourly while it stays open */
+  var last=0, tick=function(force){
+    if(!updAutoOn()||/^(localhost|127\.0\.0\.1)$/.test(location.hostname))return;   /* a dev server has nothing to update to */
+    var now=Date.now(); if(!force&&now-last<45000)return; last=now;
+    updCheck(false);
+  };
+  setTimeout(function(){ tick(true); },1200);
+  document.addEventListener("visibilitychange",function(){ if(document.visibilityState==="visible")tick(false); });
+  setInterval(function(){ tick(true); },3600*1000);
+})();
+/* ---------- automatic local backup ----------
+   The user never has to remember anything: after every change (debounced) and whenever the app leaves the screen, a
+   complete backup file is written by the native shell.
+   - Android 10+ : Download/BuildingCosts/BuildingCosts-backup-<date>.json  (MediaStore, no permission; last 7 days kept;
+                   survives uninstall, so a fresh install offers to restore from it)
+   - Windows     : Documents\BuildingCosts\backup-latest.json + backup-<date>.json  (restored by itself on a fresh install)
+   - iOS / browser PWA: there is no way to write a file by itself; settings says so and offers the manual save/open buttons.
+   Nothing is ever written until the store holds real data, so the pristine starter report cannot overwrite a good backup. */
+var AB_LAST="bcosts_ab_last", abT=0, abState="";
+function abKind(){
+  try{
+    if(window.AndroidApp&&AndroidApp.backupWrite&&nativeLevel()>=2)return "android";
+    if(window.chrome&&chrome.webview&&chrome.webview.postMessage)return "windows";
+  }catch(e){}
+  return "";
+}
+function abSoon(){ if(!abKind())return; clearTimeout(abT); abT=setTimeout(abNow,4000); }
+function abNow(){
+  clearTimeout(abT);
+  var k=abKind(); if(!k||!storeHasData())return;
+  var json; try{ json=JSON.stringify(backupObject()); }catch(e){ return; }
+  try{
+    if(k==="android")AndroidApp.backupWrite(json);
+    else chrome.webview.postMessage(JSON.stringify({t:"backup",json:json}));
+  }catch(e){ abDone("fail"); }
+}
+function abDone(r){
+  abState=r;
+  if(r==="ok"){ try{ localStorage.setItem(AB_LAST,String(Date.now())); }catch(e){} }
+  abShow();
+}
+window.__bkDone=abDone;
+function abShow(){
+  var l=$("#abLine"); if(!l)return;
+  var k=abKind();
+  if(!k){ l.textContent=T("این دستگاه خودش فایل پشتیبان نمی‌نویسد (iOS و مرورگر). برای ایمنی گاهی «ذخیرهٔ فایل پشتیبان» را بزنید؛ در iPhone از منوی اشتراک «Save to Files».");  return; }
+  var where=k==="android"?"Download/BuildingCosts":"Documents\\BuildingCosts";
+  var last=0; try{ last=parseInt(localStorage.getItem(AB_LAST),10)||0; }catch(e){}
+  var when=last?new Date(last).toLocaleString(LANG==="en"?"en-GB":"fa-IR"):"";
+  if(abState==="unsupported"){ l.textContent=T("نسخهٔ اندروید این گوشی (کمتر از ۱۰) پشتیبان خودکار فایلی ندارد؛ پشتیبان گوگل و «ذخیرهٔ فایل پشتیبان» را استفاده کنید."); return; }
+  if(abState==="fail"){ l.textContent=T("پشتیبان خودکار نوشته نشد — «ذخیرهٔ فایل پشتیبان» را دستی بزنید."); return; }
+  l.textContent=T("پشتیبان خودکار روشن است ({0}).",where)+(when?" "+T("آخرین: {0}",when):"");
+}
+/* fresh install: bring the previous data back */
+function abRestoreFromText(text,fromHost){
+  var d; try{ d=JSON.parse(text); }catch(e){ return false; }
+  if(!validStore(d))return false;
+  if(!freshInstall||storeHasData())return false;       /* never over real data, and only once */
+  var prefs=d.prefs;
+  store=plainStore(d); setupStore(); saveStore(); freshInstall=false;
+  var vis=applyPrefs(prefs);
+  if(vis){ setTimeout(appReload,300); return true; }
+  redrawAll();
+  toast(T("اطلاعات قبلی از پشتیبان همین دستگاه برگردانده شد"));
+  return true;
+}
+(function abWire(){
+  var k=abKind();
+  document.addEventListener("visibilitychange",function(){ if(document.visibilityState==="hidden")abNow(); });
+  window.addEventListener("pagehide",abNow);
+  if(k==="windows"){
+    chrome.webview.addEventListener("message",function(e){
+      var m=e.data; if(typeof m==="string"){ try{ m=JSON.parse(m); }catch(x){ return; } }
+      if(!m)return;
+      if(m.t==="bkDone")abDone(m.r);
+      else if(m.t==="restore"&&m.json)abRestoreFromText(m.json,true);
+      else if(m.t==="file")importText(String(m.text||""),String(m.name||""));
+    });
+    if(freshInstall)chrome.webview.postMessage(JSON.stringify({t:"restore"}));
+    chrome.webview.postMessage(JSON.stringify({t:"ready"}));    /* a file passed on the command line is delivered now */
+  }
+  if(k==="android"&&freshInstall&&!storeHasData())
+    setTimeout(function(){
+      toast(T("نصب تازه است — اگر قبلاً پشتیبان داشتی بازیابی کن"),T("انتخاب فایل"),function(){ try{ AndroidApp.pickFile(); }catch(e){} },14000);
+    },1800);
+  abShow();
+  try{ if(window.AndroidApp&&AndroidApp.alive)AndroidApp.alive(); }catch(e){}
 })();
 </script>
-<script>if("serviceWorker" in navigator&&(location.protocol==="https:"||location.hostname==="localhost")){window.addEventListener("load",function(){var had=!!navigator.serviceWorker.controller,r=false;navigator.serviceWorker.addEventListener("controllerchange",function(){if(had&&!r){r=true;location.reload();}});navigator.serviceWorker.register("sw.js").catch(function(){});});}</script>
+<script>if("serviceWorker" in navigator&&(location.protocol==="https:"||location.hostname==="localhost")){window.addEventListener("load",function(){var had=!!navigator.serviceWorker.controller,r=false;function go(){if(r)return;r=true;try{if(typeof flushStore==="function")flushStore();}catch(e){}location.reload();}navigator.serviceWorker.addEventListener("controllerchange",function(){if(!had||r)return;var off=false;try{off=localStorage.getItem("bcosts_autoupd")==="0";}catch(e){}if(off)return;var a=document.activeElement;if(a&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)){a.addEventListener("blur",function(){setTimeout(go,300);});document.addEventListener("visibilitychange",function(){if(document.visibilityState==="hidden")go();});return;}go();});navigator.serviceWorker.register("sw.js").catch(function(){});});}</script>
 </body>
 </html>
