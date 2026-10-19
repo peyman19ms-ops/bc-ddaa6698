@@ -87,8 +87,7 @@
   input:focus,select:focus{border-color:var(--accent);}
   input[type=checkbox]{accent-color:var(--accent);}
   .grid{display:grid;gap:12px}
-  .g4{grid-template-columns:repeat(4,1fr)} .g3{grid-template-columns:repeat(3,1fr)} .g2{grid-template-columns:repeat(2,1fr)}
-  @media(max-width:820px){.g4{grid-template-columns:repeat(2,1fr)}}
+  .g3{grid-template-columns:repeat(3,1fr)} .g2{grid-template-columns:repeat(2,1fr)}
   @media(max-width:720px){.g3,.g2{grid-template-columns:1fr}}
   .btn{font:inherit;cursor:pointer;font-weight:700;padding:9px 17px;}
   .btn.ghost{border-color:var(--field-br)}
@@ -144,6 +143,11 @@
   @keyframes mchipSplash{0%{opacity:0;transform:scale(.5)}30%{opacity:.55}100%{opacity:0;transform:scale(1.75)}}
   @media(prefers-reduced-motion:reduce){.mchip .splash{display:none}.mchip.pop .fill,.mchip.off .fill,.mchip.pop .lbl,.mchip.off .lbl{animation:none}}
 
+  .billres{margin-top:10px;padding:10px 12px;border-radius:12px;font-size:13px;line-height:1.8}
+  .billres.ok{color:var(--money-ink)} .billres.bad{color:var(--danger)} .billids{margin-top:6px;direction:ltr;text-align:start}
+  #modalOk:disabled{opacity:.45;pointer-events:none}
+  .trendbox{margin-top:12px} .trend{display:block;inline-size:100%;max-inline-size:340px;block-size:64px}
+  .tbar{fill:var(--muted);opacity:.5} .tbar.now{fill:var(--accent);opacity:1}
   .meter{margin-top:12px}
   .mread{display:grid;grid-template-columns:minmax(64px,1fr) 1.2fr 1.2fr .8fr;gap:6px;align-items:center;margin-top:6px}
   .mread.mh{font-size:11px;color:var(--muted);margin-top:4px}
@@ -657,7 +661,7 @@
     @page{size:A4;margin:14mm}
     body{background:#fff}
     .wrap{max-width:none;padding:0}
-    .editor,.topbar,#settings,#printBtn,.printbar,#shareLinks,#toast,.warnbar,.slipbtns,.raudit summary,#statStrip,#readyLine{display:none!important}
+    .editor,.topbar,#tabbar,#tab-costs,#tab-units,#settings,#printBtn,.printbar,#shareLinks,#toast,.warnbar,.slipbtns,.raudit summary,#statStrip,#readyLine{display:none!important}
     .noprint{display:none!important}
     .raudit[open] > *{display:block}
     #reportWrap{display:block!important;margin:0}
@@ -670,24 +674,76 @@
     .report thead{display:table-header-group}
     .report table td:last-child,.report table th:last-child{position:static}
   }
+  /* ---------- tabs: one calm screen at a time (report · bills · units · settings) ---------- */
+  .wrap{padding-bottom:calc(150px + env(safe-area-inset-bottom,0px))}
+  .topbar{margin:0 0 14px;gap:8px}
+  .topbar #reportSel{flex:1;min-width:0;border:0;background:transparent;box-shadow:none;font-size:19px;font-weight:800;padding:8px 4px;color:var(--ink);text-overflow:ellipsis}
+  .topbar #reportSel:focus{box-shadow:none;outline:2px solid color-mix(in srgb,var(--accent) 55%,transparent);outline-offset:2px;border-radius:12px}
+  .topbar details.menu>summary{min-inline-size:44px;min-block-size:44px;display:grid;place-items:center;font-size:18px;padding:0 12px}
+  .panel{animation:panelIn .32s cubic-bezier(.22,1,.36,1)}
+  .panel[hidden]{display:none}
+  @keyframes panelIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  .phead{margin:0 0 14px}
+  .phead h2{margin:0;font-size:20px}
+  .phead .hint{margin:6px 0 0}
+  /* summary: the money figure first, the counts quietly beneath */
+  .stats{grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px}
+  .stats .stat{padding:10px 12px}
+  .stats .stat .n{font-size:18px}
+  .stats .stat:first-child{grid-column:1/-1;padding:16px 18px}
+  .stats .stat:first-child .n{font-size:30px}
+  .viewrow{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:0 0 12px}
+  .viewrow .seg{flex:1;min-width:0}
+  .topbar{justify-content:flex-start}
+  .topbar #reportSel{inline-size:auto}
+  .copts{margin-top:8px} .cc-opts{padding-top:4px}
+  .topbar #reportSel{flex:0 1 auto;max-inline-size:72%}
+  .topbar details.menu{margin-inline-start:auto}
+  .viewrow .seg{inline-size:100%}
+  .viewrow .seg-opt{flex:1;text-align:center}
+  /* share + print: a quiet row under the view switch, not a floating bar */
+  #actionBar{position:static;background:none;box-shadow:none;padding:0;margin:0 0 14px;justify-content:flex-start;gap:8px}
+  #actionBar .grow{display:none}
+  #actionBar .btn{min-block-size:44px}
+  /* bottom tab bar */
+  #tabbar{position:fixed;inset-inline:0;bottom:0;z-index:40;display:flex;justify-content:center;gap:4px;padding:6px 16px calc(8px + env(safe-area-inset-bottom,0px));background:var(--bg);box-shadow:0 -10px 24px color-mix(in srgb,var(--nm-dk) 22%,transparent)}
+  #tabbar .tab{flex:1;max-inline-size:132px;min-block-size:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border:0;border-radius:18px;background:transparent;color:var(--muted);font:inherit;font-size:11px;font-weight:700;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:color .2s,box-shadow .3s,background-color .2s}
+  #tabbar .tab svg{display:block}
+  #tabbar .tab.on{color:var(--accent);box-shadow:var(--nm-in-sm)}
+  #tabbar .tab:active{transform:scale(.96)}
+  /* "+ new bill" floats above the tab bar, like a compose button */
+  #tab-costs #addCost{position:fixed;inset-inline-end:16px;bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:35;border-radius:999px;padding:14px 22px;font-weight:800;color:var(--btn-ink);background:var(--grad);box-shadow:var(--elev)}
+  #tab-costs .rowbtns{margin:0}
+  #tab-costs{padding-bottom:70px}
+  .emptyhint{margin:28px 0;text-align:center;color:var(--muted)}
+  /* units as cards on a phone: no sideways scrolling, every field labelled */
+  @media(max-width:640px){
+    #unitTbl,#unitTbl tbody{display:block;min-width:0;width:100%}
+    #unitTbl thead{display:none}
+    #unitTbl tr{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:14px;margin-bottom:14px;border-radius:20px;background:var(--bg);box-shadow:var(--nm-out)}
+    #unitTbl td{display:block;border:0;padding:0;background:none;position:static;min-inline-size:0}
+    #unitTbl td.unit{grid-column:1/-1;position:static}
+    #unitTbl td.unit input{font-weight:800;font-size:16px}
+    #unitTbl td[data-l]::before{content:attr(data-l);display:block;font-size:11px;color:var(--muted);margin-bottom:3px}
+    #unitTbl td.mon input{min-width:0}
+    #unitTbl td.cnt{display:none}
+    #unitTbl td.mchk{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:4px 2px}
+    #unitTbl td.mchk::before{margin:0}
+    #unitTbl td:last-child{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:6px}
+    .tblwrap{overflow:visible}
+  }
+  @media(prefers-reduced-motion:reduce){.panel{animation:none}}
+  @media print{
+    #tabbar,#tab-costs,#tab-units,.viewrow{display:none!important}
+    #tab-report{display:block!important;animation:none}
+  }
 </style>
 </head>
 <body>
 <div class="wrap">
   <header class="topbar">
-    <h1>تقسیم هزینه‌های ساختمان</h1>
-    <button type="button" class="iconbtn" id="settingsBtn" title="تنظیمات" aria-label="تنظیمات">⚙</button>
-  </header>
-
-  <div id="statStrip" class="stats"></div>
-  <div id="readyLine" class="idle" hidden></div>
-
-  <div class="editor">
-    <section class="block repbar">
-      <label for="reportSel">گزارش</label>
-      <div class="reprow">
-        <select id="reportSel"></select>
-        <details class="menu" id="rMenu">
+    <select id="reportSel" aria-label="گزارش"></select>
+    <details class="menu" id="rMenu">
           <summary class="btn mini" title="کارهای گزارش" aria-label="کارهای گزارش">⋯</summary>
           <div class="menu-pop">
             <button type="button" id="rClone"><b>دورهٔ بعد از روی این گزارش</b><small>واحدها و قبض‌ها می‌مانند، مبالغ صفر می‌شوند و بدهیِ باقی‌مانده منتقل می‌شود</small></button>
@@ -696,11 +752,39 @@
             <button type="button" id="rDel" class="del"><b>حذف این گزارش</b></button>
           </div>
         </details>
-      </div>
-    </section>
+  </header>
 
-    <section class="block" id="sec3">
-      <h2>قبض‌ها و هزینه‌ها</h2>
+  <main id="panels">
+    <section class="panel" id="tab-report" data-tab="report">
+      <div id="statStrip" class="stats"></div>
+      <div id="readyLine" class="idle" hidden></div>
+      <div class="viewrow">
+    <div class="seg" id="viewSeg">
+      <button type="button" class="seg-opt on" data-view="matrix">نمای مدیر</button>
+      <button type="button" class="seg-opt" data-view="slips">قبض هر واحد</button>
+      <span class="seg-ind"></span>
+    </div>
+    <label id="plainToggle" title="کارتِ ساده برای فرستادن به ساکن"><input type="checkbox" id="plainChk"> حالت ارائه</label>
+      </div>
+      <div class="printbar" id="actionBar">
+    <span class="grow"></span>
+    <details class="menu" id="shareMenu">
+      <summary class="btn ghost">اشتراک‌گذاری</summary>
+      <div class="menu-pop">
+        <button type="button" id="shareImg"><b>تصویر گزارش</b><small>برای تلگرام و واتساپ</small></button>
+        <button type="button" id="shareTxt"><b>متن</b><small>پیامک، ایمیل یا کپی</small></button>
+        <button type="button" id="shareCal"><b>افزودن مهلت به تقویم</b><small>تقویمِ خودِ گوشی، با یادآور</small></button>
+        <button type="button" id="shareBulk"><b>پیامک به بدهکاران</b><small>یکی‌یکی، با متنِ آماده</small></button>
+      </div>
+    </details>
+    <button class="btn" id="printBtn">🖨 چاپ / PDF</button>
+  </div>
+  <div id="shareLinks" class="printbar" style="display:none;flex-wrap:wrap;gap:8px;margin-top:8px"></div>
+      <div id="shareLinks" class="printbar" style="display:none;flex-wrap:wrap;gap:8px;margin-top:8px"></div>
+      <div id="reportWrap"><div class="report" id="report"></div></div>
+    </section>
+    <section class="panel" id="tab-costs" data-tab="costs" hidden>
+      <div class="phead"><h2>قبض‌ها و هزینه‌ها</h2></div>
       <div id="costList"></div>
       <div class="rowbtns"><button class="btn ghost" id="addCost">+ افزودن قبض / هزینه</button></div>
       <datalist id="costNames">
@@ -714,27 +798,23 @@
       <datalist id="payToNames"></datalist>
       <datalist id="dueNames"></datalist>
     </section>
-  </div>
-
-  <div class="printbar" id="actionBar">
-    <div class="seg" id="viewSeg">
-      <button type="button" class="seg-opt on" data-view="matrix">نمای مدیر</button>
-      <button type="button" class="seg-opt" data-view="slips">قبض هر واحد</button>
-      <span class="seg-ind"></span>
-    </div>
-    <label id="plainToggle" title="کارتِ ساده برای فرستادن به ساکن"><input type="checkbox" id="plainChk"> حالت ارائه</label>
-    <span class="grow"></span>
-    <details class="menu up" id="shareMenu">
-      <summary class="btn ghost">اشتراک‌گذاری</summary>
-      <div class="menu-pop">
-        <button type="button" id="shareImg"><b>تصویر گزارش</b><small>برای تلگرام و واتساپ</small></button>
-        <button type="button" id="shareTxt"><b>متن</b><small>پیامک، ایمیل یا کپی</small></button>
+    <section class="panel" id="tab-units" data-tab="units" hidden>
+      <div class="phead"><h2>واحدها</h2><p class="hint" id="unitHint"></p></div>
+      <div class="tblwrap"><table id="unitTbl"></table></div>
+      <div class="rowbtns">
+        <button class="btn ghost" id="addUnit">+ افزودن واحد</button>
+        <button class="btn ghost" id="monToggle">نمایش جدول ماه‌ها</button>
+        <button class="btn ghost" id="allToggle">تیک همهٔ ماه‌ها</button>
       </div>
-    </details>
-    <button class="btn" id="printBtn">🖨 چاپ / PDF</button>
-  </div>
-  <div id="shareLinks" class="printbar" style="display:none;flex-wrap:wrap;gap:8px;margin-top:8px"></div>
-  <div id="reportWrap"><div class="report" id="report"></div></div>
+    </section>
+  </main>
+
+  <nav id="tabbar" aria-label="بخش‌ها">
+    <button type="button" class="tab on" data-go="report" aria-current="page"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3h8l4 4v14H7z"/><path d="M15 3v4h4M10 12h6M10 16h6"/></svg><span>گزارش</span></button>
+    <button type="button" class="tab" data-go="costs"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3h14v18l-3-2-2 2-2-2-2 2-2-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg><span>قبض‌ها</span></button>
+    <button type="button" class="tab" data-go="units"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 21V5l8-2 8 2v16"/><path d="M9 9h2M13 9h2M9 13h2M13 13h2M10 21v-4h4v4"/></svg><span>واحدها</span></button>
+    <button type="button" class="tab" id="settingsBtn" aria-label="تنظیمات" title="تنظیمات"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg><span>تنظیمات</span></button>
+  </nav>
 </div>
 
 <div id="settings" role="dialog" aria-modal="true" aria-labelledby="setTitle" hidden>
@@ -770,16 +850,6 @@
       </details>
     </section>
 
-    <section class="setgrp" id="sec2">
-      <h3>واحدها و ماه‌های سکونت</h3>
-      <div class="tblwrap"><table id="unitTbl"></table></div>
-      <div class="rowbtns">
-        <button class="btn ghost" id="addUnit">+ افزودن واحد</button>
-        <button class="btn ghost" id="monToggle">نمایش جدول ماه‌ها</button>
-        <button class="btn ghost" id="allToggle">تیک همهٔ ماه‌ها</button>
-      </div>
-      <p class="hint" id="unitHint"></p>
-    </section>
 
     <section class="setgrp">
       <h3>زبان</h3>
@@ -813,11 +883,12 @@
         <div><label for="bCal">تقویم</label>
           <select id="bCal"><option value="j">شمسی</option><option value="g">میلادی</option></select></div>
         <div><label for="bRound">گرد کردن مبالغ</label><select id="bRound"></select></div>
+        <div><label for="bLate">جریمهٔ دیرکرد (٪ از مانده، هر دوره)</label><input id="bLate" inputmode="decimal" placeholder="0"></div>
       </div>
       <p class="hint">جمع هر قبض همیشه دقیقاً برابر مبلغ کل می‌ماند؛ تعدیل در گزارش نوشته می‌شود. تقویم را بهتر است پیش از واردکردنِ ماه‌ها انتخاب کنید.</p>
     </section>
 
-    <section class="setgrp" id="updSec">
+    <section class="setgrp">
       <h3>به‌روزرسانی نرم‌افزار</h3>
       <p class="hint" id="updVer"></p>
       <div class="setlist">
@@ -895,6 +966,41 @@ function jDate(d){
 }
 
 var EN={
+  "نحوهٔ تقسیم":"How it's split",
+  "قبض‌ها":"Bills","بخش‌ها":"Sections",
+  "افزودن مهلت به تقویم":"Add the due date to the calendar","تقویمِ خودِ گوشی، با یادآور":"Your phone's own calendar, with a reminder",
+  "ذخیرهٔ فایل تقویم نشد":"Couldn't save the calendar file","فایل تقویم ذخیره شد؛ بازش کنید تا به تقویم اضافه شود":"Calendar file saved — open it to add it to your calendar",
+  "مهلت پرداخت — {0}":"Payment due — {0}","جمع قابل وصول: {0}":"Total to collect: {0}","تعداد بدهکار: {0}":"Debtors: {0}",
+  "تاریخ مهلت پرداخت (سال/ماه/روز، مثلاً {0})":"Payment due date (year/month/day, e.g. {0})","تاریخ معتبر نیست":"Not a valid date",
+  "به شکل سال/ماه/روز بنویسید؛ روز باید در همان ماه وجود داشته باشد.":"Write it as year/month/day; the day must exist in that month.",
+  "پرداخت قبلی":"Earlier payment","{0} — رسید پرداخت":"{0} — payment receipt","واحد: {0}":"Unit: {0}","مبلغ پرداخت‌شده: {0}":"Amount paid: {0}",
+  "بازهٔ حساب: {0}":"Account period: {0}","مانده بدهی: {0}":"Remaining balance: {0}","تسویه کامل ✓":"Settled in full ✓","مدیریت: {0}":"Manager: {0}",
+  "کپی شد ✓":"Copied ✓","ثبت پرداخت — {0}":"Record payment — {0}","تاریخ":"Date","مبلغ ({0})":"Amount ({0})",
+  "مانده فعلی: {0} — پیش‌فرضِ مبلغ همین است.":"Current balance: {0} — the amount is pre-filled with it.","این واحد بدهی ندارد.":"This unit owes nothing.",
+  "پرداخت ثبت شد":"Payment recorded","رسید":"Receipt","ثبت پرداخت":"Record payment","ثبت":"Record","پرداخت حذف شد":"Payment removed","حذف این پرداخت":"Remove this payment","پرداخت":"Payment",
+  "جمعِ پرداخت‌های ثبت‌شده — در «قبض هر واحد» ویرایش می‌شود":"Sum of the recorded payments — edit them in “Unit slips”",
+  "پیامک به بدهکاران":"SMS to debtors","هیچ واحدی بدهی ندارد.":"No unit owes anything.",
+  "شمارهٔ موبایل هر واحد یک بار ذخیره می‌شود. «ارسال» پیام‌رسانِ گوشی را با متنِ آماده باز می‌کند؛ ارسال با خودِ شماست.":"Each unit's mobile number is saved once. “Send” opens your phone's messaging app with the text ready; you press send yourself.",
+  "موبایل":"Mobile","ارسال":"Send","ارسال شد ✓":"Sent ✓","بستن":"Close","یکی‌یکی، با متنِ آماده":"One by one, text ready",
+  "جریمهٔ دیرکرد (٪ از مانده، هر دوره)":"Late fee (% of the balance, each period)","شامل جریمهٔ دیرکرد {0}":"incl. late fee {0}",
+  "«{0}»: مبلغ {1}٪ بیشتر از میانگین {2} دورهٔ قبل ({3}) است — درست وارد شده؟":"“{0}”: the amount is {1}% above the average of the last {2} periods ({3}) — entered correctly?",
+  "«{0}»: مبلغ {1}٪ کمتر از میانگین {2} دورهٔ قبل ({3}) است — درست وارد شده؟":"“{0}”: the amount is {1}% below the average of the last {2} periods ({3}) — entered correctly?",
+  "روند هزینه":"Cost trend","این دوره":"This period","روند «{0}»: {1}":"Trend of “{0}”: {1}",
+  "سهم پایه + بر اساس متراژ × ضریب طبقه":"Base share + by floor area × floor factor","متراژ (m²)":"Area (m²)","ضریب طبقه":"Floor factor",
+  "۱ = معمولی؛ مثلاً ۱٫۱ برای طبقه‌ای که سهم بیشتری می‌دهد":"1 = normal; e.g. 1.1 for a floor that pays a larger share",
+  "«{0}»: متراژ این واحدها ثبت نشده (سهمشان صفر می‌شود): {1}":"“{0}”: floor area missing for these units (their share becomes zero): {1}",
+  "آب":"Water","برق":"Electricity","گاز":"Gas","تلفن ثابت":"Landline","تلفن همراه":"Mobile phone","عوارض شهرداری":"Municipal fees","مالیات":"Tax","جرائم رانندگی":"Traffic fines",
+  "دو عدد شناسه پیدا نشد — شناسهٔ قبض و شناسهٔ پرداخت را بنویسید یا متن پیامک را بچسبانید.":"Couldn't find the two identifiers — type the bill ID and the payment ID, or paste the bill SMS.",
+  "طول شناسه‌ها درست نیست (شناسهٔ قبض ۶ تا ۱۳ رقم، شناسهٔ پرداخت ۶ تا ۱۳ رقم).":"The identifiers have the wrong length (bill ID 6–13 digits, payment ID 6–13 digits).",
+  "ارقام کنترلی نمی‌خواند: این دو شناسه به هم تعلق ندارند، یا یک رقمِ شناسهٔ پرداخت اشتباه است.":"The check digits don't match: these two IDs don't belong together, or one digit of the payment ID is wrong.",
+  "ارقام کنترلی نمی‌خواند — احتمالاً یک رقم اشتباه تایپ شده؛ دوباره با قبض مقایسه کنید.":"The check digits don't match — probably a mistyped digit; compare with the bill again.",
+  "پر کردن از شناسهٔ قبض":"Fill in from the bill ID",
+  "متن پیامک قبض را بچسبانید، یا شناسهٔ قبض و شناسهٔ پرداخت را بنویسید. ارقام کنترلی بررسی می‌شود، پس مبلغ دقیق و بدون خطاست.":"Paste the bill SMS, or type the bill ID and the payment ID. The check digits are verified, so the amount is exact.",
+  "شناسهٔ قبض و شناسهٔ پرداخت":"Bill ID and payment ID","شناسهٔ قبض ۷۷۴۸۳۱۷۸۰۰۱۴۲ — شناسهٔ پرداخت ۱۷۷۰۱۶۰":"Bill ID 7748317800142 — Payment ID 1770160",
+  "قبض {0}":"{0} bill","قبض":"Bill","مبلغ: {0}":"Amount: {0}",
+  "مبلغ: {0} ریال (ارز این گزارش ریال/تومان نیست؛ مبلغ را دستی بزنید)":"Amount: {0} rial (this report's currency isn't rial/toman; enter the amount by hand)",
+  "سال {0}، دوره {1}":"Year {0}, period {1}","اعمال روی این قبض":"Apply to this bill","مبلغ و شناسه ثبت شد":"Amount and IDs saved",
+  "⌗ پر کردن از شناسهٔ قبض":"⌗ Fill in from the bill ID","شناسهٔ قبض {0} · شناسهٔ پرداخت {1}":"Bill ID {0} · Payment ID {1}",
   "در حال دریافت نسخهٔ جدید…":"Downloading the new version…",
   "این دستگاه خودش فایل پشتیبان نمی‌نویسد (iOS و مرورگر). برای ایمنی گاهی «ذخیرهٔ فایل پشتیبان» را بزنید؛ در iPhone از منوی اشتراک «Save to Files».":"This device can't write backup files by itself (iOS and browsers). Now and then tap “Save backup file”; on iPhone choose “Save to Files” in the share sheet.",
   "نسخهٔ اندروید این گوشی (کمتر از ۱۰) پشتیبان خودکار فایلی ندارد؛ پشتیبان گوگل و «ذخیرهٔ فایل پشتیبان» را استفاده کنید.":"This phone's Android version (below 10) has no automatic backup file; rely on Google backup and “Save backup file”.",
@@ -959,7 +1065,6 @@ var EN={
   
   "توضیح":"Note","توضیح (اختیاری) — روی گزارش می‌آید":"Note (optional) — printed on the report",
   "جمع سهم‌ها: ":"Shares total: ","  —  مبلغ کل: ":"  —  bill total: ","  ✗ برابر نیست":"  ✗ does not match",
-  "{0} تومان":"{0} Toman",
   /* checks */
   "«{0}»: جمع سهم‌های دستی ({1}) با مبلغ کل ({2}) برابر نیست.":"“{0}”: manual shares ({1}) do not add up to the total ({2}).",
   "«{0}» بر اساس نفرات تقسیم می‌شود ولی همهٔ واحدها ۲ نفر ثبت شده‌اند — نفرات را تنظیم کردید؟":"“{0}” is split by people but every unit has 2 people — did you set the head counts?",
@@ -1192,14 +1297,12 @@ function nativeLevel(){ try{ return (window.AndroidApp&&AndroidApp.level)?Androi
 function saveBlob(blob,filename,onDone){
   onDone=onDone||function(){};
   var bridge=(typeof AndroidApp!=="undefined"&&AndroidApp&&AndroidApp.saveFile)?AndroidApp:null;
-  var ios=(window.webkit&&window.webkit.messageHandlers&&window.webkit.messageHandlers.saveFile)||null;
-  if(bridge||ios){
+  if(bridge){
     var fr=new FileReader();
     fr.onload=function(){
       var b64=String(fr.result||""); b64=b64.slice(b64.indexOf(",")+1);
       try{
-        if(bridge) bridge.saveFile(filename,b64,blob.type||"application/octet-stream");
-        else ios.postMessage({name:filename,data:b64,mime:blob.type||"application/octet-stream"});
+        bridge.saveFile(filename,b64,blob.type||"application/octet-stream");
         onDone(true,"native");
       }catch(e){ onDone(false); }
     };
@@ -1243,6 +1346,7 @@ function moneyInput(ph,initial,onValue,decOverride){
 var METHODS={
   months:T("سهم پایه + بر اساس ماه سکونت"),
   people:T("سهم پایه + بر اساس نفرات (نفر × ماه)"),
+  area:T("سهم پایه + بر اساس متراژ × ضریب طبقه"),
   meter:T("سهم پایه + بر اساس مصرف کنتور"),
   equal:T("مساوی بین واحدها"),
   manual:T("سهم دستی هر واحد")
@@ -1405,7 +1509,7 @@ function migrateReport(r){
   /* stored data can be valid JSON yet malformed (hand edits, old bugs): drop junk entries instead of crashing at start-up */
   r.units=(Array.isArray(r.units)?r.units:[]).filter(isObj);
   r.costs=(Array.isArray(r.costs)?r.costs:[]).filter(isObj);
-  r.costs.forEach(function(c){ if(!isObj(c.manual))c.manual={}; if(c.reads!=null&&!isObj(c.reads))delete c.reads; });
+  r.costs.forEach(function(c){ if(!isObj(c.manual))c.manual={}; if(c.reads!=null&&!isObj(c.reads))delete c.reads; if(c.hist!=null&&!Array.isArray(c.hist))delete c.hist; });
   cleanIds(r.units,r.costs); cleanIds(r.costs,null);
   if(!r.building)r.building={};
   var b=r.building;
@@ -1454,14 +1558,18 @@ function validStore(d){
   var ks=Object.keys(d.reports);
   return ks.length>0 && ks.every(function(k){ return validReport(d.reports[k]); });
 }
+/* after a store arrives from outside (file, snapshot, restore): bring every report up to date and make sure one is active */
+function adoptStore(){
+  Object.keys(store.reports).forEach(function(id){migrateReport(store.reports[id]);});
+  if(!store.reports[store.activeId])store.activeId=Object.keys(store.reports)[0];
+}
 function setupStore(){
   if(!store||!isObj(store.reports)||!Object.keys(store.reports).length){
     var id=uid(); store={version:3,activeId:id,reports:{}}; store.reports[id]=blankReport();
   }
   Object.keys(store.reports).forEach(function(id){ if(!isObj(store.reports[id]))delete store.reports[id]; });
   if(!Object.keys(store.reports).length){ var id2=uid(); store.reports[id2]=blankReport(); store.activeId=id2; }
-  Object.keys(store.reports).forEach(function(id){migrateReport(store.reports[id]);});
-  if(!store.reports[store.activeId]) store.activeId=Object.keys(store.reports)[0];
+  adoptStore();
   if(!store.recent||typeof store.recent!=="object"||Array.isArray(store.recent))store.recent={};
   S=store.reports[store.activeId];
 }
@@ -1535,6 +1643,8 @@ function periods(){
   for(var k=a;k<=b;k++){var y=Math.floor(k/12),m=k%12;out.push({m:m,y:y,key:y+"-"+m,label:monthName(m)+" "+faNum(y)});}
   return out;
 }
+/* area share = floor area × floor factor (a ground-floor shop or a top-floor flat can weigh more or less than 1) */
+function areaW(u){ var a=parseNum(u.area), f=parseNum(u.fc); return a>0?a*(f>0?f:1):0; }
 function unitOn(u,key){return u.present[key]!==false;}
 function coverOn(c,key){return c.cover[key]!==false;}
 function ppl(u){var p=parseNum(u.people)||2;if(p<1)p=1;if(p>6)p=6;return p;}
@@ -1627,16 +1737,16 @@ function _shares(cost){
     var basePool = b.mode==="pct" ? total*parseNum(b.value)/100 : b.mode==="fixed" ? parseNum(b.value)*M : 0;
     if(basePool<0)basePool=0; if(basePool>total)basePool=total;
     var remainder=total-basePool;
-    var P=periods(), isPer=(cost.kind==="periodic"), byPeople=(cost.method==="people");
+    var P=periods(), isPer=(cost.kind==="periodic"), byPeople=(cost.method==="people"), byArea=(cost.method==="area");
     var isMeter=(cost.method==="meter");
     var w=isMeter?meterWeights(cost,U):U.map(function(u){
       var c=0; for(var i=0;i<P.length;i++){var k=P[i].key; if(unitOn(u,k)&&(!isPer||coverOn(cost,k)))c++;}
-      return (byPeople?ppl(u):1)*c;
+      return (byPeople?ppl(u):(byArea?areaW(u):1))*c;
     });
     var W=0;w.forEach(function(x){W+=x;});
     raw=U.map(function(u,i){
       var r=basePool/N + (W>0 ? remainder*w[i]/W : remainder/N);
-      detail[u.id]={base:basePool/N/M,w:isMeter?w[i]/1000:w[i],W:isMeter?W/1000:W,rem:remainder/M,raw:r/M,meter:isMeter};
+      detail[u.id]={base:basePool/N/M,w:isMeter?w[i]/1000:w[i],W:isMeter?W/1000:W,rem:remainder/M,raw:r/M,meter:isMeter,area:byArea};
       return r;
     });
   }
@@ -1645,6 +1755,11 @@ function _shares(cost){
   Object.keys(a.adj).forEach(function(i){ if(a.adj[i]) res.adjust.push({label:U[i].label||T("واحد"),delta:a.adj[i]/M}); });
   return res;
 }
+
+/* the costs that make it into the report: priced, or split by hand */
+function activeCosts(){ return S.costs.filter(function(c){return parseNum(c.amount)>0||c.method==="manual";}); }
+/* does any unit carry an old balance or a payment? then totals mean «owed», otherwise «this period» */
+function ledgerOn(){ return S.units.some(function(u){return minor(u.prevBalance)||minor(u.paid);}); }
 
 /* per-unit settlement total for the active (or given) report */
 function settle(rep){
@@ -1671,6 +1786,21 @@ function unitState(u,o){
   return "due";
 }
 
+/* amounts of the last (up to 6) earlier periods of one recurring bill, oldest first */
+function costHist(c){
+  var h=Array.isArray(c.hist)?c.hist:[], out=[];
+  h.forEach(function(e){ var a=e&&parseNum(e.a); if(a>0)out.push({a:a,p:String(e.p||"")}); });
+  return out.slice(-6);
+}
+/* a bill far from its own recent average is more often a typo (an extra zero) than a real change */
+function unusualBill(c){
+  var amt=parseNum(c.amount), h=costHist(c);
+  if(c.kind!=="periodic"||amt<=0||h.length<3)return null;
+  var m=0; h.forEach(function(e){m+=e.a;}); m/=h.length;
+  var pct=Math.round((amt/m-1)*100);
+  return Math.abs(pct)>=40?{pct:pct,mean:m,n:h.length}:null;
+}
+
 /* ---------- validation ---------- */
 function warnings(){
   var w=[],P=periods();
@@ -1682,6 +1812,9 @@ function warnings(){
         w.push(T("«{0}»: جمع سهم‌های دستی ({1}) با مبلغ کل ({2}) برابر نیست.",c.title||T("هزینه"),toman(sum),toman(amt)));
       return;
     }
+    var un=unusualBill(c);
+    if(un)w.push(un.pct>0?T("«{0}»: مبلغ {1}٪ بیشتر از میانگین {2} دورهٔ قبل ({3}) است — درست وارد شده؟",c.title||T("هزینه"),faNum(un.pct),faNum(un.n),money(un.mean))
+                         :T("«{0}»: مبلغ {1}٪ کمتر از میانگین {2} دورهٔ قبل ({3}) است — درست وارد شده؟",c.title||T("هزینه"),faNum(-un.pct),faNum(un.n),money(un.mean)));
     if(c.method==="meter"){
       var nm=c.title||T("هزینه"), miss=[], back=[], tot=0;
       S.units.forEach(function(u){
@@ -1696,22 +1829,110 @@ function warnings(){
       var mn=Math.round(parseNum(c.mainUse)*1000);
       if(mn>0&&mn<tot)w.push(T("«{0}»: مصرفِ کنتور اصلی کمتر از جمع مصرفِ واحدهاست.",nm));
     }
+    if(c.method==="area"){
+      var noA=S.units.filter(function(u){return areaW(u)<=0;}).map(function(u){return u.label||T("واحد");});
+      if(noA.length)w.push(T("«{0}»: متراژ این واحدها ثبت نشده (سهمشان صفر می‌شود): {1}",c.title||T("هزینه"),noA.join(T("، "))));
+    }
     if(c.method==="people"&&amt>0&&S.units.length&&S.units.every(function(u){return ppl(u)===2;}))
       w.push(T("«{0}» بر اساس نفرات تقسیم می‌شود ولی همهٔ واحدها ۲ نفر ثبت شده‌اند — نفرات را تنظیم کردید؟",c.title||T("هزینه")));
-    if((c.method==="months"||c.method==="people")){
+    if((c.method==="months"||c.method==="people"||c.method==="area")){
       var isPer=c.kind==="periodic";
       var off=S.units.filter(function(u){
         var any=false;P.forEach(function(p){if(unitOn(u,p.key)&&(!isPer||coverOn(c,p.key)))any=true;});return !any;
       });
       if(off.length&&c.base.mode!=="none")
         w.push(T("«{0}»: {1} در هیچ ماهِ پوششِ این قبض ساکن نبوده ولی سهم پایه پرداخت می‌کند.",c.title||T("هزینه"),off.map(function(u){return u.label||T("واحد");}).join(T("، "))));
-      var W=0;S.units.forEach(function(u){P.forEach(function(p){if(unitOn(u,p.key)&&(!isPer||coverOn(c,p.key)))W+=(c.method==="people"?ppl(u):1);});});
+      var W=0;S.units.forEach(function(u){P.forEach(function(p){if(unitOn(u,p.key)&&(!isPer||coverOn(c,p.key)))W+=(c.method==="people"?ppl(u):(c.method==="area"?areaW(u):1));});});
       if(W===0) w.push(T("«{0}»: هیچ واحد-ماهی برای تقسیم نیست؛ باقیمانده مساوی پخش می‌شود.",c.title||T("هزینه")));
     }
   });
   return w;
 }
 
+/* ---------- Iranian utility bills: شناسهٔ قبض + شناسهٔ پرداخت ----------
+   Reading a bill with phone OCR is unreliable for Persian digits and says nothing about whether it read right. The two
+   identifiers printed on every bill (and sent in the SMS) carry their own check digits, so typing or pasting them is exact:
+     billId : … + type(1) + check            check = mod-11 of the digits before it
+     payId  : amount(thousand rial) + year(1) + period(2) + check1 + check2
+              check1 = mod-11 of payId without its last two digits
+              check2 = mod-11 of billId followed by payId without its last digit   (leading zeros dropped)
+   mod-11 check = weights 2..7 from the right; remainder < 2 → 0, else 11 − remainder. Three independent checks must agree,
+   so a single wrong digit cannot slip through. */
+function billCheck(d){
+  var sum=0,w=2;
+  for(var i=d.length-1;i>=0;i--){ sum+=(+d.charAt(i))*w; w=(w===7)?2:w+1; }
+  var r=sum%11; return r<2?0:11-r;
+}
+var BILL_TYPES={1:T("آب"),2:T("برق"),3:T("گاز"),4:T("تلفن ثابت"),5:T("تلفن همراه"),6:T("عوارض شهرداری"),7:T("مالیات"),8:T("جرائم رانندگی")};
+function billStrip(s){ return latinDigits(s==null?"":s).replace(/\D/g,"").replace(/^0+/,""); }
+function billParse(billRaw,payRaw){
+  var b=billStrip(billRaw), p=billStrip(payRaw), er=[];
+  if(b.length<6||b.length>13)er.push("bill-length");
+  else if(+b.slice(-1)!==billCheck(b.slice(0,-1)))er.push("bill-check");
+  if(p.length<5||p.length>13)er.push("pay-length");
+  else{
+    if(+p.charAt(p.length-2)!==billCheck(p.slice(0,-2)))er.push("pay-check1");
+    if(b.length>=6&&+p.slice(-1)!==billCheck(b+p.slice(0,-1)))er.push("pay-check2");
+  }
+  var tc=b.length>=2?+b.charAt(b.length-2):0;
+  return {ok:!er.length,errors:er,billId:b,payId:p,typeCode:tc,type:BILL_TYPES[tc]||"",
+          amountRial:(p.length>5?parseInt(p.slice(0,-5),10):0)*1000,year:p.length>4?p.charAt(p.length-5):"",period:p.length>4?p.slice(-4,-2):""};
+}
+/* pull the two numbers out of whatever was pasted: an SMS, a bill's text, a 26-digit barcode, or just the two numbers */
+function billExtract(text){
+  var t=latinDigits(String(text||"")), best=null, pair=function(a,b){ var r=billParse(a,b); if(!best||r.errors.length<best.errors.length)best=r; return r.ok; };
+  var lb=/شناسه\s*قبض\D{0,14}([\d][\d\s\-]{4,20})/.exec(t), lp=/شناسه\s*پرداخت\D{0,14}([\d][\d\s\-]{4,20})/.exec(t);
+  if(lb&&lp&&pair(lb[1],lp[1]))return best;
+  var nums=t.match(/\d{6,26}/g)||[], i, j;
+  for(i=0;i<nums.length;i++)if(nums[i].length===26&&pair(nums[i].slice(0,13),nums[i].slice(13)))return best;
+  nums=nums.filter(function(n){return n.length<=13;});
+  for(i=0;i<nums.length;i++)for(j=0;j<nums.length;j++)if(i!==j&&pair(nums[i],nums[j]))return best;
+  return best;
+}
+function billAmountInReport(r){            /* rial → the report's currency; null when it is neither rial nor toman */
+  var c=curOf(S); return c==="IRR"?r.amountRial:(c==="IRT"?r.amountRial/10:null);
+}
+function billErrText(r){
+  if(!r)return T("دو عدد شناسه پیدا نشد — شناسهٔ قبض و شناسهٔ پرداخت را بنویسید یا متن پیامک را بچسبانید.");
+  if(r.errors.indexOf("bill-length")>-1||r.errors.indexOf("pay-length")>-1)return T("طول شناسه‌ها درست نیست (شناسهٔ قبض ۶ تا ۱۳ رقم، شناسهٔ پرداخت ۶ تا ۱۳ رقم).");
+  if(r.errors.length===1&&r.errors[0]==="pay-check2")return T("ارقام کنترلی نمی‌خواند: این دو شناسه به هم تعلق ندارند، یا یک رقمِ شناسهٔ پرداخت اشتباه است.");
+  return T("ارقام کنترلی نمی‌خواند — احتمالاً یک رقم اشتباه تایپ شده؛ دوباره با قبض مقایسه کنید.");
+}
+function openBillDialog(c){
+  $("#modalTitle").textContent=T("پر کردن از شناسهٔ قبض");
+  var body=$("#modalBody"); body.innerHTML="";
+  body.append(el("p",{class:"hint",text:T("متن پیامک قبض را بچسبانید، یا شناسهٔ قبض و شناسهٔ پرداخت را بنویسید. ارقام کنترلی بررسی می‌شود، پس مبلغ دقیق و بدون خطاست.")}));
+  var ta=el("textarea",{rows:"4",style:"width:100%",inputmode:"numeric","aria-label":T("شناسهٔ قبض و شناسهٔ پرداخت"),placeholder:T("شناسهٔ قبض ۷۷۴۸۳۱۷۸۰۰۱۴۲ — شناسهٔ پرداخت ۱۷۷۰۱۶۰")});
+  var out=el("div",{class:"billres"});
+  body.append(ta,out);
+  var res=null;
+  var show=function(){
+    out.innerHTML=""; res=billExtract(ta.value);
+    var okBtn=$("#modalOk");
+    if(!ta.value.trim()){ okBtn.disabled=true; return; }
+    if(!res||!res.ok){ out.className="billres bad"; out.textContent=billErrText(res); okBtn.disabled=true; return; }
+    out.className="billres ok";
+    var amt=billAmountInReport(res);
+    out.append(el("div",{text:"✓ "+(res.type?T("قبض {0}",res.type):T("قبض"))}),
+               el("div",{text:amt==null?T("مبلغ: {0} ریال (ارز این گزارش ریال/تومان نیست؛ مبلغ را دستی بزنید)",fa(res.amountRial)):T("مبلغ: {0}",money(amt))}),
+               el("div",{text:T("سال {0}، دوره {1}",faNum(res.year),faNum(res.period))}));
+    okBtn.disabled=false;
+  };
+  ta.addEventListener("input",show);
+  modalApply=function(){
+    if(!res||!res.ok)return;
+    var amt=billAmountInReport(res);
+    if(amt!=null)c.amount=amt;
+    if(!c.title&&res.type)c.title=T("قبض {0}",res.type);
+    c.bill={id:res.billId,pay:res.payId};
+    saveStore(); renderCosts(); render();
+    toast(T("مبلغ و شناسه ثبت شد"));
+  };
+  modalOnClose=function(){ $("#modalOk").disabled=false; };
+  openModal(T("اعمال روی این قبض"),true);
+  show();
+  try{ta.focus();}catch(e){}
+}
 /* ---------- generic month/year از‑تا picker (two compact <select> rows) ---------- */
 function renderPickerRows(host,rg,onChange){
   host.innerHTML="";
@@ -1845,13 +2066,15 @@ function renderUnits(){
   var P=periods();
   /* «نفرات» فقط وقتی لازم است که قبضی «بر اساس نفرات» تقسیم شود */
   var showPpl=S.costs.some(function(c){return c.method==="people";});
+  var showArea=S.costs.some(function(c){return c.method==="area";});   /* متراژ و ضریب طبقه فقط برای قبضِ «بر اساس متراژ» */
   var showMon=!!S.building.detailMonths;
   var mt=$("#monToggle"); if(mt)mt.textContent=showMon?T("جمع کردن جدول ماه‌ها"):T("نمایش جدول ماه‌ها");
   var at=$("#allToggle"); if(at)at.style.display=showMon?"":"none";
   var uh=$("#unitHint"); if(uh)uh.textContent=showMon
     ? T("روی عنوان هر ماه بزنید تا برای همهٔ واحدها روشن/خاموش شود.")
     : T("همه ساکنِ کلِ دوره فرض می‌شوند؛ برای استثنا «بازه» را بزنید. «ماندهٔ قبل» و «پرداختی» اختیاری‌اند.");
-  var head=el("tr",{},[el("th",{text:T("واحد")}), showPpl?el("th",{text:T("نفرات")}):null]);
+  var head=el("tr",{},[el("th",{text:T("واحد")}), showPpl?el("th",{text:T("نفرات")}):null,
+    showArea?el("th",{text:T("متراژ (m²)")}):null, showArea?el("th",{text:T("ضریب طبقه"),title:T("۱ = معمولی؛ مثلاً ۱٫۱ برای طبقه‌ای که سهم بیشتری می‌دهد")}):null]);
   if(showMon)P.forEach(function(p){
     var th=el("th",{class:"mtog",title:T("روشن/خاموش این ماه برای همهٔ واحدها"),text:p.label});
     th.addEventListener("click",function(){
@@ -1872,20 +2095,27 @@ function renderUnits(){
     var sel=el("select");
     for(var pi=1;pi<=6;pi++){var po=el("option",{value:pi,text:fa(pi)});if(ppl(u)===pi)po.selected=true;sel.append(po);}
     sel.addEventListener("change",function(){u.people=parseNum(sel.value)||2;saveStore();render();});
-    var cnt=el("td",{});
+    var cnt=el("td",{class:"cnt","data-l":T("ماه")});
     var setCnt=function(){var n=0;P.forEach(function(p){if(unitOn(u,p.key))n++;});cnt.textContent=faNum(n);};
     setCnt();
-    var tr=el("tr",{},[el("td",{class:"unit"},lbl), showPpl?el("td",{class:"ppl"},sel):null]);
+    var tr=el("tr",{},[el("td",{class:"unit"},lbl), showPpl?el("td",{class:"ppl","data-l":T("نفرات")},sel):null]);
+    if(showArea){
+      var ar=moneyInput("0",u.area,function(n){u.area=n;saveSoon();scheduleRender();},2);
+      var fc=moneyInput("1",u.fc,function(n){u.fc=n;saveSoon();scheduleRender();},2);
+      ar.setAttribute("aria-label",(u.label||T("واحد"))+" · "+T("متراژ (m²)")); fc.setAttribute("aria-label",(u.label||T("واحد"))+" · "+T("ضریب طبقه"));
+      tr.append(el("td",{class:"mon","data-l":T("متراژ (m²)")},ar),el("td",{class:"mon","data-l":T("ضریب طبقه")},fc));
+    }
     if(showMon)P.forEach(function(p){
       var cb=el("input",{type:"checkbox","aria-label":(u.label||T("واحد"))+" · "+p.label});cb.checked=unitOn(u,p.key);
       cb.addEventListener("change",function(){u.present[p.key]=cb.checked;setCnt();saveStore();render();});
-      tr.append(el("td",{},cb));
+      tr.append(el("td",{class:"mchk","data-l":p.label},cb));
     });
     var prev=moneyInput(faNum(0),u.prevBalance,function(n){u.prevBalance=n;saveSoon();scheduleRender();});
     var paid=moneyInput(faNum(0),u.paid,function(n){u.paid=n;saveSoon();scheduleRender();});
+    if(Array.isArray(u.payments)&&u.payments.length){ paid.readOnly=true; paid.title=T("جمعِ پرداخت‌های ثبت‌شده — در «قبض هر واحد» ویرایش می‌شود"); }
     prev.setAttribute("aria-label",(u.label||T("واحد"))+" · "+T("ماندهٔ قبل")); paid.setAttribute("aria-label",(u.label||T("واحد"))+" · "+T("پرداختی"));
     sel.setAttribute("aria-label",(u.label||T("واحد"))+" · "+T("نفرات"));
-    tr.append(cnt, el("td",{class:"mon"},prev), el("td",{class:"mon"},paid));
+    tr.append(cnt, el("td",{class:"mon","data-l":T("ماندهٔ قبل")},prev), el("td",{class:"mon","data-l":T("پرداختی")},paid));
     var actions=el("td");
     var bRange=el("button",{class:"btn mini",text:T("بازه"),style:"margin:2px"});
     bRange.addEventListener("click",function(){openRowRange(u);});
@@ -1946,6 +2176,27 @@ function meterBlock(c){
   return wrap;
 }
 
+/* ---------- trend of one recurring bill over the earlier periods ---------- */
+function trendBlock(c){
+  var h=costHist(c), now=parseNum(c.amount), pts=h.map(function(e){return {a:e.a,p:e.p};});
+  if(now>0)pts.push({a:now,p:T("این دوره")});
+  if(pts.length<2)return null;
+  var NS="http://www.w3.org/2000/svg", W=300, H=64, pad=4, n=pts.length, mx=0;
+  pts.forEach(function(q){if(q.a>mx)mx=q.a;});
+  var bw=Math.min(34,(W-pad*2)/n-6), gap=(W-pad*2-bw*n)/Math.max(1,n-1);
+  var svg=document.createElementNS(NS,"svg");
+  svg.setAttribute("viewBox","0 0 "+W+" "+H); svg.setAttribute("class","trend"); svg.setAttribute("role","img");
+  svg.setAttribute("aria-label",T("روند «{0}»: {1}",c.title||T("هزینه"),pts.map(function(q){return q.p+" "+toman(q.a);}).join(T("، "))));
+  pts.forEach(function(q,i){
+    var bh=Math.max(3,(q.a/mx)*(H-pad*2)), r=document.createElementNS(NS,"rect");
+    r.setAttribute("x",pad+i*(bw+gap)); r.setAttribute("y",H-pad-bh); r.setAttribute("width",bw); r.setAttribute("height",bh); r.setAttribute("rx",3);
+    r.setAttribute("class","tbar"+(now>0&&i===n-1?" now":""));
+    var tt=document.createElementNS(NS,"title"); tt.textContent=q.p+": "+money(q.a); r.appendChild(tt);
+    svg.appendChild(r);
+  });
+  return el("div",{class:"trendbox"},[el("label",{text:T("روند هزینه")}),svg]);
+}
+
 /* ---------- cost cards ---------- */
 function renderCosts(){
   var box=$("#costList");
@@ -1986,7 +2237,8 @@ function renderCosts(){
         saveStore();renderUnits();renderCosts();render();
       });
     });
-    body.append(el("div",{class:"top"},[el("span",{class:"t"},title),del]));
+    body.append(el("div",{class:"top"},[el("span",{class:"t"},title)]));
+    var ob=el("div",{class:"cc-opts"});   /* everything about HOW it is split lives behind one disclosure */
 
     var kind=el("select");
     [["periodic",T("قبض دوره‌ای")],["oneoff",T("خرید یک‌باره")]].forEach(function(p){
@@ -2007,13 +2259,18 @@ function renderCosts(){
       var o=el("option",{value:v,text:METHODS[v]});if(c.method===v)o.selected=true;method.append(o);
     });
     method.addEventListener("change",function(){c.method=method.value;saveStore();renderUnits();renderCosts();render();});
-    body.append(el("div",{class:"grid g3"},[
+    body.append(amtCell);
+    ob.append(el("div",{class:"grid g2"},[
       el("div",{},[el("label",{text:T("نوع")}),kind]),
-      amtCell,
       el("div",{},[el("label",{text:T("روش تقسیم")}),method])
     ]));
 
-    if(c.method==="months"||c.method==="people"||c.method==="meter"){
+    var billBtn=el("button",{class:"btn mini",type:"button",text:T("⌗ پر کردن از شناسهٔ قبض"),style:"margin-top:10px"});
+    billBtn.addEventListener("click",function(){openBillDialog(c);});
+    ob.append(billBtn);
+    if(c.bill)ob.append(el("p",{class:"hint billids",text:T("شناسهٔ قبض {0} · شناسهٔ پرداخت {1}",faNum(c.bill.id),faNum(c.bill.pay))}));
+
+    if(c.method==="months"||c.method==="people"||c.method==="meter"||c.method==="area"){
       var bmode=el("select");
       Object.keys(BASE).forEach(function(v){var o=el("option",{value:v,text:BASE[v]});if(c.base.mode===v)o.selected=true;bmode.append(o);});
       bmode.addEventListener("change",function(){c.base.mode=bmode.value;saveStore();renderCosts();render();});
@@ -2022,7 +2279,7 @@ function renderCosts(){
         var bval=moneyInput(c.base.mode==="pct"?T("درصد"):curName(),c.base.value,function(n){c.base.value=n;saveSoon();scheduleRender();},c.base.mode==="pct"?2:null);
         bwrap.append(el("div",{},[el("label",{text:c.base.mode==="pct"?T("درصد از کل قبض"):T("مبلغ ثابت کل ({0})",curName())}),bval]));
       }
-      body.append(bwrap);
+      ob.append(bwrap);
     }
     if(c.kind==="periodic"&&c.method!=="manual"&&c.method!=="meter"){
       var mg=el("div",{class:"mchips"});
@@ -2054,9 +2311,9 @@ function renderCosts(){
           mg.append(row);
         }
       });
-      body.append(el("div",{style:"margin-top:12px"},[el("label",{text:T("این قبض کدام ماه‌ها را پوشش می‌دهد")}),mg]));
+      ob.append(el("div",{style:"margin-top:12px"},[el("label",{text:T("این قبض کدام ماه‌ها را پوشش می‌دهد")}),mg]));
     }
-    if(c.method==="meter") body.append(meterBlock(c));
+    if(c.method==="meter") ob.append(meterBlock(c));
     if(c.method==="manual"){
       var mm=el("div",{class:"months",style:"grid-template-columns:repeat(auto-fill,minmax(150px,1fr))"});
       S.units.forEach(function(u){
@@ -2064,11 +2321,19 @@ function renderCosts(){
         i.setAttribute("aria-label",(u.label||T("واحد"))+" · "+(c.title||T("بدون عنوان")));
         mm.append(el("label",{},[el("span",{text:u.label||T("واحد")}),i]));
       });
-      body.append(el("div",{style:"margin-top:12px"},[el("label",{text:T("سهم هر واحد ({0})",curName())}),mm]));
+      ob.append(el("div",{style:"margin-top:12px"},[el("label",{text:T("سهم هر واحد ({0})",curName())}),mm]));
     }
     var note=el("input",{value:c.note||"",placeholder:T("توضیح (اختیاری) — روی گزارش می‌آید"),"aria-label":T("توضیح (اختیاری) — روی گزارش می‌آید")});
     note.addEventListener("input",function(){c.note=note.value;saveSoon();scheduleRender();});
-    body.append(el("div",{style:"margin-top:12px"},[el("label",{text:T("توضیح")}),note]));
+    ob.append(el("div",{style:"margin-top:12px"},[el("label",{text:T("توضیح")}),note]));
+    var tr=trendBlock(c); if(tr)ob.append(tr);
+    ob.append(el("div",{style:"margin-top:14px"},del));
+    var needsInput=(c.method==="meter"||c.method==="manual"||c.method==="area");
+    var opts=el("details",{class:"copts more","data-cid":c.id},[
+      el("summary",{text:T("نحوهٔ تقسیم")+" · "+mShort}),ob]);
+    opts.open=(optOpen[c.id]!=null)?optOpen[c.id]:needsInput;
+    opts.addEventListener("toggle",function(){optOpen[c.id]=opts.open;});
+    body.append(opts);
     body.append(el("div",{class:"tally",id:"tally-"+c.id}));
     card.append(body);
     box.append(card);
@@ -2189,7 +2454,7 @@ function matrixText(){
   return L.join("\n");
 }
 function allSlipsText(){
-  var cols=S.costs.filter(function(c){return parseNum(c.amount)>0||c.method==="manual";});
+  var cols=activeCosts();
   var mats=cols.map(shares), owe=settle(S);
   return S.units.map(function(u){ return slipText(u,cols,mats,owe[u.id]||{period:0,owed:0}); }).join("\n\n———\n\n");
 }
@@ -2221,8 +2486,8 @@ function drawReportCanvas(sigImg){
   return new Promise(function(resolve,reject){
     try{
       var owe=settle(S);
-      var cols=S.costs.filter(function(c){return parseNum(c.amount)>0||c.method==="manual";});
-      var hasLedger=S.units.some(function(u){return minor(u.prevBalance)||minor(u.paid);});
+      var cols=activeCosts();
+      var hasLedger=ledgerOn();
       var W=760, PAD=34, sc=2;
       var rowH=34, line=[];
       line.push({t:"h"});
@@ -2339,7 +2604,7 @@ function doShareImage(btn){
 
 /* ---------- report ---------- */
 var reportView="matrix";
-var costOpen={};   /* per-card expand state (UI only, keyed by cost id) */
+var costOpen={}, optOpen={};   /* per-card expand state (UI only, keyed by cost id) */
 var slipPlain=false;   /* «حالت ارائه» — minimal per-unit card for forwarding to residents */
 /* «  · مصرف ۱۲٫۵» after a metered line, so a resident can check the bill against their own meter */
 function useNote(c,u){
@@ -2351,8 +2616,9 @@ function slipText(u,cols,mats,owe){
   L.push(T("بازه: {0}",rangeText()));
   cols.forEach(function(c,ci){ var v=mats[ci].by[u.id]||0; if(v) L.push((c.title||T("هزینه"))+useNote(c,u)+": "+money((v))); });
   L.push(T("سهم این دوره")+": "+money((owe.period)));
-  if(minor(u.prevBalance)) L.push(T("ماندهٔ دورهٔ قبل")+": "+money((u.prevBalance)));
+  if(minor(u.prevBalance)) L.push(T("ماندهٔ دورهٔ قبل")+": "+money((u.prevBalance))+(minor(u.lateFee)?" ("+T("شامل جریمهٔ دیرکرد {0}",money(u.lateFee))+")":""));
   if(minor(u.paid)) L.push(T("پرداختی")+": "+money((u.paid)));
+  (u.payments||[]).forEach(function(p){ L.push("  ↳ "+(p.d||T("پرداخت"))+": "+money(p.a)); });
   L.push(T("بدهی کل")+": "+money((owe.owed)));
   if(S.building.dueDate) L.push(T("مهلت پرداخت: {0}",S.building.dueDate));
   if(S.building.payTo) L.push(T("مقصد واریز: {0}",S.building.payTo));
@@ -2377,8 +2643,8 @@ function payToBlock(){
 function renderStats(){
   var host=$("#statStrip"); if(!host)return;
   var owe=settle(S);
-  var costsN=S.costs.filter(function(c){return parseNum(c.amount)>0||c.method==="manual";}).length;
-  var hasLdg=S.units.some(function(u){return minor(u.prevBalance)||minor(u.paid);});
+  var costsN=activeCosts().length;
+  var hasLdg=ledgerOn();
   var tot=0,debtors=0;   /* summed in minor units, see settle() */
   S.units.forEach(function(u){
     var o=owe[u.id]||{owed:0,period:0};
@@ -2403,10 +2669,17 @@ function emptyBlock(){
   wrap.append(b);
   return wrap;
 }
+/* manager name + signature + credit line under every report / slip */
+function reportFoot(){
+  return el("div",{class:"rfoot"},[
+    el("div",{},[el("div",{style:"color:#6f6f68;font-size:12px",text:T("مدیریت ساختمان")}),el("div",{class:"mgrn",text:S.building.manager||"—"}),S.building.sig?el("img",{class:"sigimg",src:S.building.sig,alt:T("امضای مدیر")}):null]),
+    el("div",{class:"sig",text:T("طراحی و توسعه — پیمان آرین")})
+  ]);
+}
 /* one-line readiness signal above the fold (warnings otherwise only show inside the report) */
 function renderReady(){
   var el0=$("#readyLine"); if(!el0)return;
-  var priced=S.costs.filter(function(c){return parseNum(c.amount)>0||c.method==="manual";}).length;
+  var priced=activeCosts().length;
   var cls,msg;
   if(!S.units.length||!priced){ cls="idle"; msg=T("برای گزارش، حداقل یک واحد و یک قبض با مبلغ لازم است."); }
   else{
@@ -2422,7 +2695,7 @@ function render(){
   renderReady();
   var host=$("#reportWrap"); host.innerHTML="";
   var P=periods();
-  var cols=S.costs.filter(function(c){return parseNum(c.amount)>0||c.method==="manual";});
+  var cols=activeCosts();
   var mats=cols.map(shares);
   var owe=settle(S);
 
@@ -2451,8 +2724,16 @@ function render(){
       var items=el("div",{class:"items"});
       cols.forEach(function(c,ci){var v=mats[ci].by[u.id]||0; if(v) items.append(el("div",{class:"li item"},[el("span",{text:(c.title||T("هزینه"))+useNote(c,u)}),el("span",{text:money((v))})]));});
       items.append(el("div",{class:"li sum"},[el("span",{text:T("سهم این دوره")}),el("span",{text:money((o.period))})]));
-      if(minor(u.prevBalance)) items.append(el("div",{class:"li"},[el("span",{text:T("ماندهٔ دورهٔ قبل")}),el("span",{text:money((u.prevBalance))})]));
+      if(minor(u.prevBalance)) items.append(el("div",{class:"li"},[el("span",{text:T("ماندهٔ دورهٔ قبل")+(minor(u.lateFee)?" ("+T("شامل جریمهٔ دیرکرد {0}",money(u.lateFee))+")":"")}),el("span",{text:money((u.prevBalance))})]));
       if(minor(u.paid)) items.append(el("div",{class:"li"},[el("span",{text:T("پرداختی")}),el("span",{text:money((u.paid))})]));
+      (u.payments||[]).forEach(function(p){
+        var row=el("div",{class:"li payrow"},[el("span",{text:"↳ "+(p.d||T("پرداخت"))+(p.n?" — "+p.n:"")}),el("span",{text:money(p.a)})]);
+        var rm=el("button",{class:"btn mini noprint",type:"button",text:"×","aria-label":T("حذف این پرداخت"),title:T("حذف این پرداخت")});
+        rm.addEventListener("click",function(){ removePayment(u,p); });
+        var rc=el("button",{class:"btn mini noprint",type:"button",text:T("رسید")});
+        rc.addEventListener("click",function(){ shareOrCopy(receiptText(u,p)); });
+        row.append(rc,rm); items.append(row);
+      });
       items.append(el("div",{class:"li due st-"+unitState(u,o)},[el("span",{text:T("بدهی کل")}),el("span",{text:money((o.owed))})]));
       box.append(items);
       if(S.building.payTo) box.append(payToBlock());
@@ -2464,6 +2745,9 @@ function render(){
           if(ok) setTimeout(function(){cp.textContent=T("کپی متن این قبض");},1500);
         });
       });
+      var payBtn=el("button",{class:"btn mini",type:"button",text:T("ثبت پرداخت")});
+      payBtn.addEventListener("click",function(){ openPayDialog(u); });
+      bb.append(payBtn);
       bb.append(cp);
       var sms=el("a",{class:"btn mini",href:"sms:?body="+encodeURIComponent(slipText(u,cols,mats,o)),text:T("پیامک"),style:"text-decoration:none"});
       bb.append(sms);
@@ -2486,10 +2770,7 @@ function render(){
       });
       bb.append(pOne);
       box.append(bb);
-      box.append(el("div",{class:"rfoot"},[
-        el("div",{},[el("div",{style:"color:#6f6f68;font-size:12px",text:T("مدیریت ساختمان")}),el("div",{class:"mgrn",text:S.building.manager||"—"}),S.building.sig?el("img",{class:"sigimg",src:S.building.sig,alt:T("امضای مدیر")}):null]),
-        el("div",{class:"sig",text:T("طراحی و توسعه — پیمان آرین")})
-      ]));
+      box.append(reportFoot());
       host.append(box);
     });
     return;
@@ -2509,7 +2790,7 @@ function render(){
   }
 
   /* at-a-glance summary: total to collect, unit count, biggest debtor */
-  var hasLdg=S.units.some(function(u){return minor(u.prevBalance)||minor(u.paid);});
+  var hasLdg=ledgerOn();
   var totRecv=0,maxU=null,maxV=-Infinity;   /* minor units */
   S.units.forEach(function(u){var o=owe[u.id]||{owed:0,period:0};var v=minor(hasLdg?o.owed:o.period);totRecv+=v;if(v>maxV){maxV=v;maxU=u;}});
   r.append(el("div",{class:"rhero"},[
@@ -2537,7 +2818,7 @@ function render(){
   r.append(el("div",{class:"tblwrap"},el("table",{},[el("thead",{},head),el("tbody",{},body)])));
 
   /* ledger (only if any prevBalance / paid entered) */
-  var hasLedger=S.units.some(function(u){return minor(u.prevBalance)||minor(u.paid);});
+  var hasLedger=ledgerOn();
   if(hasLedger){
     r.append(el("div",{class:"rsub",text:T("تسویه")}));
     var lh=el("tr",{},[el("th",{text:T("واحد")}),el("th",{text:T("ماندهٔ قبل")}),el("th",{text:T("سهم این دوره")}),el("th",{text:T("پرداختی")}),el("th",{text:T("بدهی کل")})]);
@@ -2560,7 +2841,7 @@ function render(){
   var ul=el("ul",{class:"rnotes"});
   cols.forEach(function(c,ci){
     var s=(c.title||T("هزینه"))+" — "+(c.kind==="periodic"?T("قبض دوره‌ای"):T("خرید یک‌باره"))+T("، ")+METHODS[c.method];
-    if((c.method==="months"||c.method==="people"||c.method==="meter")&&c.base.mode!=="none")
+    if((c.method==="months"||c.method==="people"||c.method==="meter"||c.method==="area")&&c.base.mode!=="none")
       s+= T("، ")+(c.base.mode==="pct" ? T("سهم پایه {0}٪",fa(c.base.value)) : T("سهم پایه {0}",money(c.base.value)));
     if(c.kind==="periodic"&&c.method!=="manual"&&c.method!=="meter"){
       var picked=P.filter(function(p){return coverOn(c,p.key);});
@@ -2587,7 +2868,7 @@ function render(){
       var d=mats[ci].detail[u.id], v=mats[ci].by[u.id]||0, txt;
       if(!d){ txt=(c.title||T("هزینه"))+" — "+money((v))+" ("+METHODS[c.method]+")"; }
       else{
-        var wpart = d.W>0 ? ("("+T("{0} از {1}",d.meter?fa(d.w):faNum(d.w),d.meter?fa(d.W):faNum(d.W))+") × "+toman(d.rem)) : (T("مساوی")+" × "+toman(d.rem));
+        var wpart = d.W>0 ? ("("+T("{0} از {1}",(d.meter||d.area)?fa(d.w):faNum(d.w),(d.meter||d.area)?fa(d.W):faNum(d.W))+") × "+toman(d.rem)) : (T("مساوی")+" × "+toman(d.rem));
         txt=(c.title||T("هزینه"))+" — "+T("سهم پایه {0}",toman(d.base))+" + "+wpart+" = "+toman(d.raw)+(LANG==="en"?" → ":" ← ")+money((v));
       }
       lines.append(el("li",{text:txt}));
@@ -2598,10 +2879,7 @@ function render(){
   r.append(det);
 
   if(S.building.payTo) r.append(payToBlock());
-  r.append(el("div",{class:"rfoot"},[
-    el("div",{},[el("div",{style:"color:#6f6f68;font-size:12px",text:T("مدیریت ساختمان")}),el("div",{class:"mgrn",text:S.building.manager||"—"}),S.building.sig?el("img",{class:"sigimg",src:S.building.sig,alt:T("امضای مدیر")}):null]),
-    el("div",{class:"sig",text:T("طراحی و توسعه — پیمان آرین")})
-  ]));
+  r.append(reportFoot());
   host.append(r);
   refreshToggleLabel();
 }
@@ -2614,12 +2892,190 @@ function renderReportBar(){
     if(id===store.activeId)o.selected=true; sel.append(o);
   });
 }
+/* ---------- payments (several per unit), receipts, one-by-one SMS to debtors, late fee ----------
+   settle() still reads one number, u.paid. When u.payments exists, u.paid is always their sum (the field in the units
+   table turns read-only), so every report, backup and old file keeps working without knowing about payments. */
+function payTotal(u){
+  var t=0; (u.payments||[]).forEach(function(p){ t+=minor(p.a); });
+  return t/curM();
+}
+function syncPaid(u){ if(Array.isArray(u.payments)&&u.payments.length)u.paid=payTotal(u); else if(Array.isArray(u.payments))delete u.payments; }
+function addPayment(u,amount,date,note){
+  if(!Array.isArray(u.payments)||!u.payments.length){
+    u.payments=[]; if(minor(u.paid))u.payments.push({d:"",a:u.paid,n:T("پرداخت قبلی")});   /* a hand-typed total becomes the first entry */
+  }
+  u.payments.push({id:uid(),d:String(date||""),a:amount,n:String(note||"")});
+  syncPaid(u);
+}
+/* receipt for one payment: plain text for Telegram / SMS, with what is still owed afterwards */
+function receiptText(u,p){
+  var o=(settle(S)[u.id])||{owed:0}, L=[];
+  L.push(T("{0} — رسید پرداخت",S.building.name||T("ساختمان")));
+  L.push(T("واحد: {0}",u.label||""));
+  L.push(T("مبلغ پرداخت‌شده: {0}",money(p.a)));
+  if(p.d)L.push(T("تاریخ: {0}",p.d));
+  L.push(T("بازهٔ حساب: {0}",rangeText()));
+  L.push(minor(o.owed)>0?T("مانده بدهی: {0}",money(o.owed)):T("تسویه کامل ✓"));
+  if(S.building.manager)L.push(T("مدیریت: {0}",S.building.manager));
+  return L.join("\\n");
+}
+function shareOrCopy(text){
+  if(typeof navigator.share==="function"){ navigator.share({title:shareTitle(),text:text}).catch(function(){}); return; }
+  copyText(text,function(ok){ if(ok)toast(T("کپی شد ✓")); });
+}
+function openPayDialog(u){
+  var o=(settle(S)[u.id])||{owed:0};
+  $("#modalTitle").textContent=T("ثبت پرداخت — {0}",u.label||T("واحد"));
+  var body=$("#modalBody"); body.innerHTML="";
+  var amt=0, date=el("input",{value:jDate(),"aria-label":T("تاریخ")});
+  var amount=moneyInput(curName(),minor(o.owed)>0?o.owed:0,function(n){amt=n;});
+  if(minor(o.owed)>0)amt=o.owed;
+  body.append(el("div",{class:"grid g2"},[el("div",{},[el("label",{text:T("مبلغ ({0})",curName())}),amount]),el("div",{},[el("label",{text:T("تاریخ")}),date])]));
+  body.append(el("p",{class:"hint",text:minor(o.owed)>0?T("مانده فعلی: {0} — پیش‌فرضِ مبلغ همین است.",money(o.owed)):T("این واحد بدهی ندارد.")}));
+  var made=null;
+  modalApply=function(){
+    if(!(amt>0))return;
+    pushUndo(T("پرداخت ثبت شد"));
+    addPayment(u,amt,date.value,"");
+    made=u.payments[u.payments.length-1];
+    saveStore(); renderUnits(); render();
+  };
+  modalOnClose=function(ok){
+    if(ok&&made)toast(T("پرداخت ثبت شد"),T("رسید"),function(){ shareOrCopy(receiptText(u,made)); },9000);
+  };
+  openModal(T("ثبت"),true);
+}
+function removePayment(u,p){
+  pushUndo(T("پرداخت حذف شد"));
+  u.payments=u.payments.filter(function(x){return x!==p;}); syncPaid(u);
+  if(!u.payments)u.paid=u.paid;     /* with none left the last sum stays as the plain total */
+  saveStore(); renderUnits(); render();
+}
+
+/* ---------- SMS to the people who owe, one by one ----------
+   No SMS permission (and none is wanted): each row opens the phone's own messaging app with the text filled in. */
+function slipFor(u){
+  var cols=activeCosts(), mats=cols.map(shares), owe=settle(S);
+  return slipText(u,cols,mats,owe[u.id]||{period:0,owed:0});
+}
+function smsHref(phone,text){ return "sms:"+String(phone||"").replace(/[^\d+]/g,"")+"?&body="+encodeURIComponent(text); }
+function openBulkSms(){
+  var owe=settle(S), debtors=S.units.filter(function(u){return minor((owe[u.id]||{}).owed)>0;});
+  $("#modalTitle").textContent=T("پیامک به بدهکاران");
+  var body=$("#modalBody"); body.innerHTML="";
+  if(!debtors.length){ body.append(el("p",{class:"hint",text:T("هیچ واحدی بدهی ندارد.")})); openModal(T("باشه"),false); return; }
+  body.append(el("p",{class:"hint",text:T("شمارهٔ موبایل هر واحد یک بار ذخیره می‌شود. «ارسال» پیام‌رسانِ گوشی را با متنِ آماده باز می‌کند؛ ارسال با خودِ شماست.")}));
+  debtors.forEach(function(u){
+    var ph=el("input",{type:"tel",inputmode:"tel",value:u.phone||"",placeholder:T("موبایل"),"aria-label":(u.label||T("واحد"))+" · "+T("موبایل"),dir:"ltr"});
+    var go=el("a",{class:"btn mini",text:T("ارسال"),style:"text-decoration:none"});
+    var upd=function(){ go.href=smsHref(ph.value,slipFor(u)); };
+    ph.addEventListener("input",function(){ u.phone=ph.value; saveSoon(); upd(); });
+    go.addEventListener("click",function(){ go.textContent=T("ارسال شد ✓"); });
+    upd();
+    body.append(el("div",{class:"bulkrow"},[el("span",{class:"bn",text:(u.label||T("واحد"))+" · "+money((owe[u.id]||{}).owed)}),ph,go]));
+  });
+  openModal(T("بستن"),false);
+}
+
+/* ---------- late fee ----------
+   A percentage of the unpaid balance is added when the next period is created; the amount is remembered (u.lateFee) so the
+   slip can say what part of the carried balance it is. */
+function lateFeeFor(owed){
+  var pct=parseNum(S.building.latePct);
+  return (pct>0&&minor(owed)>0)?Math.round(minor(owed)*pct/100)/curM():0;
+}
+/* ---------- due date -> the phone's own calendar ----------
+   Android : AndroidApp.addEvent opens the calendar app's "new event" screen with everything filled (an Intent — no
+             permission). One tap on «ذخیره» there; nothing is written behind the user's back.
+   others  : an .ics file (all-day event with a reminder the day before). iPhone/Mac/Windows open it straight in Calendar.
+   Jalali dates are converted with the platform's own Persian calendar (Intl) and checked, never with hand-written tables. */
+var _jf=null;
+function jKeyOf(ms){
+  try{
+    if(!_jf)_jf=new Intl.DateTimeFormat("en-u-ca-persian-nu-latn",{timeZone:"UTC",year:"numeric",month:"numeric",day:"numeric"});
+    var o={}; _jf.formatToParts(new Date(ms)).forEach(function(p){o[p.type]=p.value;});
+    return (+o.year)*10000+(+o.month)*100+(+o.day);
+  }catch(e){ return NaN; }
+}
+/* Jalali (month 0-based) -> UTC midnight in ms, or null if that day does not exist */
+function jalaliToUtc(jy,jm,jd){
+  var want=jy*10000+(jm+1)*100+jd, DAY=86400000;
+  var lo=Date.UTC(jy+621,2,19)-40*DAY, hi=lo+460*DAY;       /* the Jalali year always falls inside this window */
+  var k=jKeyOf(lo); if(isNaN(k))return null;
+  while(hi-lo>DAY){ var mid=lo+Math.floor((hi-lo)/DAY/2)*DAY; if(jKeyOf(mid)<=want)lo=mid; else hi=mid; }
+  return jKeyOf(lo)===want?lo:null;
+}
+/* the due date as the report's calendar sees it: {y,m(0-based),d} -> UTC midnight */
+function dueToUtc(y,m,d){
+  if(cal()==="j")return jalaliToUtc(y,m,d);
+  var t=Date.UTC(y,m,d), c=new Date(t);
+  return (c.getUTCFullYear()===y&&c.getUTCMonth()===m&&c.getUTCDate()===d)?t:null;
+}
+function ymd(ms){ var d=new Date(ms); return d.getUTCFullYear()*10000+(d.getUTCMonth()+1)*100+d.getUTCDate(); }
+function icsText(s){ return String(s).replace(/\\/g,"\\\\").replace(/;/g,"\;").replace(/,/g,"\\,").replace(/\r?\n/g,"\\n"); }
+function icsFold(line){            /* RFC 5545: lines are at most 75 octets; fold with CRLF + space (counting UTF-8 bytes) */
+  var out="", cur="", n=0;
+  Array.from(line).forEach(function(ch){
+    var b=unescape(encodeURIComponent(ch)).length;
+    if(n+b>73){ out+=cur+"\r\n "; cur=""; n=1; }
+    cur+=ch; n+=b;
+  });
+  return out+cur;
+}
+function buildIcs(title,desc,utcMs,uid0){
+  var next=utcMs+86400000, now=new Date().toISOString().replace(/[-:]/g,"").replace(/\.\d+/,"");
+  var L=["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//BuildingCosts//FA","CALSCALE:GREGORIAN","BEGIN:VEVENT",
+    "UID:"+(uid0||uid())+"@buildingcosts","DTSTAMP:"+now,
+    "DTSTART;VALUE=DATE:"+ymd(utcMs),"DTEND;VALUE=DATE:"+ymd(next),
+    "SUMMARY:"+icsText(title),"DESCRIPTION:"+icsText(desc),
+    "BEGIN:VALARM","ACTION:DISPLAY","DESCRIPTION:"+icsText(title),"TRIGGER:-P1D","END:VALARM","END:VEVENT","END:VCALENDAR"];
+  return L.map(icsFold).join("\r\n")+"\r\n";
+}
+function addToCalendar(title,desc,utcMs){
+  try{
+    if(window.AndroidApp&&typeof AndroidApp.addEvent==="function"){ AndroidApp.addEvent(title,desc,utcMs); return; }
+  }catch(e){}
+  saveBlob(new Blob([buildIcs(title,desc,utcMs)],{type:"text/calendar"}),"payment-due-"+ymd(utcMs)+".ics",function(ok,how){
+    if(!ok)toast(T("ذخیرهٔ فایل تقویم نشد"));
+    else if(how!=="native")toast(T("فایل تقویم ذخیره شد؛ بازش کنید تا به تقویم اضافه شود"));
+  });
+}
+/* first guess: the month after the report ends (that is when residents pay), on the day found in «مهلت پرداخت» if any */
+function defaultDueText(){
+  var b=S.building, m=/(\d{4})\s*[\/\-.]\s*(\d{1,2})\s*[\/\-.]\s*(\d{1,2})/.exec(latinDigits(b.dueDate||""));
+  if(m)return m[1]+"/"+m[2]+"/"+m[3];
+  var dm=/(^|\D)(\d{1,2})(\D|$)/.exec(latinDigits(b.dueDate||"")), day=dm?Math.min(31,Math.max(1,+dm[2])):10;
+  var r=b.range, idx=r.toY*12+r.toM+1;
+  return Math.floor(idx/12)+"/"+(idx%12+1)+"/"+day;
+}
+function parseDueText(t){
+  var m=/^\s*(\d{4})\s*[\/\-.]\s*(\d{1,2})\s*[\/\-.]\s*(\d{1,2})\s*$/.exec(latinDigits(t||""));
+  if(!m)return null;
+  var y=+m[1], mo=+m[2]-1, d=+m[3]; if(mo<0||mo>11||d<1||d>31)return null;
+  return dueToUtc(y,mo,d);
+}
+function dueEventTexts(){
+  var owe=settle(S), tot=0, debtors=0;
+  S.units.forEach(function(u){ var o=(owe[u.id]||{}).owed||0; tot+=minor(o); if(minor(o)>0)debtors++; });
+  var title=T("مهلت پرداخت — {0}",S.building.name||T("ساختمان"))+" · "+rangeText();
+  var desc=[T("جمع قابل وصول: {0}",money(tot/curM())),T("تعداد بدهکار: {0}",faNum(debtors))];
+  if(S.building.payTo)desc.push(T("مقصد واریز: {0}",S.building.payTo));
+  return {title:title,desc:desc.join("\n")};
+}
+function openCalDialog(){
+  askText(T("تاریخ مهلت پرداخت (سال/ماه/روز، مثلاً {0})",defaultDueText()),defaultDueText(),function(v){
+    if(v==null)return;
+    var ms=parseDueText(v);
+    if(ms==null){ sayAlert(T("تاریخ معتبر نیست"),T("به شکل سال/ماه/روز بنویسید؛ روز باید در همان ماه وجود داشته باشد.")); return; }
+    var tx=dueEventTexts(); addToCalendar(tx.title,tx.desc,ms);
+  });
+}
 function redrawAll(){
   renderReportBar();
   fillAllDatalists();
   $("#bName").value=S.building.name||""; $("#bManager").value=S.building.manager||"";
   $("#bPayTo").value=S.building.payTo||""; $("#bDue").value=S.building.dueDate||"";
-  fillRoundOpts(); $("#bCur").value=curOf(S); $("#bCal").value=cal();
+  fillRoundOpts(); $("#bCur").value=curOf(S); $("#bCal").value=cal(); $("#bLate").value=S.building.latePct?String(S.building.latePct):"";
   renderPeriod(); updatePeriodLabel();
   renderUnits(); renderCosts(); render(); renderSig();
   positionSeg();                       /* sync — rAF alone never fires on a hidden/occluded tab */
@@ -2672,7 +3128,7 @@ $("#rClone").addEventListener("click",function(){
   var fallback=T("رونوشت از {0}",S.name||T("گزارش"));
   askText(T("نام گزارش جدید:"),fallback,function(nm){
     if(nm==null)return;
-    var owe=settle(S);
+    var owe=settle(S), plabel=rangeText();
     var src=clone(S); var id=uid();
     src.name=nm||fallback;
     /* shift range to the next block, same length */
@@ -2680,17 +3136,20 @@ $("#rClone").addEventListener("click",function(){
     var start=src.building.range.fromY*12+src.building.range.fromM + len;
     src.building.range={fromM:start%12,fromY:Math.floor(start/12),toM:(start+len-1)%12,toY:Math.floor((start+len-1)/12)};
     src.units.forEach(function(u){
-      u.prevBalance=(owe[u.id]||{owed:0}).owed;
-      u.paid=0; u.present={};              /* new period: assume resident, manager adjusts */
+      var owedNow=(owe[u.id]||{owed:0}).owed, fee=lateFeeFor(owedNow);
+      u.prevBalance=owedNow+fee; if(fee)u.lateFee=fee; else delete u.lateFee;
+      u.paid=0; delete u.payments; u.present={};   /* new period: assume resident, manager adjusts */
     });
     src.costs.forEach(function(c){
+      /* the amounts of earlier periods feed the unusual-bill warning and the trend chart */
+      if(parseNum(c.amount)>0)c.hist=(Array.isArray(c.hist)?c.hist:[]).concat([{a:parseNum(c.amount),p:plabel}]).slice(-12);
       c.prevAmount=parseNum(c.amount)||0; c.amount=0; c.manual={}; c.cover={};
       /* this period's closing reading becomes next period's opening one; the new reading is left empty */
       if(isObj(c.reads)){ var nr={}; Object.keys(c.reads).forEach(function(k){ var r=c.reads[k]||{}; nr[k]={p:(r.c!=null&&r.c!=="")?r.c:(r.p||""),c:""}; }); c.reads=nr; }
       c.mainUse="";
     });
     store.reports[id]=src; store.activeId=id; migrateReport(src);
-    saveStore(); S=src; redrawAll(); toast(T("دورهٔ جدید ساخته شد — مبالغِ دورهٔ قبل به‌عنوان راهنما نشان داده می‌شوند"));
+    saveStore(); S=src; redrawAll(); toast(T("دورهٔ جدید ساخته شد — مبالغِ دورهٔ قبل به‌عنوان راهنما نشان داده می‌شوند"),T("افزودن مهلت به تقویم"),openCalDialog,9000);
   });
 });
 $("#rRename").addEventListener("click",function(){
@@ -2737,8 +3196,7 @@ $("#rRestore").addEventListener("click",function(){
       if(!pick)return;
       pushUndoAll(T("نسخهٔ خودکار بازیابی شد"));
       store=pick.data;
-      Object.keys(store.reports).forEach(function(id){migrateReport(store.reports[id]);});
-      if(!store.reports[store.activeId])store.activeId=Object.keys(store.reports)[0];
+      adoptStore();
       S=store.reports[store.activeId]; saveStore(); redrawAll();
     });
 });
@@ -2760,8 +3218,7 @@ function importText(text,fname){
         pushUndoAll(mode==="replace"?T("همهٔ گزارش‌ها جایگزین شد"):T("گزارش‌ها از فایل افزوده شد"));
         if(mode==="merge"){ merge(data.reports); }
         else{
-          store=data; Object.keys(store.reports).forEach(function(id){migrateReport(store.reports[id]);});
-          if(!store.reports[store.activeId])store.activeId=Object.keys(store.reports)[0];
+          store=data; adoptStore();
         }
         S=store.reports[store.activeId]; saveStore();
         /* "replace" brings the device settings along too (theme, skin, language); a language change needs a fresh start */
@@ -3013,6 +3470,8 @@ window.addEventListener("resize",positionSeg);
 document.addEventListener("visibilitychange",function(){if(document.visibilityState==="visible")positionSeg();});
 $("#shareImg").addEventListener("click",function(){doShareImage(this);});
 $("#shareTxt").addEventListener("click",function(){doShareText();});
+$("#shareCal").addEventListener("click",function(){ var m=$("#shareMenu"); if(m)m.open=false; openCalDialog(); });
+$("#shareBulk").addEventListener("click",function(){ var m=$("#shareMenu"); if(m)m.open=false; openBulkSms(); });
 
 $("#modalCancel").addEventListener("click",closeModal);
 $("#modalOk").addEventListener("click",function(){modalOk=true;if(modalApply)modalApply();closeModal();});
@@ -3039,6 +3498,10 @@ function fillRoundOpts(){
   curInfo().rounds.forEach(function(v,i){ sel.append(el("option",{value:String(v),text:i?money(v):T("بدون گرد کردن")})); });
   sel.value=String(S.building.roundTo);
 }
+$("#bLate").addEventListener("input",function(){
+  var n=parseNum(this.value); if(n<0)n=0; if(n>100)n=100;
+  S.building.latePct=n; saveSoon();
+});
 $("#bRound").addEventListener("change",function(){S.building.roundTo=parseNum(this.value);saveStore();render();});
 /* currency and calendar belong to the report; both re-render everything that shows money or months */
 $("#bCur").addEventListener("change",function(){
@@ -3142,8 +3605,7 @@ try{ matchMedia("(prefers-color-scheme:light)").addEventListener("change",functi
     if(document.visibilityState&&document.visibilityState!=="visible")return;
     if(typeof matchMedia==="function"&&matchMedia("(prefers-reduced-motion:reduce)").matches)return;
     var nodes=[$("#statStrip")]
-      .concat(Array.prototype.slice.call(document.querySelectorAll(".editor > section")))
-      .concat([$("#actionBar")])
+      .concat([$("#actionBar"),$("#tabbar")])
       .filter(Boolean);
     nodes.forEach(function(n,i){
       if(!n.animate)return;
@@ -3153,67 +3615,6 @@ try{ matchMedia("(prefers-color-scheme:light)").addEventListener("change",functi
   }catch(e){}
 })();
 
-/* ---------- self-check: open with #selftest, watch the console ---------- */
-if(location.hash==="#selftest"){(function(){
-  var bk=JSON.stringify(store), abk=store.activeId;
-  var ok=true,A=function(c,m,x){if(!c){ok=false;console.error("FAIL",m,JSON.stringify(x));}else console.log("ok  ",m);};
-  var U=function(id,ppl,present,prev,paid){return {id:id,label:id,people:ppl||2,present:present||{},prevBalance:prev||0,paid:paid||0};};
-  var yr=function(fm,fy,tm,ty){return {fromM:fm,fromY:fy,toM:tm,toY:ty};};
-  function setR(units,costs,round,rg){ S={name:"t",building:{roundTo:round||1,range:rg||yr(0,1404,11,1404),payTo:"",dueDate:"",name:"",manager:""},units:units,costs:costs}; }
-
-  setR([U("a"),U("b"),U("c")],[]);
-  var r=shares({kind:"oneoff",amount:100,method:"equal",manual:{}}).by;
-  A(r.a+r.b+r.c===100&&r.a===34&&r.b===33,"equal + remainder",r);
-
-  setR([U("a"),U("b")],[],1);
-  r=shares({kind:"periodic",amount:1000000,method:"months",base:{mode:"pct",value:20},cover:{},manual:{}}).by;
-  var half={}; for(var i=0;i<12;i++) half["1404-"+i]=(i<6);
-  S.units=[U("a"),U("b",2,half)];
-  r=shares({kind:"periodic",amount:1000000,method:"months",base:{mode:"pct",value:20},cover:{},manual:{}}).by;
-  A(r.a===633333&&r.b===366667,"half-year + base",r);
-
-  /* rounding to 1000 */
-  setR([U("a"),U("b"),U("c")],[],1000);
-  var sr=shares({kind:"oneoff",amount:1000000,method:"equal",manual:{}});
-  var vs=Object.keys(sr.by).map(function(k){return sr.by[k];});
-  A(vs.reduce(function(a,b){return a+b;},0)===1000000 && vs.every(function(v){return v%1000===0;}),"round to 1000: exact + multiples",sr.by);
-
-  /* people x months */
-  setR([U("a",4),U("b",2)],[],1);
-  r=shares({kind:"periodic",amount:6000,method:"people",base:{mode:"none",value:0},cover:{},manual:{}}).by;
-  A(r.a===4000&&r.b===2000,"people 4v2",r);
-
-  /* multi-year */
-  setR([U("a"),U("b")],[],1,yr(8,1404,10,1405));
-  A(periods().length===15,"multi-year -> 15 periods");
-  var last3={}; periods().slice(12).forEach(function(p){last3[p.key]=false;});
-  S.units[1].present=last3;
-  r=shares({kind:"periodic",amount:2700000,method:"months",base:{mode:"none",value:0},cover:{},manual:{}}).by;
-  A(r.a===1500000&&r.b===1200000,"multi-year months split",r);
-
-  /* ledger settle: prev + period - paid */
-  setR([U("a",2,{},500000,100000),U("b")],[{id:"w",title:"آب",kind:"periodic",amount:1000000,method:"equal",base:{mode:"none",value:0},cover:{},manual:{}}],1);
-  var o=settle(S);
-  A(o.a.period===500000 && o.a.owed===500000+500000-100000,"ledger: owed = prev + period - paid",o.a);
-
-  /* warnings: manual mismatch */
-  setR([U("a"),U("b")],[{id:"m",title:"x",kind:"oneoff",amount:100,method:"manual",base:{mode:"none"},cover:{},manual:{a:70,b:20}}],1);
-  A(warnings().length===1,"warning: manual sum mismatch",warnings());
-
-  /* v1.6: shares() memo stays correct across repeated calls + DV bump */
-  setR([U("a"),U("b")],[],1);
-  var cc={id:"cx",kind:"oneoff",amount:100,method:"equal",base:{mode:"none"},cover:{},manual:{}};
-  DV++; var cA=shares(cc).by; var cA2=shares(cc).by;
-  cc.amount=200; DV++; var cB=shares(cc).by;
-  A(cA.a===50&&cA2.a===50&&cA.a+cA.b===100&&cB.a===100,"shares memo: stable within pass, fresh after DV bump",{cA:cA,cB:cB});
-
-  /* store round-trip */
-  var snap=JSON.stringify(store); JSON.parse(snap);
-  A(true,"store JSON round-trips");
-
-  store=JSON.parse(bk); store.activeId=abk; S=store.reports[store.activeId];
-  console.log(ok?"%cselftest PASSED":"%cselftest FAILED","font-weight:bold;color:"+(ok?"green":"red"));
-})();}
 /* ---------- tester builds only: offline licence for a limited number of devices ----------
    `BC_TESTER` is injected by `tools/build.js --tester …`; normal builds don't define it and none of this runs.
    The owner holds a private ECDSA P-256 key. Every device shows its own device id; the owner signs "bcosts:<id>"
@@ -3286,7 +3687,7 @@ if(typeof BC_TESTER!=="undefined"){
      (see the registration snippet in tools/build.js: deferred while a field has focus, flushed first); "update" just asks it now
    - Windows / Android: a silent in-place install is not possible without extra system rights, so the new file is
      opened for download (browser / system installer) with one tap. */
-var BC_VER={"v":"1.29","h":"648d7bc4"};
+var BC_VER={"v":"1.30","h":"b7852e70"};
 var UPD_URL=(typeof BC_TESTER!=="undefined"&&BC_TESTER.update)||"https://peyman19ms-ops.github.io/bc-ddaa6698/latest.json";
 var UPD_AUTO_KEY="bcosts_autoupd", updInfo=null, updAnnounced="";
 function updPlatform(){
@@ -3451,6 +3852,29 @@ function abRestoreFromText(text,fromHost){
     },1800);
   abShow();
   try{ if(window.AndroidApp&&AndroidApp.alive)AndroidApp.alive(); }catch(e){}
+})();
+/* ---------- bottom tabs ----------
+   One panel at a time keeps each screen short: report (default once there is data), bills, units. Settings is the
+   fourth button and opens the existing sheet. The last tab is remembered on this device. */
+var TAB_KEY="bcosts_tab", TABS=["report","costs","units"];
+function showTab(name,quiet){
+  if(TABS.indexOf(name)<0)name="report";
+  document.body.setAttribute("data-tab",name);
+  TABS.forEach(function(t){ var p=$("#tab-"+t); if(p)p.hidden=(t!==name); });
+  Array.prototype.forEach.call(document.querySelectorAll("#tabbar .tab[data-go]"),function(b){
+    var on=b.getAttribute("data-go")===name; b.classList.toggle("on",on);
+    if(on)b.setAttribute("aria-current","page"); else b.removeAttribute("aria-current");
+  });
+  try{localStorage.setItem(TAB_KEY,name);}catch(e){}
+  if(!quiet){ try{window.scrollTo(0,0);}catch(e){} }
+  if(name==="report"&&typeof positionSeg==="function")positionSeg();
+}
+Array.prototype.forEach.call(document.querySelectorAll("#tabbar .tab[data-go]"),function(b){
+  b.addEventListener("click",function(){ closeMenus(); showTab(b.getAttribute("data-go")); });
+});
+(function initTab(){
+  var t=null; try{t=localStorage.getItem(TAB_KEY);}catch(e){}
+  showTab(TABS.indexOf(t)>-1?t:(storeHasData()?"report":"costs"),true);
 })();
 </script>
 </body>
