@@ -728,7 +728,13 @@
     --acc2:var(--danger); --acc3:var(--accent2);
     --red:var(--danger); --green:var(--money-ink);
   }
-  .wrap{padding-bottom:calc(120px + env(safe-area-inset-bottom,0px))}
+  /* app shell: the document never scrolls — only #panels does — so the tab bar sits at the same height on every tab
+     (a scrollable document vs a short one moved the fixed bar on iOS) */
+  html,body{height:100%;overflow:hidden;overscroll-behavior:none}
+  .wrap{position:fixed;inset:0;max-width:none;margin:0;padding:0;display:flex;flex-direction:column}
+  .topbar,#panels{inline-size:min(100%,1180px);margin-inline:auto;padding-inline:16px}
+  .topbar{padding-top:calc(22px + env(safe-area-inset-top,0px));flex:none}
+  #panels{flex:1 1 auto;min-block-size:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding-bottom:28px}
   .topbar{margin:0 0 14px;gap:8px;justify-content:flex-start}
   .topbar #reportSel{flex:0 1 auto;max-inline-size:72%;inline-size:auto;min-width:0;border:0;background:transparent;box-shadow:none;font-size:19px;font-weight:800;padding:8px 4px;color:var(--ink);text-overflow:ellipsis}
   .topbar #reportSel:focus{box-shadow:none;outline:2px solid color-mix(in srgb,var(--accent) 55%,transparent);outline-offset:2px;border-radius:12px}
@@ -743,7 +749,7 @@
   .emptyhint{margin:28px 0;text-align:center;color:var(--muted)}
 
   /* bottom tab bar */
-  #tabbar{position:fixed;inset-inline:0;bottom:0;z-index:40;display:flex;justify-content:center;gap:6px;padding:6px 16px calc(8px + env(safe-area-inset-bottom,0px));background:var(--bg);box-shadow:0 -10px 24px color-mix(in srgb,var(--nm-dk) 22%,transparent)}
+  #tabbar{position:relative;flex:none;z-index:40;display:flex;justify-content:center;gap:6px;padding:6px 16px calc(8px + env(safe-area-inset-bottom,0px));background:var(--bg);box-shadow:0 -10px 24px color-mix(in srgb,var(--nm-dk) 22%,transparent)}
   #tabbar .tab{flex:1;max-inline-size:150px;min-block-size:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border:0;border-radius:18px;background:transparent;color:var(--muted);font:inherit;font-size:11.5px;font-weight:700;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:color .2s,box-shadow .3s,background-color .2s,transform .12s}
   #tabbar .tab svg{display:block}
   #tabbar .tab.on{color:var(--accent);box-shadow:var(--nm-in-sm)}
@@ -774,7 +780,9 @@
   :root[dir="rtl"] details.costcard::before{border-radius:4px 0 0 4px}
   details.costcard.cc-filled,details.costcard.cc-empty,details.costcard.cc-bad{border-inline-start:0}
   details.costcard.cc-bad::before{background:var(--danger)}
-  details.costcard[open]{background:var(--open);box-shadow:var(--nm-out),inset 0 0 0 1px color-mix(in srgb,var(--cc) 22%,transparent)}
+  /* opening a bill eases its tone half a step lighter, with a faint wash of its own category colour at the top */
+  details.costcard[open]{background:var(--open);box-shadow:var(--nm-out),inset 0 0 0 1px color-mix(in srgb,var(--cc) 20%,transparent),inset 0 70px 70px -60px color-mix(in srgb,var(--cc) 11%,transparent)}
+  .cardacts{display:flex;flex-wrap:wrap;gap:8px}
   details.costcard>summary.cc-head{padding:12px 16px;gap:12px}
   details.costcard>summary .cc-tx{flex:1;min-width:0;display:flex;flex-direction:column}
   details.costcard>summary .cc-name{flex:none}
@@ -900,6 +908,8 @@
 
   @media(prefers-reduced-motion:reduce){.panel,#repSheet .sheetc{animation:none}.dbar i,.wi{transition:none}}
   @media print{
+    html,body{height:auto;overflow:visible}
+    .wrap{position:static}
     #tabbar,#panels,.topbar,.grab,.sheet-head,.viewrow,#actionBar{display:none!important}
     #repSheet{position:static!important;display:block!important;background:none!important;animation:none}
     #repSheet[hidden]{display:block!important}
@@ -1083,7 +1093,7 @@
 <div id="repSheet" role="dialog" aria-modal="true" aria-label="گزارش‌گیری" hidden>
   <div class="sheetc">
     <div class="grab"></div>
-    <div class="sheet-head"><h2>گزارش‌گیری</h2><button type="button" class="iconbtn" id="repClose" title="بستن" aria-label="بستن">✕</button></div>
+    <div class="sheet-head"><h2 id="repTitle">گزارش‌گیری</h2><button type="button" class="iconbtn" id="repClose" title="بستن" aria-label="بستن">✕</button></div>
     <div class="viewrow">
       <div class="seg" id="viewSeg">
       <button type="button" class="seg-opt on" data-view="matrix">نمای مدیر</button>
@@ -1430,7 +1440,11 @@ var EN={
   "صدا":"Sound",
   "صدای تیک":"Tick sound",
   "زوم این":"Zoom in",
-  "زوم اوت":"Zoom out"
+  "زوم اوت":"Zoom out",
+  "گزارش «{0}»":"Report “{0}”",
+  "📄 گزارش همین قبض":"📄 Report for this bill",
+  "گزارش همین قبض":"Report for this bill",
+  "اول مبلغ این قبض را وارد کن.":"Enter this bill’s amount first."
 };
 /* ---------- locale: calendar, numbers and money ----------
    Pure functions + data; no DOM. Everything that turns a month index or an amount
@@ -1924,6 +1938,11 @@ function presOn(c,u,key){
   if(o&&Object.prototype.hasOwnProperty.call(o,key))return o[key]!==false;
   return unitOn(u,key);
 }
+/* set while the report sheet shows ONE bill (its id), else null */
+var reportOnly=null;
+function prevOf(u){ return reportOnly?0:u.prevBalance; }
+function paidOf(u){ return reportOnly?0:u.paid; }
+function onlyTitle(){ var t=""; if(reportOnly)S.costs.forEach(function(c){ if(c.id===reportOnly)t=" — "+(c.title||T("هزینه")); }); return t; }
 /* what a unit owes (+) or is owed (−) because of ONE bill (it paid something for the building, or owes an old part) */
 function billBal(c,u){
   var b=c&&c.bal&&c.bal[u.id]; if(!isObj(b))return 0;
@@ -1937,8 +1956,8 @@ function ledgerSum(u){
 /* every adjustment of one unit as {label, v(minor, + = owes)} — bills first, then manual entries */
 function adjLines(u){
   var out=[];
-  S.costs.forEach(function(c){ var v=billBal(c,u); if(v)out.push({label:c.title||T("هزینه"),v:v,note:(c.bal[u.id]||{}).n||"",cid:c.id}); });
-  (Array.isArray(u.ledger)?u.ledger:[]).forEach(function(e){ var a=minor(e&&e.a); if(a)out.push({label:(e.n||T("ثبت دستی")),v:e.k==="credit"?-a:a,note:e.d||"",eid:e.id}); });
+  S.costs.forEach(function(c){ if(reportOnly&&c.id!==reportOnly)return; var v=billBal(c,u); if(v)out.push({label:c.title||T("هزینه"),v:v,note:(c.bal[u.id]||{}).n||"",cid:c.id}); });
+  if(!reportOnly)(Array.isArray(u.ledger)?u.ledger:[]).forEach(function(e){ var a=minor(e&&e.a); if(a)out.push({label:(e.n||T("ثبت دستی")),v:e.k==="credit"?-a:a,note:e.d||"",eid:e.id}); });
   return out;
 }
 function coverOn(c,key){return c.cover[key]!==false;}
@@ -2052,24 +2071,27 @@ function _shares(cost){
 }
 
 /* the costs that make it into the report: priced, or split by hand */
-function activeCosts(){ return S.costs.filter(function(c){return parseNum(c.amount)>0||c.method==="manual";}); }
+function activeCosts(){ return S.costs.filter(function(c){return (!reportOnly||c.id===reportOnly)&&(parseNum(c.amount)>0||c.method==="manual");}); }
 /* does any unit carry an old balance or a payment? then totals mean «owed», otherwise «this period» */
-function ledgerOn(){ return S.units.some(function(u){return minor(u.prevBalance)||minor(u.paid)||ledgerSum(u)||S.costs.some(function(c){return billBal(c,u);});}); }
+function ledgerOn(){
+  if(reportOnly)return S.units.some(function(u){return S.costs.some(function(c){return c.id===reportOnly&&billBal(c,u);});});
+  return S.units.some(function(u){return minor(u.prevBalance)||minor(u.paid)||ledgerSum(u)||S.costs.some(function(c){return billBal(c,u);});}); }
 
 /* per-unit settlement total for the active (or given) report */
 function settle(rep){
-  rep=rep||S; var sv=S; S=rep;
+  rep=rep||S; var sv=S, one=(rep===sv)?reportOnly:null; S=rep;
   /* finally, not a trailing assignment: a throw in here (corrupt imported data)
      would otherwise leave the global S pointing at the wrong report, and the
      next saveStore() would write this report's edits into that one. */
   try{
-    var out={}, cols=S.costs.filter(function(c){return parseNum(c.amount)>0||c.method==="manual";});
+    var out={}, cols=S.costs.filter(function(c){return (!one||c.id===one)&&(parseNum(c.amount)>0||c.method==="manual");});
     var M=curM();
     S.units.forEach(function(u){
       var period=0;   /* summed in minor units: adding 33.33-style floats would drift */
       cols.forEach(function(c){ period+=Math.round((shares(c).by[u.id]||0)*M); });
-      var adj=ledgerSum(u); S.costs.forEach(function(c){ adj+=billBal(c,u); });
-      out[u.id]={period:period/M, adj:adj/M, owed:(minor(u.prevBalance)+period+adj-minor(u.paid))/M};
+      /* one bill on its own: only what THIS bill makes the unit owe — no old balance, payments or manual entries */
+      var adj=one?0:ledgerSum(u); S.costs.forEach(function(c){ if(!one||c.id===one)adj+=billBal(c,u); });
+      out[u.id]={period:period/M, adj:adj/M, owed:((one?0:minor(u.prevBalance))+period+adj-(one?0:minor(u.paid)))/M};
     });
     return out;
   }finally{ S=sv; }
@@ -2763,6 +2785,11 @@ function renderCosts(){
     body.append(el("div",{style:"margin-top:12px"},[el("label",{text:T("توضیح")}),note]));
     var tr=trendBlock(c); if(tr)body.append(tr);
     body.append(el("div",{class:"tally",id:"tally-"+c.id}));
+    var rep1=el("button",{class:"btn mini",type:"button",text:T("📄 گزارش همین قبض"),"aria-label":T("گزارش همین قبض")+" — "+(c.title||T("هزینه"))});
+    rep1.addEventListener("click",function(){
+      if(!filled){ toast(T("اول مبلغ این قبض را وارد کن.")); return; }
+      openReport(c.id);
+    });
     var del=el("button",{class:"btn mini del",type:"button",text:T("🗑 حذف هزینه")});
     del.addEventListener("click",function(){
       fadeOutThen(card,function(){
@@ -2771,7 +2798,7 @@ function renderCosts(){
         saveStore();renderUnits();renderCosts();render();
       });
     });
-    body.append(el("div",{style:"margin-top:12px"},del));
+    body.append(el("div",{class:"cardacts",style:"margin-top:12px"},[rep1,del]));
     card.append(body);
     box.append(card);
   });
@@ -3053,10 +3080,10 @@ function slipText(u,cols,mats,owe){
   L.push(T("بازه: {0}",rangeText()));
   cols.forEach(function(c,ci){ var v=mats[ci].by[u.id]||0; if(v) L.push((c.title||T("هزینه"))+useNote(c,u)+": "+money((v))); });
   L.push(T("سهم این دوره")+": "+money((owe.period)));
-  if(minor(u.prevBalance)) L.push(T("ماندهٔ دورهٔ قبل")+": "+money((u.prevBalance))+(minor(u.lateFee)?" ("+T("شامل جریمهٔ دیرکرد {0}",money(u.lateFee))+")":""));
+  if(minor(prevOf(u))) L.push(T("ماندهٔ دورهٔ قبل")+": "+money((prevOf(u)))+((reportOnly?0:minor(u.lateFee))?" ("+T("شامل جریمهٔ دیرکرد {0}",money(u.lateFee))+")":""));
   adjLines(u).forEach(function(l){ L.push((l.v>0?"▼ ":"▲ ")+l.label+": "+money(Math.abs(l.v)/curM())); });
-  if(minor(u.paid)) L.push(T("پرداختی")+": "+money((u.paid)));
-  (u.payments||[]).forEach(function(p){ L.push("  ↳ "+(p.d||T("پرداخت"))+": "+money(p.a)); });
+  if(minor(paidOf(u))) L.push(T("پرداختی")+": "+money((paidOf(u))));
+  (reportOnly?[]:(u.payments||[])).forEach(function(p){ L.push("  ↳ "+(p.d||T("پرداخت"))+": "+money(p.a)); });
   L.push(T("بدهی کل")+": "+money((owe.owed)));
   if(S.building.dueDate) L.push(T("مهلت پرداخت: {0}",S.building.dueDate));
   if(S.building.payTo) L.push(T("مقصد واریز: {0}",S.building.payTo));
@@ -3091,7 +3118,7 @@ function renderStats(){
   if(debtors)chips.append(el("span",{class:"chip r",text:T("{0} بدهکار",faNum(debtors))}));
   if(creditors)chips.append(el("span",{class:"chip g",text:T("{0} بستانکار",faNum(creditors))}));
   var go=el("button",{class:"btn",type:"button",id:"openRep",text:T("گزارش‌گیری ›")});
-  go.addEventListener("click",openReport);
+  go.addEventListener("click",function(){openReport();});
   host.append(el("div",{class:"sumcard"},[el("div",{class:"sumn"},[el("small",{text:T("جمع کل قابل وصول ({0})",curName())}),el("b",{text:toman(tot/curM())})]),chips,go]));
 }
 /* friendly empty state with a direct action */
@@ -3152,16 +3179,16 @@ function render(){
       var box=el("div",{class:"report slip"+(slipPlain?" plain":"")});
       box.append(el("div",{class:"rhead"},[
         el("div",{},[el("div",{class:"bname",text:(S.building.name||T("ساختمان"))}),
-                     el("div",{class:"ptitle",text:T("قبض واحد {0} — {1}",u.label||"",rangeText())})]),
+                     el("div",{class:"ptitle",text:T("قبض واحد {0} — {1}",u.label||"",rangeText())+onlyTitle()})]),
         el("div",{class:"gen",text:T("تاریخ: {0}",jDate())+(S.building.dueDate?(" | "+T("مهلت: {0}",S.building.dueDate)):"")})
       ]));
       var items=el("div",{class:"items"});
       cols.forEach(function(c,ci){var v=mats[ci].by[u.id]||0; if(v) items.append(el("div",{class:"li item"},[el("span",{text:(c.title||T("هزینه"))+useNote(c,u)}),el("span",{text:money((v))})]));});
       items.append(el("div",{class:"li sum"},[el("span",{text:T("سهم این دوره")}),el("span",{text:money((o.period))})]));
-      if(minor(u.prevBalance)) items.append(el("div",{class:"li"},[el("span",{text:T("ماندهٔ دورهٔ قبل")+(minor(u.lateFee)?" ("+T("شامل جریمهٔ دیرکرد {0}",money(u.lateFee))+")":"")}),el("span",{text:money((u.prevBalance))})]));
+      if(minor(prevOf(u))) items.append(el("div",{class:"li"},[el("span",{text:T("ماندهٔ دورهٔ قبل")+((reportOnly?0:minor(u.lateFee))?" ("+T("شامل جریمهٔ دیرکرد {0}",money(u.lateFee))+")":"")}),el("span",{text:money((prevOf(u)))})]));
       adjLines(u).forEach(function(l){ items.append(el("div",{class:"li adj "+(l.v>0?"d":"c")},[el("span",{text:(l.v>0?"▼ ":"▲ ")+l.label+(l.note?" · "+l.note:"")}),el("span",{text:money(Math.abs(l.v)/curM())})])); });
-      if(minor(u.paid)) items.append(el("div",{class:"li"},[el("span",{text:T("پرداختی")}),el("span",{text:money((u.paid))})]));
-      (u.payments||[]).forEach(function(p){
+      if(minor(paidOf(u))) items.append(el("div",{class:"li"},[el("span",{text:T("پرداختی")}),el("span",{text:money((paidOf(u)))})]));
+      (reportOnly?[]:(u.payments||[])).forEach(function(p){
         var row=el("div",{class:"li payrow"},[el("span",{text:"↳ "+(p.d||T("پرداخت"))+(p.n?" — "+p.n:"")}),el("span",{text:money(p.a)})]);
         var rm=el("button",{class:"btn mini noprint",type:"button",text:"×","aria-label":T("حذف این پرداخت"),title:T("حذف این پرداخت")});
         rm.addEventListener("click",function(){ removePayment(u,p); });
@@ -3182,7 +3209,7 @@ function render(){
       });
       var payBtn=el("button",{class:"btn mini",type:"button",text:T("ثبت پرداخت")});
       payBtn.addEventListener("click",function(){ openPayDialog(u); });
-      bb.append(payBtn);
+      if(!reportOnly)bb.append(payBtn);
       bb.append(cp);
       var sms=el("a",{class:"btn mini",href:"sms:?body="+encodeURIComponent(slipText(u,cols,mats,o)),text:T("پیامک"),style:"text-decoration:none"});
       bb.append(sms);
@@ -3215,7 +3242,7 @@ function render(){
   var r=el("div",{class:"report"});
   r.append(el("div",{class:"rhead"},[
     el("div",{},[el("div",{class:"bname",text:S.building.name||T("ساختمان")}),
-                 el("div",{class:"ptitle",text:T("صورت‌حساب هزینه‌های مشترک — {0}",rangeText())})]),
+                 el("div",{class:"ptitle",text:T("صورت‌حساب هزینه‌های مشترک — {0}",rangeText())+onlyTitle()})]),
     el("div",{class:"gen",text:T("تاریخ تهیه: {0}",jDate())+(S.building.dueDate?("  |  "+T("مهلت پرداخت: {0}",S.building.dueDate)):"")})
   ]));
 
@@ -3264,10 +3291,10 @@ function render(){
       var st=unitState(u,o);
       lb.push(el("tr",{},[
         el("td",{class:"unit"},[el("span",{class:"dot dot-"+st}),u.label||T("واحد")]),
-        el("td",{class:"money",text:toman(u.prevBalance)}),
+        el("td",{class:"money",text:toman(prevOf(u))}),
         el("td",{class:"money",text:toman(o.period)}),
         anyAdj?el("td",{class:"money",text:(minor(o.adj)>0?"+":"")+toman(o.adj)}):null,
-        el("td",{class:"money",text:toman(u.paid)}),
+        el("td",{class:"money",text:toman(paidOf(u))}),
         el("td",{class:"grand st-"+st,text:toman(o.owed)})
       ]));
     });
@@ -3950,7 +3977,7 @@ $("#pClear").addEventListener("click",function(e){
   S.building.range={fromM:0,fromY:y,toM:11,toY:y}; commitRange();
 });
 
-$("#readyLine").addEventListener("click",openReport);
+$("#readyLine").addEventListener("click",function(){openReport();});
 $("#addCost").addEventListener("click",function(){
   S.costs.push({id:uid(),title:"",kind:"periodic",amount:0,cover:{},base:{mode:"none",value:0},method:"months",manual:{},note:""});
   saveStore();renderCosts();render();
@@ -4241,7 +4268,7 @@ if(typeof BC_TESTER!=="undefined"){
      (see the registration snippet in tools/build.js: deferred while a field has focus, flushed first); "update" just asks it now
    - Windows / Android: a silent in-place install is not possible without extra system rights, so the new file is
      opened for download (browser / system installer) with one tap. */
-var BC_VER={"v":"1.30","h":"395eea78"};
+var BC_VER={"v":"1.30","h":"e2b7620f"};
 var UPD_URL=(typeof BC_TESTER!=="undefined"&&BC_TESTER.update)||"https://peyman19ms-ops.github.io/bc-ddaa6698/latest.json";
 var UPD_AUTO_KEY="bcosts_autoupd", updInfo=null, updAnnounced="";
 function updPlatform(){
@@ -4420,7 +4447,7 @@ function showTab(name,quiet){
     if(on)b.setAttribute("aria-current","page"); else b.removeAttribute("aria-current");
   });
   try{localStorage.setItem(TAB_KEY,name);}catch(e){}
-  if(!quiet){ try{window.scrollTo(0,0);}catch(e){} }
+  if(!quiet){ try{window.scrollTo(0,0);var pn=$("#panels"); if(pn)pn.scrollTop=0;}catch(e){} }
   if(name==="reports"&&typeof arcShown==="function")arcShown();
   if(name==="settings"){ showPersist(); showSet(curSet(),true); }
 }
@@ -4443,14 +4470,19 @@ Array.prototype.forEach.call(document.querySelectorAll("#setSeg button"),functio
 });
 /* the report: a sheet over the bills */
 var repReturnFocus=null;
-function openReport(){
+function openReport(cid){
   closeMenus(); repReturnFocus=document.activeElement;
+  var one=(typeof cid==="string")?cid:null, oc=null; S.costs.forEach(function(c){ if(c.id===one)oc=c; });
+  reportOnly=oc?oc.id:null;
+  $("#repTitle").textContent=oc?T("گزارش «{0}»",oc.title||T("هزینه")):T("گزارش‌گیری");
+  $("#shareBulk").hidden=!!oc;
   $("#repSheet").hidden=false; syncInert(); render();
   try{ positionSeg(); }catch(e){}
   try{$("#repClose").focus();}catch(e){}
 }
 function closeReport(){
   $("#repSheet").hidden=true; syncInert();
+  if(reportOnly){ reportOnly=null; render(); }
   if(repReturnFocus&&repReturnFocus.focus)try{repReturnFocus.focus();}catch(e){}
 }
 $("#repClose").addEventListener("click",closeReport);
