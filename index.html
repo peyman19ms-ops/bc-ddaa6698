@@ -730,15 +730,11 @@
     --acc2:var(--danger); --acc3:var(--accent2);
     --red:var(--danger); --green:var(--money-ink);
   }
-  /* app shell: the document never scrolls — only #panels does — so the tab bar sits at the same height on every tab
-     (a scrollable document vs a short one moved the fixed bar on iOS) */
-  html,body{overflow:hidden;overscroll-behavior:none}
-  /* height from the viewport UNITS, not from `inset:0`/`100%`: an iOS home-screen app lays its viewport out short by the safe-area
-     insets (a ~100px empty band under the tab bar), while 100vh/100dvh are the full screen */
-  .wrap{position:fixed;inset-block-start:0;inset-inline:0;block-size:100vh;block-size:100dvh;max-width:none;margin:0;padding:0;display:flex;flex-direction:column}
-  .topbar,#panels{inline-size:min(100%,1180px);margin-inline:auto;padding-inline:16px}
-  .topbar{padding-top:calc(22px + env(safe-area-inset-top,0px));flex:none}
-  #panels{flex:1 1 auto;min-block-size:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding-bottom:28px}
+  /* The tab bar is position:fixed at the bottom, and the document is ALWAYS a little taller than the screen. Measured on an iPhone
+     home-screen app: a fixed bar sits ~60-100px too high while the page is not scrollable (a short tab) and at the true bottom once it
+     is — so the page is never allowed to be un-scrollable. (A fixed-height shell with inner scrolling was tried twice and left an empty
+     band under the bar on iOS.) */
+  .wrap{padding-bottom:calc(120px + env(safe-area-inset-bottom,0px));min-block-size:calc(100vh + 3px)}
   .topbar{margin:0 0 14px;gap:8px;justify-content:flex-start}
   .topbar #reportSel{flex:0 1 auto;max-inline-size:72%;inline-size:auto;min-width:0;border:0;background:transparent;box-shadow:none;font-size:19px;font-weight:800;padding:8px 4px;color:var(--ink);text-overflow:ellipsis}
   .topbar #reportSel:focus{box-shadow:none;outline:2px solid color-mix(in srgb,var(--accent) 55%,transparent);outline-offset:2px;border-radius:12px}
@@ -753,7 +749,7 @@
   .emptyhint{margin:28px 0;text-align:center;color:var(--muted)}
 
   /* bottom tab bar */
-  #tabbar{position:relative;flex:none;z-index:40;display:flex;justify-content:center;gap:6px;padding:6px 16px calc(8px + env(safe-area-inset-bottom,0px));background:var(--bg);box-shadow:0 -10px 24px color-mix(in srgb,var(--nm-dk) 22%,transparent)}
+  #tabbar{position:fixed;inset-inline:0;bottom:0;z-index:40;display:flex;justify-content:center;gap:6px;padding:6px 16px calc(8px + env(safe-area-inset-bottom,0px));background:var(--bg);box-shadow:0 -10px 24px color-mix(in srgb,var(--nm-dk) 22%,transparent)}
   #tabbar .tab{flex:1;max-inline-size:150px;min-block-size:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border:0;border-radius:18px;background:transparent;color:var(--muted);font:inherit;font-size:11.5px;font-weight:700;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:color .2s,box-shadow .3s,background-color .2s,transform .12s}
   #tabbar .tab svg{display:block}
   #tabbar .tab.on{color:var(--accent);box-shadow:var(--nm-in-sm)}
@@ -912,8 +908,7 @@
 
   @media(prefers-reduced-motion:reduce){.panel,#repSheet .sheetc{animation:none}.dbar i,.wi{transition:none}}
   @media print{
-    html,body{overflow:visible}
-    .wrap{position:static}
+    .wrap{min-block-size:0}
     #tabbar,#panels,.topbar,.grab,.sheet-head,.viewrow,#actionBar{display:none!important}
     #repSheet{position:static!important;display:block!important;background:none!important;animation:none}
     #repSheet[hidden]{display:block!important}
@@ -1082,6 +1077,7 @@
     <section class="setgrp about">
       <p class="hint">مقادیر را وارد کنید؛ گزارش پایین صفحه زنده حساب می‌شود و با «چاپ / PDF» خروجی می‌گیرد.</p>
       <p class="sig">طراحی و توسعه — پیمان آرین</p>
+      <p class="hint diag" id="diagLine" dir="ltr"></p>
     </section>
       </div>
     </section>
@@ -4272,7 +4268,7 @@ if(typeof BC_TESTER!=="undefined"){
      (see the registration snippet in tools/build.js: deferred while a field has focus, flushed first); "update" just asks it now
    - Windows / Android: a silent in-place install is not possible without extra system rights, so the new file is
      opened for download (browser / system installer) with one tap. */
-var BC_VER={"v":"1.30","h":"f18fbdeb"};
+var BC_VER={"v":"1.30","h":"350b0c55"};
 var UPD_URL=(typeof BC_TESTER!=="undefined"&&BC_TESTER.update)||"https://peyman19ms-ops.github.io/bc-ddaa6698/latest.json";
 var UPD_AUTO_KEY="bcosts_autoupd", updInfo=null, updAnnounced="";
 function updPlatform(){
@@ -4451,9 +4447,9 @@ function showTab(name,quiet){
     if(on)b.setAttribute("aria-current","page"); else b.removeAttribute("aria-current");
   });
   try{localStorage.setItem(TAB_KEY,name);}catch(e){}
-  if(!quiet){ try{window.scrollTo(0,0);var pn=$("#panels"); if(pn)pn.scrollTop=0;}catch(e){} }
+  if(!quiet){ try{window.scrollTo(0,0);}catch(e){} }
   if(name==="reports"&&typeof arcShown==="function")arcShown();
-  if(name==="settings"){ showPersist(); showSet(curSet(),true); }
+  if(name==="settings"){ showPersist(); showSet(curSet(),true); diagLine(); }
 }
 function curSet(){ var s=null; try{s=localStorage.getItem(SET_KEY);}catch(e){} return SETS.indexOf(s)>-1?s:"building"; }
 function showSet(name,quiet){
@@ -4495,17 +4491,13 @@ $("#repSheet").addEventListener("click",function(e){ if(e.target===this)closeRep
   var t=null; try{t=localStorage.getItem(TAB_KEY);}catch(e){}
   showTab(TABS.indexOf(t)>-1?t:"costs",true);
 })();
-/* iOS home-screen app: if the shell still comes out shorter than the screen (a band under the tab bar), stretch it to the real screen height */
-(function fitShell(){
-  if(!navigator.standalone)return;
-  var w=document.querySelector(".wrap"); if(!w)return;
-  function fit(){
-    w.style.blockSize="";
-    var a=Math.max(screen.width,screen.height), b=Math.min(screen.width,screen.height), h=(window.innerWidth<window.innerHeight)?a:b;
-    if(h>w.offsetHeight+20)w.style.blockSize=h+"px";
-  }
-  fit(); window.addEventListener("resize",fit); window.addEventListener("orientationchange",function(){setTimeout(fit,300);});
-})();
+/* a one-line self-report (build + viewport) so a screenshot of Settings → App says which build runs and how the phone sizes the page */
+function diagLine(){
+  var d=$("#diagLine"); if(!d)return;
+  var tb=$("#tabbar"), r=tb?tb.getBoundingClientRect():{bottom:0}, vv=window.visualViewport;
+  d.textContent="build "+((window.BC_VER&&BC_VER.h)||"?").toString().slice(0,7)+" · inner "+innerWidth+"x"+innerHeight+(vv?" · visual "+Math.round(vv.height):"")+" · screen "+screen.width+"x"+screen.height+" · bar "+Math.round(r.bottom)+(navigator.standalone?" · standalone":"");
+}
+window.addEventListener("resize",function(){ if(document.body.getAttribute("data-tab")==="settings")diagLine(); });
 </script>
 <script>if("serviceWorker" in navigator&&(location.protocol==="https:"||location.hostname==="localhost")){window.addEventListener("load",function(){var had=!!navigator.serviceWorker.controller,r=false;function go(){if(r)return;r=true;try{if(typeof flushStore==="function")flushStore();}catch(e){}location.reload();}navigator.serviceWorker.addEventListener("controllerchange",function(){if(!had||r)return;var off=false;try{off=localStorage.getItem("bcosts_autoupd")==="0";}catch(e){}if(off)return;var a=document.activeElement;if(a&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)){a.addEventListener("blur",function(){setTimeout(go,300);});document.addEventListener("visibilitychange",function(){if(document.visibilityState==="hidden")go();});return;}go();});navigator.serviceWorker.register("sw.js").catch(function(){});});}</script>
 </body>
