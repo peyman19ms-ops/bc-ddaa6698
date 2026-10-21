@@ -730,8 +730,10 @@
   }
   /* app shell: the document never scrolls — only #panels does — so the tab bar sits at the same height on every tab
      (a scrollable document vs a short one moved the fixed bar on iOS) */
-  html,body{height:100%;overflow:hidden;overscroll-behavior:none}
-  .wrap{position:fixed;inset:0;max-width:none;margin:0;padding:0;display:flex;flex-direction:column}
+  html,body{overflow:hidden;overscroll-behavior:none}
+  /* height from the viewport UNITS, not from `inset:0`/`100%`: an iOS home-screen app lays its viewport out short by the safe-area
+     insets (a ~100px empty band under the tab bar), while 100vh/100dvh are the full screen */
+  .wrap{position:fixed;inset-block-start:0;inset-inline:0;block-size:100vh;block-size:100dvh;max-width:none;margin:0;padding:0;display:flex;flex-direction:column}
   .topbar,#panels{inline-size:min(100%,1180px);margin-inline:auto;padding-inline:16px}
   .topbar{padding-top:calc(22px + env(safe-area-inset-top,0px));flex:none}
   #panels{flex:1 1 auto;min-block-size:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding-bottom:28px}
@@ -908,7 +910,7 @@
 
   @media(prefers-reduced-motion:reduce){.panel,#repSheet .sheetc{animation:none}.dbar i,.wi{transition:none}}
   @media print{
-    html,body{height:auto;overflow:visible}
+    html,body{overflow:visible}
     .wrap{position:static}
     #tabbar,#panels,.topbar,.grab,.sheet-head,.viewrow,#actionBar{display:none!important}
     #repSheet{position:static!important;display:block!important;background:none!important;animation:none}
@@ -4268,7 +4270,7 @@ if(typeof BC_TESTER!=="undefined"){
      (see the registration snippet in tools/build.js: deferred while a field has focus, flushed first); "update" just asks it now
    - Windows / Android: a silent in-place install is not possible without extra system rights, so the new file is
      opened for download (browser / system installer) with one tap. */
-var BC_VER={"v":"1.30","h":"e2b7620f"};
+var BC_VER={"v":"1.30","h":"f18fbdeb"};
 var UPD_URL=(typeof BC_TESTER!=="undefined"&&BC_TESTER.update)||"https://peyman19ms-ops.github.io/bc-ddaa6698/latest.json";
 var UPD_AUTO_KEY="bcosts_autoupd", updInfo=null, updAnnounced="";
 function updPlatform(){
@@ -4490,6 +4492,17 @@ $("#repSheet").addEventListener("click",function(e){ if(e.target===this)closeRep
 (function initTab(){
   var t=null; try{t=localStorage.getItem(TAB_KEY);}catch(e){}
   showTab(TABS.indexOf(t)>-1?t:"costs",true);
+})();
+/* iOS home-screen app: if the shell still comes out shorter than the screen (a band under the tab bar), stretch it to the real screen height */
+(function fitShell(){
+  if(!navigator.standalone)return;
+  var w=document.querySelector(".wrap"); if(!w)return;
+  function fit(){
+    w.style.blockSize="";
+    var a=Math.max(screen.width,screen.height), b=Math.min(screen.width,screen.height), h=(window.innerWidth<window.innerHeight)?a:b;
+    if(h>w.offsetHeight+20)w.style.blockSize=h+"px";
+  }
+  fit(); window.addEventListener("resize",fit); window.addEventListener("orientationchange",function(){setTimeout(fit,300);});
 })();
 </script>
 </body>
