@@ -1444,7 +1444,16 @@ var EN={
   "گزارش «{0}»":"Report “{0}”",
   "📄 گزارش همین قبض":"📄 Report for this bill",
   "گزارش همین قبض":"Report for this bill",
-  "اول مبلغ این قبض را وارد کن.":"Enter this bill’s amount first."
+  "اول مبلغ این قبض را وارد کن.":"Enter this bill’s amount first.",
+  "به‌روزرسانی برنامه":"Update the app",
+  "نسخهٔ جدید برنامه آماده است (آیکون و بخش‌های سیستمی هم عوض می‌شود)":"A new version of the app is ready (icon and system parts change too)",
+  "نسخهٔ جدید برنامه آماده است":"A new version of the app is ready",
+  "به‌روزرسانی":"Update",
+  "در حال دریافت برنامه… {0}٪":"Downloading the app… {0}%",
+  "در صفحهٔ باز شده «اجازه از این منبع» را روشن کن و برگرد؛ نصب خودکار ادامه پیدا می‌کند.":"On the screen that opened, switch on “Allow from this source”, then come back; the install continues by itself.",
+  "در حال نصب… اگر سیستم تأیید خواست، «نصب» را بزن.":"Installing… if the system asks, tap “Install”.",
+  "برنامه به‌روز شد":"The app is up to date",
+  "به‌روزرسانی برنامه انجام نشد؛ دوباره بزن.":"The app update did not finish; try again."
 };
 /* ---------- locale: calendar, numbers and money ----------
    Pure functions + data; no DOM. Everything that turns a month index or an amount
@@ -4268,7 +4277,7 @@ if(typeof BC_TESTER!=="undefined"){
      (see the registration snippet in tools/build.js: deferred while a field has focus, flushed first); "update" just asks it now
    - Windows / Android: a silent in-place install is not possible without extra system rights, so the new file is
      opened for download (browser / system installer) with one tap. */
-var BC_VER={"v":"1.30","h":"350b0c55"};
+var BC_VER={"v":"1.30","h":"225dfe9f"};
 var UPD_URL=(typeof BC_TESTER!=="undefined"&&BC_TESTER.update)||"https://peyman19ms-ops.github.io/bc-ddaa6698/latest.json";
 var UPD_AUTO_KEY="bcosts_autoupd", updInfo=null, updAnnounced="";
 function updPlatform(){
@@ -4304,6 +4313,24 @@ function otaApplyWhenIdle(){
   }
   try{ flushStore(); AndroidApp.reload(); }catch(e){}
 }
+/* The APK itself (shell · icon · bridge) is updated from inside the app: the shell downloads our signed APK, checks it, and hands it to
+   the system installer (one tap). Answers arrive as window.__apk(state, value). */
+var apkNew=0;
+function apkCan(){ return updPlatform()==="apk"&&!!(window.AndroidApp&&AndroidApp.apkCheck&&AndroidApp.apkInstall)&&nativeLevel()>=4; }
+window.__apk=function(state,v){
+  var st=$("#updStatus"), get=$("#updGet"); if(!st||!get)return;
+  if(state==="newer"){
+    apkNew=v; get.hidden=false; $("#updGetLbl").textContent=T("به‌روزرسانی برنامه");
+    st.textContent=T("نسخهٔ جدید برنامه آماده است (آیکون و بخش‌های سیستمی هم عوض می‌شود)");
+    if(!otaManual&&updAnnouncedApk!==v){ updAnnouncedApk=v; toast(T("نسخهٔ جدید برنامه آماده است"),T("به‌روزرسانی"),updApply,12000); }
+  }else if(state==="uptodate"){ apkNew=0; }
+  else if(state==="downloading"){ get.hidden=true; st.textContent=T("در حال دریافت برنامه… {0}٪",faNum(Math.round(v))); }
+  else if(state==="perm"){ get.hidden=false; st.textContent=T("در صفحهٔ باز شده «اجازه از این منبع» را روشن کن و برگرد؛ نصب خودکار ادامه پیدا می‌کند."); }
+  else if(state==="installing"){ get.hidden=true; st.textContent=T("در حال نصب… اگر سیستم تأیید خواست، «نصب» را بزن."); }
+  else if(state==="done"){ st.textContent=T("برنامه به‌روز شد"); }
+  else if(state==="fail"){ get.hidden=false; st.textContent=T("به‌روزرسانی برنامه انجام نشد؛ دوباره بزن."); }
+};
+var updAnnouncedApk=0;
 function updShow(state,j){
   var st=$("#updStatus"), get=$("#updGet"); if(!st||!get)return;
   get.hidden=true;
@@ -4317,6 +4344,7 @@ function updShow(state,j){
 }
 function updApply(){
   var p=updPlatform();
+  if(apkNew&&apkCan()){ try{ AndroidApp.apkInstall(); }catch(e){} return; }
   if(p==="pwa"){
     var go=function(){ location.reload(); };
     try{ navigator.serviceWorker.getRegistration().then(function(r){ return r?r.update():null; }).then(function(){ setTimeout(go,900); },go).catch(go); }catch(e){ go(); }
@@ -4328,6 +4356,7 @@ function updApply(){
 }
 function updCheck(manual){
   if(manual)updShow("busy");
+  if(apkCan()&&(manual||updAutoOn())){ try{ AndroidApp.apkCheck(); }catch(e){} }
   return fetch(UPD_URL+(UPD_URL.indexOf("?")<0?"?":"&")+"t="+Date.now(),{cache:"no-store"}).then(function(r){ if(!r.ok)throw new Error("http"); return r.json(); }).then(function(j){
     updInfo=j; var newer=!!(j&&j.h&&j.h!==BC_VER.h);
     updShow(newer?"new":"ok",j);
