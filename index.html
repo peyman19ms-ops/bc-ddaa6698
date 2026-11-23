@@ -83,7 +83,6 @@
   .wrap{max-width:1180px;margin:0 auto;padding:calc(22px + env(safe-area-inset-top,0px)) 16px calc(120px + env(safe-area-inset-bottom,0px))}
   h1{font-size:21px;font-weight:800;letter-spacing:-.02em;text-align:center;color:var(--ink);margin:0 0 4px}
   h2{font-size:15px;font-weight:800;letter-spacing:-.01em;color:var(--ink);margin:0 0 14px;}
-  section.block{border:0;padding:20px;margin-bottom:16px;}
   label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}
   input,select{width:100%;font:inherit;color:var(--ink);padding:9px 11px;}
   input:focus,select:focus{border-color:var(--accent);}
@@ -99,12 +98,9 @@
   table{width:100%;border-collapse:collapse;min-width:640px}
   th,td{padding:7px 9px;text-align:center;border-bottom:1px solid var(--rule);border-inline-start:1px solid var(--rule);font-size:12.5px;white-space:nowrap}
   th{color:var(--muted);font-weight:700;}
-  th.mtog{cursor:pointer;user-select:none} th.mtog:hover{color:var(--accent)}
   td:first-child,th:first-child{border-inline-start:none}
   td.unit{font-weight:700;text-align:start}
   td.unit input{min-width:116px}
-  td.ppl select{width:56px;padding:4px 2px;text-align:center}
-  td.mon input{min-width:100px}
   td.money{background:var(--money-bg);color:var(--money-ink);font-variant-numeric:tabular-nums;font-weight:700}
   .costcard{border:0;border-radius:16px;padding:15px;margin-bottom:13px;background:var(--panel);box-shadow:var(--elev)}
   .costcard .top{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:12px}
@@ -137,9 +133,6 @@
   :root[lang="en"] .mchip .lbl{font-size:clamp(13px,3.9vw,17px);letter-spacing:.01em}
   .mchip[aria-pressed="true"] .lbl{color:var(--se);text-shadow:0 1px 1px var(--nm-lt),0 -1px 1px var(--nm-dk)}
 
-  @keyframes mchipPop{0%{transform:scale(.9)}55%{transform:scale(1.06)}100%{transform:scale(1)}}
-  @keyframes mchipOff{0%{transform:scale(1)}40%{transform:scale(.93)}100%{transform:scale(1)}}
-  @keyframes mchipLbl{0%{transform:scale(.72) translateY(1px)}55%{transform:scale(1.16) translateY(1px)}100%{transform:scale(1) translateY(1px)}}
   @media(prefers-reduced-motion:reduce){.mchip.pop .fill,.mchip.off .fill,.mchip.pop .lbl,.mchip.off .lbl{animation:none}}
 
   .billres{margin-top:10px;padding:10px 12px;border-radius:12px;font-size:13px;line-height:1.8}
@@ -216,36 +209,23 @@
   #toast.on{opacity:1}
 
   /* --- v1.6: sticky units table, summary bar, touch sizing --- */
-  #unitTbl thead th{position:sticky;top:0;z-index:3}
-  #unitTbl td:first-child,#unitTbl th:first-child{position:sticky;inset-inline-start:0;z-index:2;}
-  #unitTbl thead th:first-child{z-index:4}
   /* the bar itself stays click-through so a plain message never blocks the page,
      but the «بازگرداندن» button has to be reachable — without this it inherits
      pointer-events:none and undo can never be clicked at all */
   #toast .btn.mini{background:var(--accent);color:var(--btn-ink);border-color:var(--accent);font-weight:700}
   #toast.on .btn.mini{pointer-events:auto}
-  @media(max-width:600px){
-    #unitTbl th,#unitTbl td{padding:5px 5px;font-size:11.5px}
-    td.mon input{min-width:78px}
-  }
   @media(pointer:coarse){
     /* Fitts's Law: a finger needs a target ~44px tall to hit reliably —
        font+padding alone landed short, so pin a floor and center the label. */
     .btn{min-height:44px}
     .btn.mini{padding:9px 14px;font-size:13px;min-height:44px;display:inline-flex;align-items:center}
-    #unitTbl td input[type=checkbox],.months input[type=checkbox]{width:22px;height:22px}
-    #unitTbl thead th.mtog{padding-top:11px;padding-bottom:11px}
+    .months input[type=checkbox]{width:22px;height:22px}
   }
 
 
   /* --- v1.7: stat tiles, segmented view switch, sticky action bar, entrance, row status --- */
   .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
   @media(max-width:720px){.stats{grid-template-columns:repeat(2,1fr)}}
-  .stat{border:0;padding:14px 16px;}
-  .stat .n{font-size:22px;font-weight:800;color:var(--ink);font-variant-numeric:tabular-nums;letter-spacing:-.02em}
-  .stat .k{font-size:11px;color:var(--muted);margin-top:3px}
-  .stat.warn .n{color:var(--warn-ink)}
-  #statStrip .stat:first-child{border-color:var(--accent);}
 
   .seg{position:relative;display:inline-flex;border-radius:999px;padding:3px;gap:2px}
   .seg-opt{position:relative;z-index:1;font:inherit;font-size:12.5px;font-weight:600;cursor:pointer;border:0;background:transparent;color:var(--muted);border-radius:999px;padding:7px 15px;width:auto}
@@ -289,7 +269,7 @@
   .cc-body{padding:15px}
   /* smooth open/collapse (Chromium 131+ ; instant fallback elsewhere) */
   @media(prefers-reduced-motion:reduce){
-    .stat,details.costcard,details.costcard>summary::after{transition:none}
+    details.costcard,details.costcard>summary::after{transition:none}
   }
 
   #readyLine{margin:-4px 0 16px;font-size:12px;font-weight:700;border-radius:12px;padding:9px 13px;cursor:pointer;}
@@ -319,13 +299,12 @@
   /* --- v1.10: doc-width sheet, focus rings --- */
   .report{max-width:840px;margin-inline:auto}
   a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-  section.block,#reportWrap{scroll-margin-top:54px}
+  #reportWrap{scroll-margin-top:54px}
 
   /* --- v1.13: motion layer — every interaction responds (both themes) --- */
   :root{--ease:cubic-bezier(.22,1,.36,1);--t1:.13s;--t2:.22s}
   .btn,.btn.mini,.seg-opt,#modalOk,#modalCancel,#plainToggle,.rowbtns .btn,#reportSel,.raudit summary{transition:transform var(--t1) var(--ease),background var(--t2),color var(--t2),border-color var(--t2)}
   .btn:active,.btn.mini:active,.seg-opt:active{transform:scale(.95)}
-  th.mtog:active{transform:scale(.97)}
   /* custom animated checkbox */
   input[type=checkbox]{appearance:none;-webkit-appearance:none;width:18px;height:18px;flex:none;cursor:pointer;position:relative;padding:0;margin:0;transition:background var(--t1) var(--ease),border-color var(--t1),transform var(--t1) var(--ease)}
   input[type=checkbox]:hover{border-color:var(--accent)}
@@ -351,10 +330,6 @@
   .btn:hover{transform:translateY(-1px)}
   .btn.ghost:hover,.btn.mini:hover{border-color:var(--accent);}
   .btn.mini.del:hover{border-color:var(--danger);}
-  #unitTbl tbody tr{transition:background-color .16s var(--ease)}
-  #unitTbl tbody tr:hover td{background-color:color-mix(in srgb,var(--accent) 8%,transparent)}
-  #unitTbl tbody tr:hover td.money{background:color-mix(in srgb,var(--accent) 12%,var(--money-bg))}
-  #unitTbl tbody tr:hover td:first-child{background:color-mix(in srgb,var(--accent) 8%,var(--panel2))}
   #readyLine{transition:transform var(--t1) var(--ease),background-color var(--t2),color var(--t2)}
   #readyLine:hover{box-shadow:var(--elev)}
   #readyLine:active{transform:scale(.985)}
@@ -370,13 +345,10 @@
   select:not([multiple]){transition:border-color .15s,box-shadow .15s,background-color .22s,color .22s,transform .12s var(--ease)}
   select:not([multiple]):active{transform:scale(.99)}
   /* attention pulse: opacity/transform on a pseudo-ring = compositor-only, never repaints */
-  .stat.warn{position:relative}
-  .stat.warn::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;box-shadow:0 0 0 2px color-mix(in srgb,var(--warn-ink) 45%,transparent);opacity:0;animation:statPulse 2.4s var(--ease) infinite}
   @keyframes statPulse{0%,100%{opacity:0;transform:scale(1)}50%{opacity:1;transform:scale(1.015)}}
 
   @media(prefers-reduced-motion:reduce){
     *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
-    .stat.warn::after{animation:none;opacity:0}
   }
 
   /* ===================================================================
@@ -384,11 +356,7 @@
      Source-order override; earlier rules stay as the baseline. Tables /
      modals / report keep their own treatment for now — rolls out next.
      =================================================================== */
-  section.block{background:var(--bg);box-shadow:var(--nm-out);border-radius:24px;transition:box-shadow .28s var(--ease),background-color .25s var(--ease)}
   h2{border-bottom:0;box-shadow:0 13px 16px -18px var(--nm-dk);padding-bottom:12px}
-  .stat{background:var(--bg);box-shadow:var(--nm-out);border-radius:20px;transition:box-shadow .25s var(--ease),transform .25s var(--ease),background-color .25s}
-  .stat:hover{transform:translateY(-2px);box-shadow:var(--nm-out)}
-  #statStrip .stat:first-child{box-shadow:var(--nm-out),inset 0 0 0 1.5px color-mix(in srgb,var(--accent) 30%,transparent)}
 
   /* Von Restorff: the primary action must visually isolate from the sea of
      identical neumorphic ghost/mini buttons — a filled accent instead of the
@@ -417,7 +385,7 @@
   #modal .card{background:var(--bg);box-shadow:var(--nm-out),0 40px 90px -30px rgba(0,0,0,.4)}
   #toast{background:var(--bg);color:var(--ink);box-shadow:var(--nm-out)}
   .tblwrap{background:var(--bg);border-radius:16px;}
-  th,#unitTbl td:first-child,#unitTbl th:first-child,#unitTbl thead th:first-child{background:var(--bg)}
+  th{background:var(--bg)}
   #readyLine{border:0;box-shadow:var(--nm-out-sm)}
   #readyLine.idle{background:var(--bg);border:0}
   details.costcard{background:var(--bg);box-shadow:var(--nm-out);border-radius:20px}
@@ -433,9 +401,6 @@
   .iconbtn{font:inherit;font-size:18px;line-height:1;inline-size:44px;block-size:44px;flex:none;border:0;border-radius:999px;cursor:pointer;background:var(--bg);color:var(--ink);box-shadow:var(--nm-out-sm);display:grid;place-items:center;transition:box-shadow .2s var(--ease),color .2s}
   .iconbtn:hover{color:var(--accent);box-shadow:var(--nm-out)}
   .iconbtn:active{box-shadow:var(--nm-in-sm)}
-  section.repbar{padding:14px 20px}
-  .reprow{display:flex;gap:10px;align-items:center}
-  .reprow select{flex:1;min-width:0}
   details.more{margin-top:14px}
   details.more>summary{cursor:pointer;font-size:12.5px;color:var(--accent);font-weight:700;list-style:none;padding:6px 0}
   details.more>summary::-webkit-details-marker{display:none}
@@ -446,20 +411,15 @@
   details.menu{position:relative}
   details.menu>summary{list-style:none;cursor:pointer}
   details.menu>summary::-webkit-details-marker{display:none}
-  .reprow details.menu>summary{min-inline-size:44px;min-block-size:44px;display:grid;place-items:center;font-size:18px;padding:0 12px}
   .menu-pop{position:absolute;inset-inline-end:0;top:calc(100% + 8px);z-index:30;inline-size:max-content;min-inline-size:240px;max-inline-size:min(340px,86vw);background:var(--bg);border-radius:18px;padding:8px;display:flex;flex-direction:column;gap:2px}
   details.menu.up .menu-pop{top:auto;bottom:calc(100% + 10px)}
   .menu-pop button,.setlist button{font:inherit;text-align:start;cursor:pointer;border:0;background:transparent;color:var(--ink);border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;align-items:flex-start;gap:2px;min-block-size:44px;justify-content:center;inline-size:100%}
+  .menu-pop button[hidden]{display:none}   /* display:flex above would otherwise beat the hidden attribute */
   .menu-pop button:hover,.setlist button:hover{background:color-mix(in srgb,var(--accent) 10%,transparent)}
   .menu-pop button small,.setlist button small{color:var(--muted);font-size:11.5px;font-weight:400;line-height:1.5;white-space:normal}
   .menu-pop button.del b{color:var(--danger)}
   #actionBar{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
   #actionBar .grow{flex:1}
-  /* settings: a panel from the gear's side; full width on phones */
-  #settings{position:fixed;inset:0;z-index:45;background:var(--scrim);display:flex;justify-content:flex-end;transition:opacity var(--t2) var(--ease)}
-  #settings[hidden]{display:none}
-  @starting-style{#settings{opacity:0}}
-  #settings .sheet{background:var(--bg);inline-size:min(560px,100%);block-size:100%;overflow-y:auto;padding:calc(16px + env(safe-area-inset-top,0px)) 20px calc(24px + env(safe-area-inset-bottom,0px));box-shadow:var(--nm-out)}
   .sheet-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
   .sheet-head h2{margin:0;padding:0;box-shadow:none}
   .setgrp{padding:16px 0;border-top:1px solid var(--rule)}
@@ -474,18 +434,12 @@
   /* the units table is pass-2 — keep it on the flat treatment, not neu wells
      (a 12-month grid of inset checkboxes read as black pits) */
   .tblwrap{box-shadow:var(--nm-out-sm)}
-  #unitTbl th,#unitTbl td:first-child,#unitTbl th:first-child,#unitTbl thead th:first-child{background:var(--panel2)}
-  #unitTbl input,#unitTbl select{background:var(--panel2);border:1px solid var(--field-br);border-radius:8px;box-shadow:none}
-  #unitTbl input:focus,#unitTbl select:focus{box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 40%,transparent)}
-  #unitTbl input[type=checkbox]{background:var(--panel2);border:2px solid var(--field-br);border-radius:5px;box-shadow:none}
-  #unitTbl input[type=checkbox]:checked{background:var(--accent);border-color:var(--accent);box-shadow:none}
-  #unitTbl input[type=checkbox]:checked::after{border-color:var(--btn-ink)}
 
   /* --- v1.28: English typography — Nunito for text, Lalezar for the title; Persian
      user data inside the English UI still falls back to Vazirmatn --- */
   :root[lang="en"] body,:root[lang="en"] .report{font-family:Nunito,Vazirmatn,"Segoe UI",Arial,sans-serif}
   :root[lang="en"] .topbar h1{font-family:Lalezar,Nunito,sans-serif;font-weight:400;font-size:24px;letter-spacing:.01em}
-  :root[lang="en"] .stat .n,:root[lang="en"] .report .rhero .n{letter-spacing:-.01em}
+  :root[lang="en"] .report .rhero .n{letter-spacing:-.01em}
   .setfields{display:grid;gap:10px}
   .setfields label{margin-bottom:4px}
 
@@ -547,23 +501,15 @@
 
 
   /* --- v1.29: every open/close animates (Chromium 131+ for ::details-content and display transitions; instant elsewhere) --- */
-  :root{--dx:-46px}
-  :root[dir="ltr"]{--dx:46px}
-  /* settings: scrim fades, the sheet slides in from its edge with a soft spring, and both run backwards on close */
-  #settings{opacity:1;transition:opacity .7s var(--ease),display .9s allow-discrete,overlay .9s allow-discrete}
-  #settings[hidden]{display:none;opacity:0}
-  @starting-style{#settings:not([hidden]){opacity:0}}
-  #settings .sheet{transform:none;opacity:1;filter:none;transition:transform .95s cubic-bezier(.16,1,.3,1),opacity .6s var(--ease),filter .6s var(--ease)}
-  #settings[hidden] .sheet{transform:translateX(var(--dx)) scale(.96);opacity:0;filter:blur(4px)}
-  @starting-style{#settings:not([hidden]) .sheet{transform:translateX(var(--dx)) scale(.96);opacity:0;filter:blur(4px)}}
   /* dialogs: slower, springier pop */
   #modal{transition:opacity .6s var(--ease),display .8s allow-discrete,overlay .8s allow-discrete}
+  #modal:not(.on){pointer-events:none}   /* the fade-out keeps it displayed for ~0.8s; it must not swallow taps meanwhile */
   #modal .card{transform:translateY(14px) scale(.92);opacity:0;transition:transform .8s cubic-bezier(.16,1,.3,1),opacity .55s var(--ease)}
   #modal.on .card{transform:none;opacity:1}
   @starting-style{#modal.on .card{transform:translateY(14px) scale(.92);opacity:0}}
   /* in-page disclosures (period picker, manager/payment, cost cards): height + fade */
   #toast{transition:opacity .6s var(--ease),transform .8s cubic-bezier(.16,1,.3,1)}
-  @media(prefers-reduced-motion:reduce){#settings,#settings .sheet,#modal,#modal .card,#toast{transition:none}}
+  @media(prefers-reduced-motion:reduce){#modal,#modal .card,#toast{transition:none}}
 
 
   /* no focus-zoom: browsers/WebViews zoom the page when a field's text is < 16px; also no double-tap zoom and no text inflation */
@@ -650,7 +596,7 @@
     @page{size:A4;margin:14mm}
     body{background:#fff}
     .wrap{max-width:none;padding:0}
-    .editor,.topbar,#tabbar,#tab-costs,#tab-units,#settings,#printBtn,.printbar,#shareLinks,#toast,.warnbar,.slipbtns,.raudit summary,#statStrip,#readyLine{display:none!important}
+    .editor,.topbar,#tabbar,#tab-costs,#printBtn,.printbar,#shareLinks,#toast,.warnbar,.slipbtns,.raudit summary,#statStrip,#readyLine{display:none!important}
     .noprint{display:none!important}
     .raudit[open] > *{display:block}
     #reportWrap{display:block!important;margin:0}
@@ -914,6 +860,28 @@
     #repSheet[hidden]{display:block!important}
     #repSheet .sheetc{box-shadow:none;max-block-size:none;overflow:visible;padding:0;border-radius:0;animation:none;inline-size:100%}
   }
+
+  /* debtors board (accounts tab) */
+  .acctTools{display:grid;gap:10px;margin-bottom:14px}
+  .collect{padding:12px 14px;border-radius:18px;background:var(--bg);box-shadow:var(--nm-out)}
+  .collect .crow{display:flex;justify-content:space-between;gap:8px;font-size:12.5px;color:var(--muted)}
+  .collect .crow b{color:var(--green);font-variant-numeric:tabular-nums}
+  .cbar{block-size:8px;border-radius:99px;background:var(--bg);box-shadow:var(--nm-in-sm);margin-top:8px;overflow:hidden}
+  .cbar i{display:block;block-size:100%;border-radius:99px;background:var(--green);transition:inline-size .4s cubic-bezier(.22,1,.36,1)}
+  .fchips{display:flex;flex-wrap:wrap;gap:8px}
+  .fchip{font:inherit;font-size:12.5px;font-weight:700;min-block-size:40px;padding:0 14px;border:0;border-radius:999px;background:var(--bg);color:var(--muted);box-shadow:var(--nm-out-sm);cursor:pointer}
+  .fchip.on{color:var(--accent);box-shadow:var(--nm-in-sm)}
+
+  /* resident's read-only slip page (opened from a #s= link) */
+  html.sv-open,html.sv-open body{overflow:hidden}
+  .sview{position:fixed;inset:0;z-index:99999;overflow:auto;background:var(--bg);padding:16px;display:flex;align-items:flex-start;justify-content:center}
+  .svcard{inline-size:100%;max-inline-size:460px;margin-block:8px;padding:18px 16px;border-radius:22px;background:var(--bg);box-shadow:var(--nm-out);display:grid;gap:10px}
+  .svh{display:grid;gap:2px} .svh b{font-size:18px} .svh small,.svm,.svn{color:var(--muted);font-size:12px}
+  .svr{display:flex;justify-content:space-between;gap:12px;padding:6px 0;border-block-end:1px solid var(--rule);font-variant-numeric:tabular-nums}
+  .svr.sum{font-weight:800} .svr.d span:last-child{color:var(--red)} .svr.c span:last-child{color:var(--green)}
+  .svtot{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-radius:16px;box-shadow:var(--nm-in-sm);font-size:16px}
+  .svtot.st-ok b{color:var(--green)} .svtot.st-due b,.svtot.st-debt b{color:var(--red)}
+  .svpay{display:flex;justify-content:space-between;align-items:center;gap:8px;word-break:break-all}
 </style>
 </head>
 <body>
@@ -1013,6 +981,7 @@
         <section class="setgrp">
           <h3>حساب‌ها — بدهکار و بستانکار</h3>
           <div id="acctSum" class="acctsum"></div>
+          <div id="acctTools" class="acctTools"></div>
           <div id="acctList"></div>
           <div class="rowbtns"><button class="btn ghost" id="acctDebit">＋ بدهکاری دستی</button><button class="btn ghost" id="acctCredit">＋ بستانکاری دستی</button></div>
         </section>
@@ -1109,6 +1078,7 @@
       <div class="menu-pop">
         <button type="button" id="shareImg"><b>تصویر گزارش</b><small>برای تلگرام و واتساپ</small></button>
         <button type="button" id="shareTxt"><b>متن</b><small>پیامک، ایمیل یا کپی</small></button>
+        <button type="button" id="shareCsv"><b>خروجی Excel</b><small>فایل CSV، فارسی درست باز می‌شود</small></button>
         <button type="button" id="shareCal"><b>افزودن مهلت به تقویم</b><small>تقویمِ خودِ گوشی، با یادآور</small></button>
         <button type="button" id="shareBulk"><b>پیامک به بدهکاران</b><small>یکی‌یکی، با متنِ آماده</small></button>
       </div>
@@ -1120,7 +1090,7 @@
   </div>
 </div>
 
-<div id="modal"><div class="card">
+<div id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><div class="card">
   <h3 id="modalTitle">بازهٔ سکونت</h3>
   <div id="modalBody"></div>
   <div class="rowbtns" style="justify-content:flex-end">
@@ -1166,10 +1136,8 @@ function jDate(d){
   var loc=LANG==="en"?(g?"en-US":"en-u-ca-persian"):(g?"fa-IR-u-ca-gregory":"fa-IR");
   try{ return (d||new Date()).toLocaleDateString(loc,g&&LANG==="en"?{year:"numeric",month:"short",day:"numeric"}:undefined); }catch(e){ return ""; }
 }
-
 var EN={
   "تلفن و اینترنت":"Phone & internet","نظافت":"Cleaning","تعمیرات":"Repairs","آسانسور":"Elevator","شارژ ساختمان":"Building charge","سایر":"Other",
-  "نحوهٔ تقسیم":"How it's split",
   "قبض‌ها":"Bills","بخش‌ها":"Sections",
   "افزودن مهلت به تقویم":"Add the due date to the calendar","تقویمِ خودِ گوشی، با یادآور":"Your phone's own calendar, with a reminder",
   "ذخیرهٔ فایل تقویم نشد":"Couldn't save the calendar file","فایل تقویم ذخیره شد؛ بازش کنید تا به تقویم اضافه شود":"Calendar file saved — open it to add it to your calendar",
@@ -1181,7 +1149,6 @@ var EN={
   "کپی شد ✓":"Copied ✓","ثبت پرداخت — {0}":"Record payment — {0}","تاریخ":"Date","مبلغ ({0})":"Amount ({0})",
   "مانده فعلی: {0} — پیش‌فرضِ مبلغ همین است.":"Current balance: {0} — the amount is pre-filled with it.","این واحد بدهی ندارد.":"This unit owes nothing.",
   "پرداخت ثبت شد":"Payment recorded","رسید":"Receipt","ثبت پرداخت":"Record payment","ثبت":"Record","پرداخت حذف شد":"Payment removed","حذف این پرداخت":"Remove this payment","پرداخت":"Payment",
-  "جمعِ پرداخت‌های ثبت‌شده — در «قبض هر واحد» ویرایش می‌شود":"Sum of the recorded payments — edit them in “Unit slips”",
   "پیامک به بدهکاران":"SMS to debtors","هیچ واحدی بدهی ندارد.":"No unit owes anything.",
   "شمارهٔ موبایل هر واحد یک بار ذخیره می‌شود. «ارسال» پیام‌رسانِ گوشی را با متنِ آماده باز می‌کند؛ ارسال با خودِ شماست.":"Each unit's mobile number is saved once. “Send” opens your phone's messaging app with the text ready; you press send yourself.",
   "موبایل":"Mobile","ارسال":"Send","ارسال شد ✓":"Sent ✓","بستن":"Close","یکی‌یکی، با متنِ آماده":"One by one, text ready",
@@ -1237,19 +1204,13 @@ var EN={
   "مهلت پرداخت":"Due date","مثلاً تا ۱۵ مهر":"e.g. by Mehr 15",
   "از":"From","تا":"To","سال {0}":"Year {0}","{0} تا {1}":"{0} to {1}",
   /* units */
-  "واحدها و ماه‌های سکونت":"Units and months of residence",
-  "+ افزودن واحد":"+ Add unit","نمایش جدول ماه‌ها":"Show month grid","جمع کردن جدول ماه‌ها":"Hide month grid",
-  "تیک همهٔ ماه‌ها":"Tick all months","خالی کردن همهٔ ماه‌ها":"Clear all months","همهٔ ماه‌ها خالی شد":"All months cleared",
-  "روی عنوان هر ماه بزنید تا برای همهٔ واحدها روشن/خاموش شود.":"Tap a month heading to toggle it for every unit.",
-  "همه ساکنِ کلِ دوره فرض می‌شوند؛ برای استثنا «بازه» را بزنید. «ماندهٔ قبل» و «پرداختی» اختیاری‌اند.":"Everyone is assumed resident for the whole period; use “Range” for exceptions. “Previous balance” and “Paid” are optional.",
+  "+ افزودن واحد":"+ Add unit",
   "واحد":"Unit","واحدها":"Units","واحد {0}":"Unit {0}","نفرات":"People","ماه":"Months","ماندهٔ قبل":"Previous balance","پرداختی":"Paid",
-  "روشن/خاموش این ماه برای همهٔ واحدها":"Toggle this month for every unit",
-  "بازه":"Range","مثل بالا":"Same as above","کپی سکونت و نفرات از ردیف قبل":"Copy residence and people from the row above",
+  "بازه":"Range",
   "حذف":"Delete","واحد «{0}» حذف شد":"Unit “{0}” deleted",
-  "بازهٔ سکونت":"Residence","بازهٔ سکونت — {0}":"Residence — {0}",
-  "ماهِ ورود تا ماهِ خروج را انتخاب کن؛ بقیهٔ ماه‌ها برای این واحد خاموش می‌شوند.":"Pick the move-in and move-out months; other months are switched off for this unit.",
+  "بازهٔ سکونت":"Residence",
   /* bills */
-  "قبض‌ها و هزینه‌ها":"Bills and expenses","+ افزودن قبض / هزینه":"+ Add bill / expense",
+  "+ افزودن قبض / هزینه":"+ Add bill / expense",
   "قبض آب":"Water bill","قبض برق":"Electricity bill","قبض گاز":"Gas bill","شارژ عمومی":"Service charge",
   "نظافت راه‌پله":"Stairwell cleaning","سرویس آسانسور":"Elevator service","تعمیرات موتورخانه":"Boiler room repairs",
   "پمپ آب":"Water pump","منبع آب":"Water tank",
@@ -1265,7 +1226,6 @@ var EN={
   "بدون سهم پایه":"No base share","درصدی از کل قبض":"Percent of the bill","مبلغ ثابت (کل)":"Fixed amount (total)",
   "درصد":"Percent","تومان":"Toman","درصد از کل قبض":"Percent of the bill",
   "این قبض کدام ماه‌ها را پوشش می‌دهد":"Which months does this bill cover",
-  
   "توضیح":"Note","توضیح (اختیاری) — روی گزارش می‌آید":"Note (optional) — printed on the report",
   "جمع سهم‌ها: ":"Shares total: ","  —  مبلغ کل: ":"  —  bill total: ","  ✗ برابر نیست":"  ✗ does not match",
   /* checks */
@@ -1288,17 +1248,15 @@ var EN={
   "جمع کل قابل وصول  ·  {0} واحد":"Total receivable  ·  {0} units","بیشترین بدهی: {0}":"Largest balance: {0}",
   "سهم پایه {0}٪":"base share {0}%","سهم پایه {0}":"base share {0}",
   "ماه‌های پوشش: {0}":"months covered: {0}",
-  
   "؛ تعدیل گرد‌کردن: {0}":"; rounding adjustments: {0}",
   "{0} از {1}":"{0} of {1}","مساوی":"equal","جمع سهم این دوره: {0}":"Total this period: {0}",
   "مدیریت ساختمان":"Building manager","مدیریت ساختمان: {0}":"Building manager: {0}",
   "طراحی و توسعه — پیمان آرین":"Designed & developed by Peyman Arian",
   "{0} — قبض واحد {1}":"{0} — Unit {1} bill","قبض واحد {0} — {1}":"Unit {0} bill — {1}",
   "کپی":"Copy","کپی شد ✓":"Copied ✓","کپی متن این قبض":"Copy this bill as text","پیامک":"SMS","چاپ فقط این واحد":"Print this unit only",
-  "واحد بدهکار":"Units owing","قبض/هزینهٔ ثبت‌شده":"Bills entered",
+  "واحد بدهکار":"Units owing",
   "هنوز چیزی برای گزارش نیست — مبلغِ حداقل یک قبض و یک واحد را وارد کنید.":"Nothing to report yet — enter at least one unit and one bill amount.",
   "برای گزارش، حداقل یک واحد و یک قبض با مبلغ لازم است.":"A report needs at least one unit and one bill with an amount.",
-  "⚠ {0} نکته پیش از چاپ — در گزارش پایین ببینید.":"⚠ {0} thing(s) to check before printing — see the report below.",
   "✓ آمادهٔ چاپ.":"✓ Ready to print.","پیش از چاپ بررسی کنید ({0}):":"Check before printing ({0}):",
   /* sharing */
   "ایمیل":"Email","واتساپ":"WhatsApp","تلگرام":"Telegram","کپی متن":"Copy text","متن کپی شد":"Text copied","کپی نشد":"Copy failed",
@@ -1344,7 +1302,6 @@ var EN={
   "پاک کردن":"Clear","با انگشت یا ماوس داخل کادر امضا کنید.":"Sign inside the box with a finger or mouse.","ذخیره":"Save",
   "این تصویر خوانده نشد.":"This image could not be read.",
   "گرد کردن مبالغ":"Rounding","بدون گرد کردن":"No rounding",
-  
   "پشتیبان و انتقال":"Backup and transfer","ذخیرهٔ فایل پشتیبان":"Save a backup file","همهٔ گزارش‌ها در یک فایل JSON":"All reports in one JSON file",
   "بازگردانی از فایل":"Restore from a file","افزودن یا جایگزینی گزارش‌ها":"Add or replace reports",
   "نسخه‌های خودکار":"Automatic snapshots","برگشت به روزهای قبل":"Go back to an earlier day",
@@ -1453,7 +1410,27 @@ var EN={
   "در صفحهٔ باز شده «اجازه از این منبع» را روشن کن و برگرد؛ نصب خودکار ادامه پیدا می‌کند.":"On the screen that opened, switch on “Allow from this source”, then come back; the install continues by itself.",
   "در حال نصب… اگر سیستم تأیید خواست، «نصب» را بزن.":"Installing… if the system asks, tap “Install”.",
   "برنامه به‌روز شد":"The app is up to date",
-  "به‌روزرسانی برنامه انجام نشد؛ دوباره بزن.":"The app update did not finish; try again."
+  "به‌روزرسانی برنامه انجام نشد؛ دوباره بزن.":"The app update did not finish; try again.",
+  "هنوز چیزی برای خروجی نیست":"Nothing to export yet",
+  "ذخیرهٔ فایل روی این دستگاه نشد":"Could not save the file on this device",
+  "مقصد ذخیرهٔ فایل را انتخاب کنید":"Choose where to save the file",
+  "فایل Excel ذخیره شد":"Excel file saved",
+  "لینک قبض":"Bill link",
+  "لینک کپی شد ✓":"Link copied ✓",
+  "لینک قبض معتبر نیست":"This bill link is not valid",
+  "هر دوره با همین مبلغ پر شود":"Fill with this amount every period",
+  "واحدی با این وضعیت نیست.":"No unit has this status.",
+  "✓ تسویه کامل":"✓ Settle in full",
+  "وصول‌شده {0} از {1}":"Collected {0} of {1}",
+  "{0}٪":"{0}%",
+  "فیلتر وضعیت":"Status filter",
+  "همه":"All",
+  "بدهکار":"Debtors",
+  "تسویه / بستانکار":"Settled / in credit",
+  "یادآوری به همهٔ بدهکاران":"Remind all debtors",
+  "کپی مقصد واریز":"Copy pay-to details",
+  "خروجی Excel":"Excel export",
+  "فایل CSV، فارسی درست باز می‌شود":"CSV file; Persian text opens correctly"
 };
 /* ---------- locale: calendar, numbers and money ----------
    Pure functions + data; no DOM. Everything that turns a month index or an amount
@@ -1491,6 +1468,8 @@ var NUMLOC=LANG==="en"?"en-US":"fa-IR";
 /* ---------- money: per-report currency (building.cur) ----------
    Amounts are typed and stored in major units (toman, dollars). The split runs in integer
    minor units (cents; toman and rial have none), so every column still sums exactly. */
+/* lookups by a key that came from a file/backup: "toString" or "constructor" must not hit Object.prototype */
+function own(o,k){ return Object.prototype.hasOwnProperty.call(o,k); }
 var CURS={
   IRT:{dec:0,sym:"",fa:"تومان",faL:"تومان",en:"Toman",enL:"Toman",rounds:[1,10000,100000]},
   IRR:{dec:0,sym:"",fa:"ریال",faL:"ریال",en:"Rial",enL:"Rial",rounds:[1,100000,1000000]},
@@ -1500,7 +1479,7 @@ var CURS={
   CAD:{dec:2,sym:"C$",fa:"دلار کانادا",faL:"دلار کانادا (CAD)",en:"CAD",enL:"Canadian dollar (CAD)",rounds:[0.01,1,10]}
 };
 var CUR_ORDER_FA=["IRT","IRR","USD","EUR","GBP","CAD"], CUR_ORDER_EN=["USD","EUR","GBP","CAD","IRT","IRR"];
-function curOf(rep){ var c=rep&&rep.building&&rep.building.cur; return CURS[c]?c:"IRT"; }
+function curOf(rep){ var c=rep&&rep.building&&rep.building.cur; return own(CURS,c)?c:"IRT"; }
 function curInfo(){ return CURS[curOf(typeof S!=="undefined"?S:null)]; }
 function curM(){ return Math.pow(10,curInfo().dec); }
 function curName(){ var c=curInfo(); return LANG==="en"?c.en:c.fa; }
@@ -1660,10 +1639,11 @@ function blankReport(name){
     costs:[{id:uid(),title:T("قبض آب"),kind:"periodic",amount:0,cover:{},base:{mode:"pct",value:10},method:"months",manual:{},note:""}]
   };
 }
+var storeUnreadable=false;   /* something is stored but is not valid JSON: recover from a snapshot instead of starting blank over it */
 var freshInstall=false;   /* true when nothing at all was stored yet: a brand-new install (the auto-backup may be able to restore) */
 function loadStore(){
   var raw; try{raw=localStorage.getItem(LS);}catch(e){}
-  if(raw){ try{ return JSON.parse(raw); }catch(e){} }
+  if(raw){ try{ return JSON.parse(raw); }catch(e){ storeUnreadable=true; return null; } }
   /* migrate the old single-report key */
   var old; try{old=localStorage.getItem("bcosts3");}catch(e){}
   if(old){ try{
@@ -1686,6 +1666,7 @@ function snapshotDaily(prev){
   var today=new Date().toISOString().slice(0,10);
   try{
     if(localStorage.getItem(BAK_DAY)===today)return;
+    JSON.parse(prev);   /* a damaged value must never push a good snapshot out of its slot (the catch below skips it) */
     /* shift: 1->2, 0->1, then today's "before" value into 0 */
     for(var i=BAK_N-1;i>0;i--){
       var older=localStorage.getItem(BAK+(i-1));
@@ -1695,6 +1676,8 @@ function snapshotDaily(prev){
     localStorage.setItem(BAK_DAY,today);
   }catch(e){}   /* quota or private mode: a missing backup must never block a save */
 }
+/* «replace all» / restore overwrite everything: today's slot already holds the state from this morning, so take a fresh one now */
+function snapshotNow(){ flushStore(); try{localStorage.removeItem(BAK_DAY);}catch(e){} }
 function listBackups(){
   var out=[];
   for(var i=0;i<BAK_N;i++){
@@ -1804,16 +1787,21 @@ function migrateReport(r){
   r.units=(Array.isArray(r.units)?r.units:[]).filter(isObj);
   r.costs=(Array.isArray(r.costs)?r.costs:[]).filter(isObj);
   r.costs.forEach(function(c){ if(!isObj(c.manual))c.manual={}; if(c.reads!=null&&!isObj(c.reads))delete c.reads; if(c.hist!=null&&!Array.isArray(c.hist))delete c.hist; if(c.bal!=null&&!isObj(c.bal))delete c.bal; if(c.pres!=null&&!isObj(c.pres))delete c.pres; });
-  r.units.forEach(function(u){ if(u.ledger!=null&&!Array.isArray(u.ledger))delete u.ledger; });
+  r.units.forEach(function(u){
+    if(u.ledger!=null&&!Array.isArray(u.ledger))delete u.ledger;
+    if(u.payments!=null)u.payments=Array.isArray(u.payments)?u.payments.filter(isObj):[];
+  });
   cleanIds(r.units,r.costs); cleanIds(r.costs,null);
-  if(!r.building)r.building={};
+  if(!isObj(r.building))r.building={};
   var b=r.building;
   if(b.cal!=="g")b.cal="j";                   /* every report before v1.28 is Jalali… */
-  if(!CURS[b.cur])b.cur="IRT";                /* …and in toman */
+  if(!own(CURS,b.cur))b.cur="IRT";            /* …and in toman */
   if(CURS[b.cur].rounds.indexOf(b.roundTo)<0)b.roundTo=CURS[b.cur].rounds[0];   /* legacy 100/1000/5000 → no rounding */
   if(b.payTo==null)b.payTo="";
   if(b.dueDate==null)b.dueDate="";
-  if(!b.range){ var oy=parseNum(b.periodYear)||currentYear(b.cal); b.range={fromM:0,fromY:oy,toM:11,toY:oy}; }
+  /* a signature is only ever a PNG data URL; anything else (a web address in a hand-edited file) would be fetched whenever the report is shown */
+  if(b.sig!=null&&!/^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+\/=]+$/.test(b.sig))delete b.sig;
+  if(!isObj(b.range)){ var oy=parseNum(b.periodYear)||currentYear(b.cal); b.range={fromM:0,fromY:oy,toM:11,toY:oy}; }
   ["periodFrom","periodTo","periodYear","period"].forEach(function(k){delete b[k];});
   var yr=b.range.fromY;
   (r.units||[]).forEach(function(u,ix){
@@ -1828,6 +1816,8 @@ function migrateReport(r){
   });
   (r.costs||[]).forEach(function(c){
     if(!c.manual)c.manual={};
+    if(c.cat!=null&&!own(CATS,c.cat))delete c.cat;
+    if(c.method!=null&&!own(METHODS,c.method))c.method="months";
     if(!c.base)c.base={mode:"none",value:0};
     if(Array.isArray(c.cover)){ var mp={}; c.cover.forEach(function(v,i){mp[yr+"-"+i]=!!v;}); c.cover=mp; }
     if(!c.cover||typeof c.cover!=="object")c.cover={};
@@ -1873,7 +1863,7 @@ var storeRecovered=false;
 function initStore(){
   store=loadStore();
   freshInstall=!store;
-  try{ setupStore(); }
+  try{ if(storeUnreadable)throw new Error("unreadable store"); setupStore(); }
   catch(e){
     storeRecovered=true;
     var bk=listBackups(), ok=false;
@@ -2322,7 +2312,7 @@ function closeModal(){
 function askText(title,initial,onDone){
   $("#modalTitle").textContent=title;
   var body=$("#modalBody"); body.innerHTML="";
-  var inp=el("input",{value:(initial==null?"":String(initial)),enterkeyhint:"done"});
+  var inp=el("input",{value:(initial==null?"":String(initial)),enterkeyhint:"done","aria-label":title});
   inp.addEventListener("keydown",function(e){ if(e.key==="Enter"){e.preventDefault();$("#modalOk").click();} });
   body.append(inp);
   var val=null;
@@ -2332,6 +2322,7 @@ function askText(title,initial,onDone){
   try{inp.select();}catch(e){}
 }
 function askConfirm(title,msg,okLabel,onDone){
+  modalApply=null;   /* an earlier dialog's OK action must not run for this one */
   $("#modalTitle").textContent=title;
   var body=$("#modalBody"); body.innerHTML="";
   body.append(el("p",{class:"hint",text:msg}));
@@ -2339,6 +2330,7 @@ function askConfirm(title,msg,okLabel,onDone){
   openModal(okLabel||T("تأیید"),true);
 }
 function sayAlert(title,msg,onDone){
+  modalApply=null;
   $("#modalTitle").textContent=title;
   var body=$("#modalBody"); body.innerHTML="";
   body.append(el("p",{class:"hint",text:msg}));
@@ -2347,6 +2339,7 @@ function sayAlert(title,msg,onDone){
 }
 /* radio picker: opts = [[value,label],…]; onDone(value) or onDone(null) */
 function askChoice(title,msg,opts,onDone){
+  modalApply=null;
   $("#modalTitle").textContent=title;
   var body=$("#modalBody"); body.innerHTML="";
   if(msg)body.append(el("p",{class:"hint",text:msg}));
@@ -2362,9 +2355,10 @@ function askChoice(title,msg,opts,onDone){
 /* last-resort "here is the text, copy it yourself" — replaces the native
    window.prompt, which shows nothing at all inside the native shells */
 function showTextForCopy(title,text){
+  modalApply=null;
   $("#modalTitle").textContent=title;
   var body=$("#modalBody"); body.innerHTML="";
-  var ta=el("textarea",{rows:"8",readonly:"readonly",style:"width:100%"});
+  var ta=el("textarea",{rows:"8",readonly:"readonly",style:"width:100%","aria-label":title});
   ta.value=text;
   body.append(ta);
   modalOnClose=null;
@@ -2380,11 +2374,9 @@ var acctOpen={};
 function renderUnits(){ renderUnitCards(); if(!$("#set-accounts").hidden)renderAccounts(); }
 function renderUnitCards(){
   var host=$("#unitCards"); if(!host)return;
-  var kept=host.querySelector("input:focus"), kv=null;
   host.innerHTML="";
-  var totArea=0;
   S.units.forEach(function(u,ui){
-    if(u.people==null)u.people=2; totArea+=parseNum(u.area)||0;
+    if(u.people==null)u.people=2;
     var nm=u.label||T("واحد");
     var card=el("div",{class:"ucard"});
     var lbl=el("input",{value:u.label||"",list:"unitNames","aria-label":T("نام واحد")});
@@ -2424,6 +2416,7 @@ function renderUnitCards(){
   function refreshSum(){ var t=0; S.units.forEach(function(u){t+=parseNum(u.area)||0;}); var s=$("#unitSum"); if(s)s.textContent=T("{0} واحد",faNum(S.units.length))+(t>0?" · "+faNum(t)+" m²":""); }
   refreshSum();
 }
+/* the local «var ppl» in renderUnitCards shadows the global ppl(); this alias stays reachable from inside it */
 function ppl_(u){ return ppl(u); }
 function nextUnitLabel(){
   var mx=0;
@@ -2450,10 +2443,15 @@ function renderAccounts(){
   sum.innerHTML="";
   sum.append(el("div",{class:"acc debt"},[el("small",{text:T("جمع بدهی ▼")}),el("b",{text:money(debt/curM())})]),
              el("div",{class:"acc cred"},[el("small",{text:T("جمع طلب ▲")}),el("b",{text:money(cred/curM())})]));
+  renderAcctTools(owe);
   host.innerHTML="";
   if(!S.units.length){ host.append(el("p",{class:"hint",text:T("هنوز واحدی نیست.")})); return; }
+  var shown=0;
   S.units.forEach(function(u){
     var o=owe[u.id]||{owed:0}, m=minor(o.owed), pct=mx?Math.round(Math.abs(m)/mx*46):0;
+    if(acctFilter==="debt"&&m<=0)return;
+    if(acctFilter==="ok"&&m>0)return;
+    shown++;
     var d=el("details",{class:"acctrow","data-uid":u.id});
     d.open=!!acctOpen[u.id];
     d.addEventListener("toggle",function(){acctOpen[u.id]=d.open;});
@@ -2480,8 +2478,50 @@ function renderAccounts(){
       var b=el("button",{class:"btn mini",type:"button",text:x[1]}); b.addEventListener("click",function(){openLedgerDialog(x[0],u);}); acts.append(b);
     });
     var pb=el("button",{class:"btn mini",type:"button",text:T("ثبت پرداخت")}); pb.addEventListener("click",function(){openPayDialog(u);}); acts.append(pb);
+    if(m>0){   /* one tap: the whole balance is paid today */
+      var full=el("button",{class:"btn mini",type:"button",text:T("✓ تسویه کامل")});
+      full.addEventListener("click",function(){
+        var now=minor((settle(S)[u.id]||{owed:0}).owed); if(now<=0)return;
+        pushUndo(T("پرداخت ثبت شد")); addPayment(u,now/curM(),jDate(),""); acctOpen[u.id]=true;
+        saveStore(); renderUnits(); renderAccounts(); render(); toast(T("پرداخت ثبت شد"));
+      });
+      acts.append(full);
+    }
     body.append(acts); d.append(body); host.append(d);
   });
+  if(!shown)host.append(el("p",{class:"hint",text:T("واحدی با این وضعیت نیست.")}));
+}
+/* status filter, collection progress, and one-tap actions above the list of units */
+var acctFilter="all";
+function renderAcctTools(owe){
+  var box=$("#acctTools"); if(!box)return;
+  box.innerHTML="";
+  var due=0, paid=0, nDebt=0;
+  S.units.forEach(function(u){ var m=minor((owe[u.id]||{}).owed); paid+=minor(paidOf(u)); due+=Math.max(0,m)+minor(paidOf(u)); if(m>0)nDebt++; });
+  if(!S.units.length)return;
+  var pct=due>0?Math.min(100,Math.round(paid/due*100)):0;
+  box.append(el("div",{class:"collect"},[
+    el("div",{class:"crow"},[el("span",{text:T("وصول‌شده {0} از {1}",money(paid/curM()),money(due/curM()))}),el("b",{text:T("{0}٪",faNum(pct))})]),
+    el("div",{class:"cbar","aria-hidden":"true"},[el("i",{style:"width:"+pct+"%"})])
+  ]));
+  var chips=el("div",{class:"fchips",role:"group","aria-label":T("فیلتر وضعیت")});
+  [["all",T("همه")],["debt",T("بدهکار")+" ("+faNum(nDebt)+")"],["ok",T("تسویه / بستانکار")]].forEach(function(f){
+    var b=el("button",{type:"button",class:"fchip"+(acctFilter===f[0]?" on":""),text:f[1],"aria-pressed":acctFilter===f[0]?"true":"false"});
+    b.addEventListener("click",function(){ acctFilter=f[0]; renderAccounts(); });
+    chips.append(b);
+  });
+  box.append(chips);
+  var acts=el("div",{class:"rowbtns"});
+  if(nDebt){
+    var rem=el("button",{class:"btn mini",type:"button",text:T("یادآوری به همهٔ بدهکاران")});
+    rem.addEventListener("click",openBulkSms); acts.append(rem);
+  }
+  if(S.building.payTo){
+    var cp=el("button",{class:"btn mini",type:"button",text:T("کپی مقصد واریز")});
+    cp.addEventListener("click",function(){ copyText(S.building.payTo,function(ok){ if(ok)toast(T("کپی شد ✓")); }); });
+    acts.append(cp);
+  }
+  if(acts.childElementCount)box.append(acts);
 }
 /* manual debit / credit in a unit's account (outside any bill) */
 function openLedgerDialog(kind,u0){
@@ -2708,8 +2748,10 @@ function renderCosts(){
 
     /* 1 — title (+ logo that opens the category picker) with live suggestions */
     var title=el("input",{value:c.title||"",placeholder:T("عنوان قبض / هزینه"),"aria-label":T("عنوان قبض / هزینه"),autocomplete:"off"});
-    title.addEventListener("input",function(){c.title=title.value;saveSoon();scheduleRender();});
-    title.addEventListener("change",function(){remember("cost",title.value);fillAllDatalists();if(!c.cat){renderCosts();}});
+    title.addEventListener("input",function(){c.title=title.value;saveSoon();scheduleRender(); summ.querySelector(".cc-name").textContent=c.title||T("بدون عنوان");});
+    title.addEventListener("change",function(){remember("cost",title.value);fillAllDatalists();
+      /* swap the logo in place: rebuilding the list here drops focus from the field the user is moving to */
+      if(!c.cat){ var k=catOf(c); if(k!==card.getAttribute("data-cat")){ card.setAttribute("data-cat",k); card.style.setProperty("--cc",CATS[k].c); logoBtn.firstChild.replaceWith(logoEl(k,46)); summ.firstChild.replaceWith(logoEl(k,38)); } } });
     var logoBtn=el("button",{type:"button",class:"logobtn","aria-label":T("نوع قبض (لوگو و رنگ)"),title:T("نوع قبض (لوگو و رنگ)")}); logoBtn.append(logoEl(cat,46));
     logoBtn.addEventListener("click",function(){openCatPicker(c);});
     var trow=el("div",{class:"trow tag"},[logoBtn,title]);
@@ -2726,6 +2768,11 @@ function renderCosts(){
       amtCell.append(same);
     }
     body.append(amtCell);
+    if(c.kind==="periodic"&&c.method!=="manual"){
+      var rep=el("input",{type:"checkbox","aria-label":T("هر دوره با همین مبلغ پر شود")}); rep.checked=!!c.repeat;
+      rep.addEventListener("change",function(){c.repeat=rep.checked;saveStore();});
+      body.append(el("label",{class:"hint updauto"},[rep,el("span",{text:" "+T("هر دوره با همین مبلغ پر شود")})]));
+    }
 
     /* 3 — kind + split method: everything visible, nothing behind a button */
     body.append(el("label",{text:T("نوع"),class:"lb"}),seg2([["periodic",T("قبض دوره‌ای")],["oneoff",T("خرید یک‌باره")]],c.kind,function(k){
@@ -2829,7 +2876,7 @@ function refreshTallies(){
 
 /* ---------- share: native OS share sheet (Android / iOS / Windows) + SMS/email/چت fallbacks ---------- */
 function toast(msg,actLabel,actFn,ms){
-  var t=$("#toast"); if(!t){t=el("div",{id:"toast"});document.body.append(t);}
+  var t=$("#toast"); if(!t){t=el("div",{id:"toast",role:"status","aria-live":"polite"});document.body.append(t);}
   t.innerHTML=""; t.append(document.createTextNode(msg));
   if(actLabel&&actFn){
     var a=el("button",{class:"btn mini",style:"margin-inline-start:10px",text:actLabel});
@@ -2846,6 +2893,7 @@ function popIn(node){ if(!node||!node.animate)return;
   try{ node.animate([{opacity:0,transform:"translateY(-7px) scale(.98)"},{opacity:1,transform:"none"}],
     {duration:230,easing:"cubic-bezier(.22,1,.36,1)"}); }catch(e){} }
 function fadeOutThen(node,fn){
+  if(node){ if(node._fading)return; node._fading=true; }   /* a second tap on 🗑 during the fade must not delete (and snapshot) twice */
   var done=false, run=function(){ if(done)return; done=true; fn(); };
   if(!node||!node.animate){ run(); return; }
   try{
@@ -3077,7 +3125,7 @@ function doShareImage(btn){
 
 /* ---------- report ---------- */
 var reportView="matrix";
-var costOpen={}, optOpen={};   /* per-card expand state (UI only, keyed by cost id) */
+var costOpen={};   /* per-card expand state (UI only, keyed by cost id) */
 var slipPlain=false;   /* «حالت ارائه» — minimal per-unit card for forwarding to residents */
 /* «  · مصرف ۱۲٫۵» after a metered line, so a resident can check the bill against their own meter */
 function useNote(c,u){
@@ -3135,7 +3183,7 @@ function emptyBlock(){
   var wrap=el("div",{class:"empty"});
   wrap.append(el("div",{text:T("هنوز چیزی برای گزارش نیست — مبلغِ حداقل یک قبض و یک واحد را وارد کنید.")}));
   var b=el("button",{class:"btn",type:"button",text:T("+ افزودن قبض / هزینه")});
-  b.addEventListener("click",function(){var a=$("#addCost");if(a)a.click();});
+  b.addEventListener("click",function(){var a=$("#addCost"); if(!a)return; closeReport(); showTab("costs"); a.click();});
   wrap.append(b);
   return wrap;
 }
@@ -3222,6 +3270,7 @@ function render(){
       bb.append(cp);
       var sms=el("a",{class:"btn mini",href:"sms:?body="+encodeURIComponent(slipText(u,cols,mats,o)),text:T("پیامک"),style:"text-decoration:none"});
       bb.append(sms);
+      if(!reportOnly)bb.append(slipLinkBtn(u));
       if(typeof navigator.share==="function"){
         var sh=el("button",{class:"btn mini",text:T("اشتراک‌گذاری")});
         sh.addEventListener("click",function(){ navigator.share({title:shareTitle(),text:slipText(u,cols,mats,o)}).catch(function(){}); });
@@ -3371,7 +3420,8 @@ function payTotal(u){
   var t=0; (u.payments||[]).forEach(function(p){ t+=minor(p.a); });
   return t/curM();
 }
-function syncPaid(u){ if(Array.isArray(u.payments)&&u.payments.length)u.paid=payTotal(u); else if(Array.isArray(u.payments))delete u.payments; }
+/* no payments left means nothing is paid: the units table has no field to type a total into, so a stale sum could never be fixed */
+function syncPaid(u){ if(Array.isArray(u.payments)&&u.payments.length)u.paid=payTotal(u); else if(Array.isArray(u.payments)){ delete u.payments; u.paid=0; } }
 function addPayment(u,amount,date,note){
   if(!Array.isArray(u.payments)||!u.payments.length){
     u.payments=[]; if(minor(u.paid))u.payments.push({d:"",a:u.paid,n:T("پرداخت قبلی")});   /* a hand-typed total becomes the first entry */
@@ -3389,7 +3439,7 @@ function receiptText(u,p){
   L.push(T("بازهٔ حساب: {0}",rangeText()));
   L.push(minor(o.owed)>0?T("مانده بدهی: {0}",money(o.owed)):T("تسویه کامل ✓"));
   if(S.building.manager)L.push(T("مدیریت: {0}",S.building.manager));
-  return L.join("\\n");
+  return L.join("\n");
 }
 function shareOrCopy(text){
   if(typeof navigator.share==="function"){ navigator.share({title:shareTitle(),text:text}).catch(function(){}); return; }
@@ -3420,7 +3470,6 @@ function openPayDialog(u){
 function removePayment(u,p){
   pushUndo(T("پرداخت حذف شد"));
   u.payments=u.payments.filter(function(x){return x!==p;}); syncPaid(u);
-  if(!u.payments)u.paid=u.paid;     /* with none left the last sum stays as the plain total */
   saveStore(); renderUnits(); render();
 }
 
@@ -3484,7 +3533,7 @@ function dueToUtc(y,m,d){
   return (c.getUTCFullYear()===y&&c.getUTCMonth()===m&&c.getUTCDate()===d)?t:null;
 }
 function ymd(ms){ var d=new Date(ms); return d.getUTCFullYear()*10000+(d.getUTCMonth()+1)*100+d.getUTCDate(); }
-function icsText(s){ return String(s).replace(/\\/g,"\\\\").replace(/;/g,"\;").replace(/,/g,"\\,").replace(/\r?\n/g,"\\n"); }
+function icsText(s){ return String(s).replace(/\\/g,"\\\\").replace(/;/g,"\\;").replace(/,/g,"\\,").replace(/\r?\n/g,"\\n"); }
 function icsFold(line){            /* RFC 5545: lines are at most 75 octets; fold with CRLF + space (counting UTF-8 bytes) */
   var out="", cur="", n=0;
   Array.from(line).forEach(function(ch){
@@ -3555,7 +3604,7 @@ var CAT_KEYS=["water","elec","gas","phone","clean","repair","lift","charge","oth
 var CAT_RULES=[["lift",/آسانسور|elevator|lift/i],["gas",/گاز|\bgas\b/i],["elec",/برق|electric|power/i],["phone",/تلفن|موبایل|اینترنت|phone|internet/i],
   ["clean",/نظافت|رفتگر|شستشو|زباله|clean|janitor/i],["repair",/تعمیر|موتورخانه|جوش|لوله|repair|maint/i],["water",/آب|منبع|پمپ|فاضلاب|water|pump/i],["charge",/شارژ|ساختمان|مشاعات|charge|building/i]];
 function catOf(c){
-  if(c&&CATS[c.cat])return c.cat;
+  if(c&&own(CATS,c.cat))return c.cat;
   var t=String((c&&c.title)||"").replace(/[يى]/g,"ی").replace(/ك/g,"ک").replace(/\u200c/g," ");
   for(var i=0;i<CAT_RULES.length;i++)if(CAT_RULES[i][1].test(t))return CAT_RULES[i][0];
   return "other";
@@ -3563,7 +3612,7 @@ function catOf(c){
 /* gradient ids must be unique per instance: with duplicates, url(#id) binds to the FIRST copy in the document, and when that copy sits in a hidden panel (display:none) every later logo renders blank */
 var logoSeq=0;
 function logoSvg(cat,size){
-  var s=LOGOS[CATS[cat]?cat:"other"], z=String(size||40), n="-"+(++logoSeq);
+  var s=LOGOS[own(CATS,cat)?cat:"other"], z=String(size||40), n="-"+(++logoSeq);
   return s.replace(/width="96" height="96"/,'width="'+z+'" height="'+z+'"').replace(/\bid="([^"]+)"/g,'id="$1'+n+'"').replace(/url\(#([^)]+)\)/g,'url(#$1'+n+')').replace(/href="#([^"]+)"/g,'href="#$1'+n+'"');
 }
 function logoEl(cat,size){ var n=el("span",{class:"logo"}); n.innerHTML=logoSvg(cat,size); return n; }
@@ -3587,8 +3636,8 @@ function arcItems(){
   Object.keys(store.reports).forEach(function(rid){
     var r=store.reports[rid], b=r.building||{}, rg=b.range||{toY:0,toM:0}, cl=calOf(r), owe=null, debt=0, tot=0;
     try{ owe=settle(r); }catch(e){ owe={}; }
-    Object.keys(owe).forEach(function(uid_){ var m=minor(owe[uid_].owed); if(m>0){debt++;tot+=m;} });
-    var day=arcDay(r), M=CURS[curOf(r)]?Math.pow(10,CURS[curOf(r)].dec):1;
+    var day=arcDay(r), M=Math.pow(10,CURS[curOf(r)].dec);   /* this report's own currency, not the active one's (minor() would use S) */
+    Object.keys(owe).forEach(function(uid_){ var m=Math.round(parseNum(owe[uid_].owed)*M); if(m>0){debt++;tot+=m;} });
     (r.costs||[]).forEach(function(c){
       var amt=parseNum(c.amount); if(!(amt>0)&&c.method!=="manual")return;
       var methodTxt=(METHODS[c.method]||"").split("+").pop().replace(/\(.*\)/,"").trim();
@@ -3703,6 +3752,133 @@ function arcOpen(it){
   wheel.addEventListener("wheel",function(e){ if(e.ctrlKey){ e.preventDefault(); var n=Date.now(); if(n-arcLock>260){ arcZoom(e.deltaY<0?-1:1); arcLock=n; } } },{passive:false});
   window.addEventListener("resize",function(){ if(document.body.getAttribute("data-tab")==="reports")arcWheelFx(); });
 })();
+/* ---------- CSV export + serverless resident slip ----------
+   Pure functions, no DOM: unit-tested in the vm harness.
+
+   CSV: opens in Excel with Persian text (UTF-8 BOM); numbers are plain Latin digits so sums work; text cells that start
+   with = + - @ get a leading ' (otherwise a unit named "=1+1" would run as a formula).
+
+   Slip link: one unit's slip, already formatted as strings, packed into the URL #fragment of the PWA. A fragment is never
+   sent to a server, so the resident gets a read-only page with no account and nothing is stored anywhere. */
+function csvCell(v){
+  var s=String(v==null?"":v);
+  return /[",\r\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s;
+}
+function csvText(){
+  var cols=activeCosts(), mats=cols.map(shares), owe=settle(S), M=curM(), rows=[], head=[csvCell(T("واحد"))];
+  cols.forEach(function(c){ head.push(csvCell(String(c.title||T("هزینه")).replace(/^([=+\-@])/,"'$1"))); });
+  head.push(csvCell(T("سهم این دوره")),csvCell(T("ماندهٔ دورهٔ قبل")),csvCell(T("تعدیل‌ها")),csvCell(T("پرداختی")),csvCell(T("بدهی کل")));
+  rows.push(head.join(","));
+  var tot=[]; for(var i=0;i<cols.length+5;i++)tot.push(0);
+  S.units.forEach(function(u){
+    var o=owe[u.id]||{period:0,adj:0,owed:0}, vals=[];
+    cols.forEach(function(c,ci){ vals.push(minor(mats[ci].by[u.id]||0)); });
+    vals.push(minor(o.period),minor(prevOf(u)),minor(o.adj||0),minor(paidOf(u)),minor(o.owed));
+    vals.forEach(function(v,k){ tot[k]+=v; });
+    rows.push([csvCell(String(u.label||T("واحد")).replace(/^([=+\-@])/,"'$1"))].concat(vals.map(function(v){return v/M;})).join(","));
+  });
+  rows.push([csvCell(T("جمع"))].concat(tot.map(function(v){return v/M;})).join(","));
+  return "﻿"+rows.join("\r\n")+"\r\n";
+}
+
+/* what the resident page shows; every amount is formatted by the sender, so the page needs no calendar/currency code */
+function slipPayload(u){
+  var cols=activeCosts(), mats=cols.map(shares), o=settle(S)[u.id]||{period:0,owed:0}, L=[], X=[];
+  cols.forEach(function(c,ci){ var v=mats[ci].by[u.id]||0; if(v)L.push([String(c.title||T("هزینه")),money(v)]); });
+  X.push([T("سهم این دوره"),money(o.period),"s"]);
+  if(minor(prevOf(u)))X.push([T("ماندهٔ دورهٔ قبل"),money(prevOf(u)),""]);
+  adjLines(u).forEach(function(l){ X.push([String(l.label),money(Math.abs(l.v)/curM()),l.v>0?"d":"c"]); });
+  if(minor(paidOf(u)))X.push([T("پرداختی"),money(paidOf(u)),""]);
+  return {v:1,l:LANG,n:S.building.name||"",u:u.label||"",p:rangeText(),d:jDate(),L:L,X:X,o:money(o.owed),s:unitState(u,o),
+          due:S.building.dueDate||"",pay:S.building.payTo||"",m:S.building.manager||""};
+}
+function b64uEnc(str){ return btoa(unescape(encodeURIComponent(str))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,""); }
+function b64uDec(s){ s=String(s).replace(/-/g,"+").replace(/_/g,"/"); while(s.length%4)s+="="; return decodeURIComponent(escape(atob(s))); }
+var SLIP_SITE="https://peyman19ms-ops.github.io/bc-ddaa6698/";
+/* the app itself when it is served over https (the PWA); the shells (file://, app.local) point at the public PWA */
+function slipBase(){
+  try{ if(location.protocol==="https:"&&location.host!=="app.local")return location.href.split("#")[0]; }catch(e){}
+  return SLIP_SITE;
+}
+function slipLink(u){ return slipBase()+"#s="+b64uEnc(JSON.stringify(slipPayload(u))); }
+/* untrusted input (anyone can hand-craft a link): null unless it has exactly the expected shape, strings only, bounded */
+function slipDecode(frag){
+  try{
+    var m=/^#?s=([\w\-]+)$/.exec(String(frag||"")); if(!m||m[1].length>40000)return null;
+    var p=JSON.parse(b64uDec(m[1])), str=function(x,n){ return typeof x==="string"&&x.length<=n; };
+    var pairs=function(a){ return Array.isArray(a)&&a.length<=60&&a.every(function(r){ return Array.isArray(r)&&str(r[0],200)&&str(r[1],80)&&(r[2]==null||str(r[2],4)); }); };
+    if(!p||p.v!==1||!pairs(p.L)||!pairs(p.X)||!str(p.n,200)||!str(p.u,200)||!str(p.p,200)||!str(p.d,60)||!str(p.o,80)||
+       !str(p.due,200)||!str(p.pay,200)||!str(p.m,200)||(p.l!=="fa"&&p.l!=="en")||["ok","due","debt"].indexOf(p.s)<0)return null;
+    return p;
+  }catch(e){ return null; }
+}
+/* ---------- UI for: CSV export, resident slip link (sender button + read-only viewer) ---------- */
+
+$("#shareCsv").addEventListener("click",function(){
+  var m=$("#shareMenu"); if(m)m.open=false;
+  if(!S.units.length||!activeCosts().length){ toast(T("هنوز چیزی برای خروجی نیست")); return; }
+  var blob=new Blob([csvText()],{type:"text/csv;charset=utf-8"});
+  saveBlob(blob,"building-costs-"+new Date().toISOString().slice(0,10)+".csv",function(ok,how){
+    if(!ok){ toast(T("ذخیرهٔ فایل روی این دستگاه نشد")); return; }
+    toast(how==="native"?T("مقصد ذخیرهٔ فایل را انتخاب کنید"):T("فایل Excel ذخیره شد"));
+  });
+});
+
+/* «لینک قبض» button on a unit's slip: a read-only page for the resident, no server and no account */
+function slipLinkBtn(u){
+  var b=el("button",{class:"btn mini",type:"button",text:T("لینک قبض")});
+  b.addEventListener("click",function(){
+    var link=slipLink(u);
+    if(typeof navigator.share==="function"){
+      navigator.share({title:shareTitle(),text:(S.building.name||T("قبض"))+" — "+(u.label||""),url:link}).catch(function(e){
+        if(e&&e.name!=="AbortError")copyText(link,function(ok){ toast(ok?T("لینک کپی شد ✓"):T("کپی نشد")); });
+      });
+    }else copyText(link,function(ok){ toast(ok?T("لینک کپی شد ✓"):T("کپی نشد")); });
+  });
+  return b;
+}
+
+/* ---------- the resident's page ----------
+   Everything comes from the link itself and is written with textContent only, so a hand-made link cannot inject markup.
+   Own tiny dictionary: the page follows the sender's language, not the resident's device language. */
+var SV_EN={"قبض واحد":"Bill for unit","بدهی کل":"Total due","مقصد واریز":"Pay to","کپی":"Copy","کپی شد ✓":"Copied ✓","بستن":"Close","مدیریت ساختمان":"Building manager","مهلت پرداخت":"Due","این صفحه فقط‌خواندنی است؛ هیچ اطلاعاتی ذخیره یا ارسال نمی‌شود.":"This page is read-only; nothing is stored or sent anywhere."};
+var slipViewEl=null;
+function closeSlipView(){
+  if(slipViewEl&&slipViewEl.parentNode)slipViewEl.parentNode.removeChild(slipViewEl);
+  slipViewEl=null; document.documentElement.classList.remove("sv-open");
+  try{ history.replaceState(null,"",location.href.split("#")[0]); }catch(e){}
+}
+function showSlipView(p){
+  closeSlipView();
+  var en=p.l==="en", t=function(s){ return en&&SV_EN[s]?SV_EN[s]:s; };
+  var close=el("button",{class:"btn mini",type:"button",text:t("بستن"),"aria-label":t("بستن")});
+  close.addEventListener("click",closeSlipView);
+  var card=el("div",{class:"svcard"},[
+    el("div",{class:"svh"},[el("b",{text:p.n||"—"}),el("small",{text:t("قبض واحد")+" "+p.u+" — "+p.p}),el("small",{text:p.d+(p.due?" | "+t("مهلت پرداخت")+": "+p.due:"")})])
+  ]);
+  var rows=el("div",{class:"svrows"});
+  p.L.forEach(function(r){ rows.append(el("div",{class:"svr"},[el("span",{text:r[0]}),el("span",{text:r[1]})])); });
+  p.X.forEach(function(r){ rows.append(el("div",{class:"svr "+(r[2]==="s"?"sum":(r[2]==="d"?"d":(r[2]==="c"?"c":"")))},[el("span",{text:(r[2]==="d"?"▼ ":(r[2]==="c"?"▲ ":""))+r[0]}),el("span",{text:r[1]})])); });
+  card.append(rows,el("div",{class:"svtot st-"+p.s},[el("span",{text:t("بدهی کل")}),el("b",{text:p.o})]));
+  if(p.pay){
+    var cp=el("button",{class:"btn mini",type:"button",text:t("کپی")});
+    cp.addEventListener("click",function(){ copyText(p.pay,function(ok){ if(!ok)return; cp.textContent=t("کپی شد ✓"); setTimeout(function(){ cp.textContent=t("کپی"); },1500); }); });
+    card.append(el("div",{class:"svpay"},[el("span",{text:t("مقصد واریز")+": "+p.pay}),cp]));
+  }
+  if(p.m)card.append(el("small",{class:"svm",text:t("مدیریت ساختمان")+": "+p.m}));
+  card.append(el("small",{class:"svn",text:t("این صفحه فقط‌خواندنی است؛ هیچ اطلاعاتی ذخیره یا ارسال نمی‌شود.")}),el("div",{class:"rowbtns"},[close]));
+  slipViewEl=el("div",{id:"slipView",class:"sview",dir:en?"ltr":"rtl",lang:p.l,role:"dialog","aria-modal":"true","aria-label":(p.n||"")+" "+p.u},[card]);
+  document.body.append(slipViewEl); document.documentElement.classList.add("sv-open");
+  try{ close.focus(); }catch(e){}
+}
+function openSlipFromHash(){
+  if(!/^#s=/.test(location.hash))return;
+  var p=slipDecode(location.hash);
+  if(p)showSlipView(p); else toast(T("لینک قبض معتبر نیست"));
+}
+window.addEventListener("hashchange",openSlipFromHash);
+document.addEventListener("keydown",function(e){ if(e.key==="Escape"&&slipViewEl)closeSlipView(); });
+openSlipFromHash();
 function redrawAll(){
   renderReportBar();
   fillAllDatalists();
@@ -3776,7 +3952,9 @@ $("#rClone").addEventListener("click",function(){
     src.costs.forEach(function(c){
       /* the amounts of earlier periods feed the unusual-bill warning and the trend chart */
       if(parseNum(c.amount)>0)c.hist=(Array.isArray(c.hist)?c.hist:[]).concat([{a:parseNum(c.amount),p:plabel}]).slice(-12);
-      c.prevAmount=parseNum(c.amount)||0; c.amount=0; c.manual={}; c.cover={}; c.bal={}; c.pres={};
+      c.prevAmount=parseNum(c.amount)||0;
+      /* «تکرار با همین مبلغ»: a fixed monthly bill (elevator service, cleaning) arrives already filled; the manager only edits what changed */
+      c.amount=(c.repeat&&c.kind==="periodic"&&c.method!=="manual")?c.prevAmount:0; c.manual={}; c.cover={}; c.bal={}; c.pres={};
       /* this period's closing reading becomes next period's opening one; the new reading is left empty */
       if(isObj(c.reads)){ var nr={}; Object.keys(c.reads).forEach(function(k){ var r=c.reads[k]||{}; nr[k]={p:(r.c!=null&&r.c!=="")?r.c:(r.p||""),c:""}; }); c.reads=nr; }
       c.mainUse="";
@@ -3828,6 +4006,7 @@ $("#rRestore").addEventListener("click",function(){
       baks.forEach(function(b){ if(String(b.slot)===slot)pick=b; });
       if(!pick)return;
       pushUndoAll(T("نسخهٔ خودکار بازیابی شد"));
+      snapshotNow();
       store=pick.data;
       adoptStore();
       S=store.reports[store.activeId]; saveStore(); redrawAll();
@@ -3851,6 +4030,7 @@ function importText(text,fname){
         pushUndoAll(mode==="replace"?T("همهٔ گزارش‌ها جایگزین شد"):T("گزارش‌ها از فایل افزوده شد"));
         if(mode==="merge"){ merge(data.reports); }
         else{
+          snapshotNow();
           store=data; adoptStore();
         }
         S=store.reports[store.activeId]; saveStore();
@@ -3859,9 +4039,9 @@ function importText(text,fname){
         redrawAll();
       });
   }else if(validReport(data)){
-    var nid=uid(); store.reports[nid]=migrateReport(data);
-    pushUndoAll(T("یک گزارش از فایل افزوده شد"));
-    store.activeId=nid; S=store.reports[nid]; saveStore(); redrawAll();
+    var nid=uid(), rep=migrateReport(data);
+    pushUndoAll(T("یک گزارش از فایل افزوده شد"));   /* snapshot first, or Undo would keep the imported report */
+    store.reports[nid]=rep; store.activeId=nid; S=store.reports[nid]; saveStore(); redrawAll();
   }else{
     sayAlert(T("فایل معتبر نیست"),T("این فایل پشتیبانِ «تقسیم هزینه ساختمان» نیست — نه گزارشی در آن هست و نه لیست گزارش‌ها."));
   }
@@ -4121,7 +4301,11 @@ $("#bCal").addEventListener("change",function(){
   var f=convYM(b.range.fromY,b.range.fromM,to), t=convYM(b.range.toY,b.range.toM,to);
   b.range={fromM:f.m,fromY:f.y,toM:t.m,toY:t.y}; b.cal=to;
   S.units.forEach(function(u){u.present=mapKey(u.present);});
-  S.costs.forEach(function(c){c.cover=mapKey(c.cover);});
+  S.costs.forEach(function(c){
+    c.cover=mapKey(c.cover);
+    /* per-bill residence overrides are keyed by the same months */
+    if(isObj(c.pres))Object.keys(c.pres).forEach(function(id){ if(isObj(c.pres[id]))c.pres[id]=mapKey(c.pres[id]); });
+  });
   saveStore(); redrawAll();
 });
 /* whether the browser promised not to evict our data (only exists in real browsers / the PWA) */
@@ -4277,7 +4461,7 @@ if(typeof BC_TESTER!=="undefined"){
      (see the registration snippet in tools/build.js: deferred while a field has focus, flushed first); "update" just asks it now
    - Windows / Android: a silent in-place install is not possible without extra system rights, so the new file is
      opened for download (browser / system installer) with one tap. */
-var BC_VER={"v":"1.30","h":"225dfe9f"};
+var BC_VER={"v":"1.30","h":"dcd8a536"};
 var UPD_URL=(typeof BC_TESTER!=="undefined"&&BC_TESTER.update)||"https://peyman19ms-ops.github.io/bc-ddaa6698/latest.json";
 var UPD_AUTO_KEY="bcosts_autoupd", updInfo=null, updAnnounced="";
 function updPlatform(){
